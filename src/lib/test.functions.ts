@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export type ClientQuestion = {
   id: string;
   level: "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
-  category: "grammar" | "vocabulary" | "reading" | "listening";
+  category: "grammar" | "vocabulary" | "reading" | "listening" | "speaking";
   question_text: string;
   options: string[];
   audio_url: string | null;
@@ -87,7 +87,18 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
 
     for (const q of questions ?? []) {
       const userAns = data.answers[q.id];
-      const isCorrect = userAns === q.correct_answer;
+      let isCorrect = false;
+      if (q.category === "speaking") {
+        // Speaking answers are stored as JSON {transcript, score} produced by transcribeAndScoreSpeaking.
+        try {
+          const parsed = userAns ? JSON.parse(userAns) : null;
+          if (parsed && typeof parsed.score === "number" && parsed.score >= 60) isCorrect = true;
+        } catch {
+          isCorrect = false;
+        }
+      } else {
+        isCorrect = userAns === q.correct_answer;
+      }
       const lvl = q.level as string;
       const cat = q.category as string;
       perLevel[lvl] ??= { correct: 0, total: 0, percent: 0 };
