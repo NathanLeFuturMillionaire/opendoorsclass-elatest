@@ -12,8 +12,17 @@ export const Route = createFileRoute("/_authenticated/achat-credits")({
   component: BuyCreditsPage,
 });
 
+const CURRENCY_LABELS: Record<string, string> = {
+  XAF: "FCFA",
+  XOF: "FCFA",
+};
+
+function displayCurrency(currency: string) {
+  return CURRENCY_LABELS[currency] ?? currency;
+}
+
 function formatFcfa(amount: number, currency: string) {
-  return `${new Intl.NumberFormat("fr-FR").format(amount)} ${currency}`;
+  return `${new Intl.NumberFormat("fr-FR").format(amount)} ${displayCurrency(currency)}`;
 }
 
 function BuyCreditsPage() {
@@ -73,7 +82,7 @@ function BuyCreditsPage() {
                     {formatFcfa(plan.price, plan.currency)}
                   </span>
                   <span className="text-sm text-muted-foreground">
-                    soit {Math.round(plan.price / plan.credits_included).toLocaleString("fr-FR")} {plan.currency} par test
+                    soit {Math.round(plan.price / plan.credits_included).toLocaleString("fr-FR")} {displayCurrency(plan.currency)} par test
                   </span>
                 </div>
                 <ul className="mt-6 space-y-2 text-sm">
