@@ -5,19 +5,23 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useSession, signOutAndRedirect } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
-
-const NAV = [
-  { to: "/", label: "Accueil" },
-  { to: "/#comment", label: "Comment ça marche" },
-  { to: "/#temoignages", label: "Témoignages" },
-  { to: "/#fondateur", label: "Le fondateur" },
-] as const;
+import { useT } from "@/lib/i18n";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 export function SiteHeader() {
   const { user, loading } = useSession();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
+  const t = useT();
+
+  const NAV = [
+    { to: "/", label: t("nav.home") },
+    { to: "/#comment", label: t("nav.how") },
+    { to: "/#monde", label: t("nav.worldwide") },
+    { to: "/#temoignages", label: t("nav.testimonials") },
+    { to: "/#fondateur", label: t("nav.founder") },
+  ];
 
   useEffect(() => {
     let cancelled = false;
@@ -57,27 +61,28 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <LanguageSwitcher />
           {loading ? null : user ? (
             <>
               {isStaff && (
                 <Button asChild variant="ghost" size="sm">
-                  <Link to="/admin"><Shield className="mr-1 size-4" /> Administration</Link>
+                  <Link to="/admin"><Shield className="mr-1 size-4" /> {t("nav.admin")}</Link>
                 </Button>
               )}
               <Button asChild variant="ghost" size="sm">
-                <Link to="/tableau-de-bord">Mon espace</Link>
+                <Link to="/tableau-de-bord">{t("nav.space")}</Link>
               </Button>
               <Button size="sm" onClick={() => signOutAndRedirect(navigate)}>
-                Déconnexion
+                {t("nav.signout")}
               </Button>
             </>
           ) : (
             <>
               <Button asChild variant="ghost" size="sm">
-                <Link to="/auth">Se connecter</Link>
+                <Link to="/auth">{t("nav.signin")}</Link>
               </Button>
               <Button asChild size="sm" className="bg-brand-gradient text-primary-foreground shadow-sm">
-                <Link to="/auth">Commencer le test</Link>
+                <Link to="/auth">{t("nav.start")}</Link>
               </Button>
             </>
           )}
@@ -85,13 +90,13 @@ export function SiteHeader() {
 
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon" aria-label="Ouvrir le menu">
+            <Button variant="ghost" size="icon" aria-label={t("nav.menu")}>
               <Menu className="size-5" />
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-72">
             <SheetHeader>
-              <SheetTitle>Menu</SheetTitle>
+              <SheetTitle>{t("nav.menu")}</SheetTitle>
             </SheetHeader>
             <div className="mt-6 flex flex-col gap-1">
               {NAV.map((item) => (
@@ -105,10 +110,13 @@ export function SiteHeader() {
                 </a>
               ))}
               <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4">
+                <div className="flex justify-center pb-1">
+                  <LanguageSwitcher />
+                </div>
                 {user ? (
                   <>
                     <Button asChild variant="outline" onClick={() => setOpen(false)}>
-                      <Link to="/tableau-de-bord">Mon espace</Link>
+                      <Link to="/tableau-de-bord">{t("nav.space")}</Link>
                     </Button>
                     <Button
                       onClick={() => {
@@ -116,20 +124,20 @@ export function SiteHeader() {
                         void signOutAndRedirect(navigate);
                       }}
                     >
-                      Déconnexion
+                      {t("nav.signout")}
                     </Button>
                   </>
                 ) : (
                   <>
                     <Button asChild variant="outline" onClick={() => setOpen(false)}>
-                      <Link to="/auth">Se connecter</Link>
+                      <Link to="/auth">{t("nav.signin")}</Link>
                     </Button>
                     <Button
                       asChild
                       className="bg-brand-gradient text-primary-foreground"
                       onClick={() => setOpen(false)}
                     >
-                      <Link to="/auth">Commencer le test</Link>
+                      <Link to="/auth">{t("nav.start")}</Link>
                     </Button>
                   </>
                 )}
