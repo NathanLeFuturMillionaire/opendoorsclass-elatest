@@ -1,0 +1,1 @@
+UPDATE public.test_access_plan SET currency = 'USD', price = 25 WHERE is_active = true;
