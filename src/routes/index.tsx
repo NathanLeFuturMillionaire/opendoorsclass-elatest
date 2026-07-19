@@ -241,31 +241,7 @@ function HomePage() {
           </div>
         </section>
 
-        {/* Témoignages */}
-        <section id="temoignages" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="mx-auto max-w-2xl text-center">
-            <Badge variant="outline" className="mb-3">Témoignages</Badge>
-            <h2 className="text-3xl font-bold sm:text-4xl">Ils ont passé le test.</h2>
-          </div>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {TESTIMONIALS.map((t) => (
-              <Card key={t.name} className="border-border/60">
-                <CardContent className="p-6">
-                  <p className="text-sm text-foreground">« {t.quote} »</p>
-                  <div className="mt-6 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold">{t.name}</p>
-                      <p className="text-xs text-muted-foreground">Niveau obtenu, {t.level}</p>
-                    </div>
-                    <span className="rounded-full bg-brand-blue text-brand-blue-foreground px-3 py-1 text-xs font-semibold">
-                      {t.level}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
+        <TestimonialsSection />
 
         {/* Fondateur */}
         <section id="fondateur" className="border-t border-border bg-secondary/40">
