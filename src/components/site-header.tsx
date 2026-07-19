@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu } from "lucide-react";
-import { useState } from "react";
+import { Menu, Shield } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useSession, signOutAndRedirect } from "@/lib/session";
+import { supabase } from "@/integrations/supabase/client";
 
 const NAV = [
   { to: "/", label: "Accueil" },
@@ -16,6 +17,22 @@ export function SiteHeader() {
   const { user, loading } = useSession();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!user) { setIsStaff(false); return; }
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .then(({ data }) => {
+        if (cancelled) return;
+        const roles = (data ?? []).map((r: any) => r.role);
+        setIsStaff(roles.some((r: string) => ["owner", "admin", "moderator"].includes(r)));
+      });
+    return () => { cancelled = true; };
+  }, [user]);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur">
@@ -42,6 +59,11 @@ export function SiteHeader() {
         <div className="hidden items-center gap-2 md:flex">
           {loading ? null : user ? (
             <>
+              {isStaff && (
+                <Button asChild variant="ghost" size="sm">
+                  <Link to="/admin"><Shield className="mr-1 size-4" /> Administration</Link>
+                </Button>
+              )}
               <Button asChild variant="ghost" size="sm">
                 <Link to="/tableau-de-bord">Mon espace</Link>
               </Button>

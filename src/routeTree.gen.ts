@@ -22,6 +22,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
 import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin/utilisateurs'
 import { Route as AuthenticatedAdminQuestionsRouteImport } from './routes/_authenticated/admin/questions'
+import { Route as AuthenticatedAdminJournalRouteImport } from './routes/_authenticated/admin/journal'
 import { Route as AuthenticatedAdminCertificatsRouteImport } from './routes/_authenticated/admin/certificats'
 import { Route as AuthenticatedAdminCandidatsRouteImport } from './routes/_authenticated/admin/candidats'
 import { Route as AuthenticatedAdminAvisRouteImport } from './routes/_authenticated/admin/avis'
@@ -96,6 +97,12 @@ const AuthenticatedAdminQuestionsRoute =
     path: '/questions',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminJournalRoute =
+  AuthenticatedAdminJournalRouteImport.update({
+    id: '/journal',
+    path: '/journal',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminCertificatsRoute =
   AuthenticatedAdminCertificatsRouteImport.update({
     id: '/certificats',
@@ -132,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
+  '/admin/journal': typeof AuthenticatedAdminJournalRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
@@ -149,6 +157,7 @@ export interface FileRoutesByTo {
   '/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
+  '/admin/journal': typeof AuthenticatedAdminJournalRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
@@ -169,6 +178,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/_authenticated/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/_authenticated/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
+  '/_authenticated/admin/journal': typeof AuthenticatedAdminJournalRoute
   '/_authenticated/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/_authenticated/resultat/$id': typeof AuthenticatedResultatIdRoute
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
     | '/admin/avis'
     | '/admin/candidats'
     | '/admin/certificats'
+    | '/admin/journal'
     | '/admin/questions'
     | '/admin/utilisateurs'
     | '/resultat/$id'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/admin/avis'
     | '/admin/candidats'
     | '/admin/certificats'
+    | '/admin/journal'
     | '/admin/questions'
     | '/admin/utilisateurs'
     | '/resultat/$id'
@@ -225,6 +237,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/avis'
     | '/_authenticated/admin/candidats'
     | '/_authenticated/admin/certificats'
+    | '/_authenticated/admin/journal'
     | '/_authenticated/admin/questions'
     | '/_authenticated/admin/utilisateurs'
     | '/_authenticated/resultat/$id'
@@ -332,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminQuestionsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/journal': {
+      id: '/_authenticated/admin/journal'
+      path: '/journal'
+      fullPath: '/admin/journal'
+      preLoaderRoute: typeof AuthenticatedAdminJournalRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/certificats': {
       id: '/_authenticated/admin/certificats'
       path: '/certificats'
@@ -367,6 +387,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminAvisRoute: typeof AuthenticatedAdminAvisRoute
   AuthenticatedAdminCandidatsRoute: typeof AuthenticatedAdminCandidatsRoute
   AuthenticatedAdminCertificatsRoute: typeof AuthenticatedAdminCertificatsRoute
+  AuthenticatedAdminJournalRoute: typeof AuthenticatedAdminJournalRoute
   AuthenticatedAdminQuestionsRoute: typeof AuthenticatedAdminQuestionsRoute
   AuthenticatedAdminUtilisateursRoute: typeof AuthenticatedAdminUtilisateursRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -377,6 +398,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminAvisRoute: AuthenticatedAdminAvisRoute,
     AuthenticatedAdminCandidatsRoute: AuthenticatedAdminCandidatsRoute,
     AuthenticatedAdminCertificatsRoute: AuthenticatedAdminCertificatsRoute,
+    AuthenticatedAdminJournalRoute: AuthenticatedAdminJournalRoute,
     AuthenticatedAdminQuestionsRoute: AuthenticatedAdminQuestionsRoute,
     AuthenticatedAdminUtilisateursRoute: AuthenticatedAdminUtilisateursRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
