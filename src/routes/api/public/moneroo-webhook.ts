@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { z } from "zod";
-import { verifyMonerooWebhookSignature, verifyMonerooTransaction } from "@/lib/moneroo";
+import { verifyMonerooWebhookSignature } from "@/lib/moneroo";
 
-const WebhookPayload = z.object({
-  event: z.string(),
-  data: z.object({
-    id: z.string(),
-    status: z.string().optional(),
-  }),
-});
+type MonerooWebhookPayload = {
+  event?: string;
+  data?: {
+    id?: string;
+    status?: string;
+    metadata?: Record<string, string> | null;
+  };
+};
 
 export const Route = createFileRoute("/api/public/moneroo-webhook")({
   server: {
@@ -19,82 +19,86 @@ export const Route = createFileRoute("/api/public/moneroo-webhook")({
           return new Response("Webhook secret not configured", { status: 500 });
         }
 
-        const body = await request.text();
-        const signature = request.headers.get("X-Moneroo-Signature");
+        const rawBody = await request.text();
+        const signature =
+          request.headers.get("x-moneroo-signature") ??
+          request.headers.get("moneroo-signature") ??
+          request.headers.get("x-webhook-signature");
 
-        if (!verifyMonerooWebhookSignature(body, signature, secret)) {
-          return new Response("Invalid signature", { status: 403 });
+        if (!verifyMonerooWebhookSignature(rawBody, signature, secret)) {
+          return new Response("Invalid signature", { status: 401 });
         }
 
-        const parsed = WebhookPayload.safeParse(JSON.parse(body));
-        if (!parsed.success) {
-          return new Response("Invalid payload", { status: 400 });
+        let payload: MonerooWebhookPayload;
+        try {
+          payload = JSON.parse(rawBody) as MonerooWebhookPayload;
+        } catch {
+          return new Response("Invalid JSON", { status: 400 });
         }
 
-        const { event, data } = parsed.data;
-        const paymentId = data.id;
+        const transactionId = payload.data?.id;
+        const status = payload.data?.status;
+        const paymentIdMeta = payload.data?.metadata?.payment_id;
 
-        if (event !== "payment.success") {
-          return Response.json({ received: true, processed: false });
+        if (!transactionId || !status) {
+          return new Response("ok", { status: 200 });
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        const { data: payment } = await supabaseAdmin
+        let paymentQuery = supabaseAdmin
           .from("payments")
-          .select("id, moneroo_transaction_id, status, credits_added, user_id")
-          .eq("moneroo_transaction_id", paymentId)
-          .maybeSingle();
+          .select("id, user_id, status, credits_added")
+          .limit(1);
+
+        paymentQuery = paymentIdMeta
+          ? paymentQuery.eq("id", paymentIdMeta)
+          : paymentQuery.eq("moneroo_transaction_id", transactionId);
+
+        const { data: payment } = await paymentQuery.maybeSingle();
 
         if (!payment) {
-          return Response.json({ received: true, processed: false, reason: "payment not found" });
+          return new Response("ok", { status: 200 });
         }
 
         if (payment.status === "success") {
-          return Response.json({ received: true, processed: true, reason: "already credited" });
+          return new Response("ok", { status: 200 });
         }
 
-        const monerooSecret = process.env.MONEROO_SECRET_KEY;
-        if (!monerooSecret) {
-          return new Response("Moneroo secret not configured", { status: 500 });
-        }
+        const normalized =
+          status === "success" || status === "successful" || status === "completed"
+            ? "success"
+            : status === "failed" || status === "cancelled" || status === "canceled"
+              ? "failed"
+              : "pending";
 
-        const verification = await verifyMonerooTransaction(paymentId, monerooSecret);
-        const isSuccess = verification.data.status === "success";
-
-        if (!isSuccess) {
+        if (normalized === "success") {
+          await supabaseAdmin.rpc("increment_credits", {
+            p_user_id: payment.user_id,
+            p_amount: payment.credits_added,
+          });
           await supabaseAdmin
             .from("payments")
-            .update({ status: verification.data.status as any, raw_payload: verification.data as any })
+            .update({
+              status: "success",
+              moneroo_transaction_id: transactionId,
+              confirmed_at: new Date().toISOString(),
+            })
             .eq("id", payment.id);
-          return Response.json({ received: true, processed: false, reason: "not successful" });
+        } else {
+          await supabaseAdmin
+            .from("payments")
+            .update({
+              status: normalized,
+              moneroo_transaction_id: transactionId,
+            })
+            .eq("id", payment.id);
         }
 
-        const { error: profileError } = await supabaseAdmin.rpc("increment_credits", {
-          p_user_id: payment.user_id,
-          p_amount: payment.credits_added,
-        });
-
-        if (profileError) {
-          return new Response("Failed to update credits", { status: 500 });
-        }
-
-        const { error: updateError } = await supabaseAdmin
-          .from("payments")
-          .update({
-            status: "success",
-            confirmed_at: new Date().toISOString(),
-            payment_method: verification.data.payment_method ?? null,
-            raw_payload: verification.data as any,
-          })
-          .eq("id", payment.id);
-
-        if (updateError) {
-          return new Response("Failed to update payment", { status: 500 });
-        }
-
-        return Response.json({ received: true, processed: true });
+        return new Response("ok", { status: 200 });
       },
+
+      GET: async () => new Response("ok", { status: 200 }),
     },
   },
 });
