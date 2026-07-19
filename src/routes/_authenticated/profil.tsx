@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
   Award,
-  BadgeCheck,
   Calendar,
   CheckCircle2,
   ClipboardList,
