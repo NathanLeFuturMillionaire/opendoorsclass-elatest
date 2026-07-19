@@ -332,6 +332,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_credits: {
+        Args: { p_amount: number; p_user_id: string }
+        Returns: undefined
+      }
       start_test_session: { Args: never; Returns: string }
     }
     Enums: {
