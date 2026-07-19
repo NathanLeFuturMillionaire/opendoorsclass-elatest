@@ -154,6 +154,22 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const AvatarInput = z.object({
+  avatarUrl: z.string().url().max(500).nullable(),
+});
+
+export const updateMyAvatar = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => AvatarInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("profiles")
+      .update({ avatar_url: data.avatarUrl })
+      .eq("id", context.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 // Generate AI study plan based on the latest completed test.
 export const generateAIRecommendations = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
