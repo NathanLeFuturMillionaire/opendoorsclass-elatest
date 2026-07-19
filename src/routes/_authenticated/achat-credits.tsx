@@ -41,11 +41,26 @@ function BuyCreditsPage() {
   const [loading, setLoading] = useState(false);
   const [phone, setPhone] = useState("");
   const [countryCode, setCountryCode] = useState("GA");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   const planQuery = useQuery({ queryKey: ["test-access-plan"], queryFn: () => fetchPlan() });
   const profileQuery = useQuery({ queryKey: ["my-profile"], queryFn: () => fetchProfile() });
 
+  // Prefill name fields from the connected user profile.
+  const profileData = profileQuery.data;
+  useEffect(() => {
+    if (profileData) {
+      if (profileData.first_name) setFirstName((v) => v || profileData.first_name!);
+      if (profileData.last_name) setLastName((v) => v || profileData.last_name!);
+    }
+  }, [profileData]);
+
   const handleBuy = async () => {
+    if (!firstName.trim() || !lastName.trim()) {
+      toast.error("Veuillez saisir votre nom et prénom.");
+      return;
+    }
     const digits = phone.replace(/\D/g, "").replace(/^0+/, "");
     if (digits.length < 6) {
       toast.error("Veuillez saisir un numéro de téléphone valide.");
@@ -54,7 +69,13 @@ function BuyCreditsPage() {
     setLoading(true);
     try {
       const { checkoutUrl } = await startCheckout({
-        data: { origin: window.location.origin, phone: digits, countryCode },
+        data: {
+          origin: window.location.origin,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          phone: digits,
+          countryCode,
+        },
       });
       window.location.href = checkoutUrl;
     } catch (e) {
@@ -99,9 +120,6 @@ function BuyCreditsPage() {
                   <span className="text-4xl font-extrabold text-brand-gradient">
                     {formatFcfa(plan.price, plan.currency)}
                   </span>
-                  <span className="text-sm text-muted-foreground">
-                    soit {Math.round(plan.price / plan.credits_included).toLocaleString("fr-FR")} {displayCurrency(plan.currency)} par test
-                  </span>
                 </div>
                 <ul className="mt-6 space-y-2 text-sm">
                   <li className="flex items-start gap-2">
@@ -118,17 +136,39 @@ function BuyCreditsPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="mt-0.5 text-brand-green">✓</span>
-                    <span>Paiement sécurisé Chariow: Mobile Money, cartes, virements.</span>
+                    <span>Paiement sécurisé: Mobile Money, cartes, virements.</span>
                   </li>
                 </ul>
                 <div className="mt-8 space-y-4 rounded-2xl border border-border bg-muted/40 p-4">
                   <div>
                     <Label className="text-sm font-semibold">
-                      Numéro de téléphone pour le paiement
+                      Informations du candidat
                     </Label>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Requis par Chariow (Mobile Money, notifications). Chiffres uniquement, sans indicatif.
+                      Ces informations sont utilisées pour la confirmation du paiement et le certificat de niveau.
                     </p>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <Label htmlFor="firstName" className="text-xs">Prénom</Label>
+                      <Input
+                        id="firstName"
+                        placeholder="Nathan"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName" className="text-xs">Nom</Label>
+                      <Input
+                        id="lastName"
+                        placeholder="MAYUKWA"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
                   </div>
                   <div className="grid grid-cols-[140px_1fr] gap-3">
                     <div>
@@ -153,7 +193,7 @@ function BuyCreditsPage() {
                       </Select>
                     </div>
                     <div>
-                      <Label htmlFor="phone" className="text-xs">Numéro</Label>
+                      <Label htmlFor="phone" className="text-xs">Numéro de téléphone</Label>
                       <Input
                         id="phone"
                         inputMode="tel"
@@ -174,7 +214,7 @@ function BuyCreditsPage() {
                   {loading ? "Redirection vers le paiement..." : "Payer et recevoir mes crédits"}
                 </Button>
                 <p className="mt-3 text-center text-xs text-muted-foreground">
-                  Vous serez redirigé vers la page sécurisée de Chariow.
+                  Vous serez redirigé vers notre page de paiement sécurisée.
                 </p>
               </div>
             )}
