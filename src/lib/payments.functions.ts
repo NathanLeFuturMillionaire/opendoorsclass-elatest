@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { getRequest } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { initializeMonerooPayment, verifyMonerooTransaction } from "@/lib/moneroo";
 
@@ -16,9 +15,12 @@ export const getTestAccessPlan = createServerFn({ method: "GET" }).handler(async
   return data;
 });
 
+const CheckoutInput = z.object({ origin: z.string().url() });
+
 export const createCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((input: unknown) => CheckoutInput.parse(input))
+  .handler(async ({ data, context }) => {
     const secret = process.env.MONEROO_SECRET_KEY;
     if (!secret) throw new Error("Clé Moneroo non configurée.");
 
@@ -53,17 +55,15 @@ export const createCheckout = createServerFn({ method: "POST" })
       .single();
     if (insertError) throw new Error(insertError.message);
 
-    const request = getRequest();
-    const origin = request ? new URL(request.url).origin : "";
-    const returnUrl = `${origin}/paiement-retour`;
+    const returnUrl = `${data.origin}/paiement-retour`;
 
-    const { data: moneroo } = await initializeMonerooPayment(
+    const { data: monerooData } = await initializeMonerooPayment(
       {
         amount: plan.price,
         currency: plan.currency,
         description: `OpenDoorsClass: ${plan.credits_included} crédits de test`,
         customer: {
-          email: context.user?.email ?? "client@opendoorsclass.com",
+          email: (context.claims?.email as string) ?? "client@opendoorsclass.com",
           first_name: profile?.first_name ?? "Client",
           last_name: profile?.last_name ?? "OpenDoorsClass",
         },
@@ -78,10 +78,10 @@ export const createCheckout = createServerFn({ method: "POST" })
 
     await context.supabase
       .from("payments")
-      .update({ moneroo_transaction_id: moneroo.data.id })
+      .update({ moneroo_transaction_id: monerooData.id })
       .eq("id", payment.id);
 
-    return { checkoutUrl: moneroo.data.checkout_url, paymentId: payment.id };
+    return { checkoutUrl: monerooData.checkout_url, paymentId: payment.id };
   });
 
 export const checkPaymentStatus = createServerFn({ method: "GET" })
@@ -110,20 +110,22 @@ export const checkPaymentStatus = createServerFn({ method: "GET" })
     const verification = await verifyMonerooTransaction(payment.moneroo_transaction_id, secret);
     const remoteStatus = verification.data.status as "pending" | "success" | "failed" | "cancelled";
 
-    if (remoteStatus === "success" && payment.status !== "success") {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin.rpc("increment_credits", {
-        p_user_id: context.userId,
-        p_amount: payment.credits_added,
-      });
-      await supabaseAdmin
-        .from("payments")
-        .update({ status: "success", confirmed_at: new Date().toISOString() })
-        .eq("id", payment.id);
+    if (remoteStatus === "success") {
+      if (payment.status !== "success") {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        await supabaseAdmin.rpc("increment_credits", {
+          p_user_id: context.userId,
+          p_amount: payment.credits_added,
+        });
+        await supabaseAdmin
+          .from("payments")
+          .update({ status: "success", confirmed_at: new Date().toISOString() })
+          .eq("id", payment.id);
+      }
       return { status: "success", credits: payment.credits_added };
     }
 
-    if (remoteStatus !== payment.status && remoteStatus !== "success") {
+    if (remoteStatus !== payment.status) {
       await context.supabase
         .from("payments")
         .update({ status: remoteStatus })
