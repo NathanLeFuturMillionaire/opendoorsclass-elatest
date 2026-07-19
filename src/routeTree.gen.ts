@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/test'
 import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
+import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -28,22 +30,36 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTestRoute = AuthenticatedTestRouteImport.update({
+  id: '/test',
+  path: '/test',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTableauDeBordRoute =
   AuthenticatedTableauDeBordRouteImport.update({
     id: '/tableau-de-bord',
     path: '/tableau-de-bord',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedResultatIdRoute = AuthenticatedResultatIdRouteImport.update({
+  id: '/resultat/$id',
+  path: '/resultat/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
+  '/test': typeof AuthenticatedTestRoute
+  '/resultat/$id': typeof AuthenticatedResultatIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
+  '/test': typeof AuthenticatedTestRoute
+  '/resultat/$id': typeof AuthenticatedResultatIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -51,18 +67,22 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
+  '/_authenticated/test': typeof AuthenticatedTestRoute
+  '/_authenticated/resultat/$id': typeof AuthenticatedResultatIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/tableau-de-bord'
+  fullPaths: '/' | '/auth' | '/tableau-de-bord' | '/test' | '/resultat/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/tableau-de-bord'
+  to: '/' | '/auth' | '/tableau-de-bord' | '/test' | '/resultat/$id'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/tableau-de-bord'
+    | '/_authenticated/test'
+    | '/_authenticated/resultat/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,6 +114,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/test': {
+      id: '/_authenticated/test'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof AuthenticatedTestRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/tableau-de-bord': {
       id: '/_authenticated/tableau-de-bord'
       path: '/tableau-de-bord'
@@ -101,15 +128,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTableauDeBordRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/resultat/$id': {
+      id: '/_authenticated/resultat/$id'
+      path: '/resultat/$id'
+      fullPath: '/resultat/$id'
+      preLoaderRoute: typeof AuthenticatedResultatIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedTableauDeBordRoute: typeof AuthenticatedTableauDeBordRoute
+  AuthenticatedTestRoute: typeof AuthenticatedTestRoute
+  AuthenticatedResultatIdRoute: typeof AuthenticatedResultatIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTableauDeBordRoute: AuthenticatedTableauDeBordRoute,
+  AuthenticatedTestRoute: AuthenticatedTestRoute,
+  AuthenticatedResultatIdRoute: AuthenticatedResultatIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

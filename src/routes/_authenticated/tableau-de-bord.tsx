@@ -16,13 +16,22 @@ function DashboardPage() {
         <p className="mt-2 text-muted-foreground">
           Retrouvez ici vos tests, vos crédits et vos résultats.
         </p>
-        <div className="mt-8 rounded-2xl border border-dashed border-border bg-card p-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            Le tableau de bord complet arrive dans la prochaine itération.
-          </p>
-          <Button asChild className="mt-4 bg-brand-gradient text-primary-foreground">
-            <Link to="/">Retour à l'accueil</Link>
-          </Button>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <h2 className="text-lg font-semibold">Passer le test de niveau</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              30 minutes, questions CECRL de A1 à C2, avec une section de compréhension orale.
+            </p>
+            <Button asChild className="mt-4 bg-brand-gradient text-primary-foreground">
+              <Link to="/test">Commencer le test</Link>
+            </Button>
+          </div>
+          <div className="rounded-2xl border border-dashed border-border bg-card p-6">
+            <h2 className="text-lg font-semibold">Historique</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              L'historique de vos sessions arrive dans la prochaine itération.
+            </p>
+          </div>
         </div>
       </main>
       <SiteFooter />
