@@ -1,52 +1,77 @@
-## Cadre technique (important)
+# Plan — Ajout du Centre d'Administration OpenDoorsClass
 
-Le projet est déjà bâti sur **TanStack Start + React 19 + TypeScript + Tailwind v4 + shadcn/ui + Radix + Lucide + Lovable Cloud (Supabase)**. Je vais donc **garder cette stack** (pas de migration vers Next.js 15, ce serait une réécriture complète du projet et casserait paiements, auth, routes, webhooks Chariow/Moneroo déjà en place). J'ajoute **Framer Motion, React Hook Form, Zod, Recharts** pour couvrir les besoins d'animation, formulaires validés et graphiques. Identité graphique, couleurs, animations existantes: **100% conservées**.
+Aucune fonctionnalité existante ne sera modifiée. Toutes les additions sont isolées sous `/admin` et dans de nouvelles tables/fonctions serveur.
 
-## Étendue livrée (regroupée pour rester cohérent)
+## 1. Base de données (migration unique additive)
 
-### 1. Base de données (migration unique)
-- `profiles`: ajout `avatar_url` (existe), `nationality`, `date_of_birth`, `candidate_number` (auto, format `ODC-YYYY-XXXXX`), `objectives text[]`, `registered_at` (=created_at).
-- `test_sessions`: ajout `duration_seconds`, `version` (déjà `test_version`), `skill_scores jsonb` (grammar/listening/reading/vocabulary %).
-- Nouvelle table `reviews` (avis candidats): rating, title, comment, country, photo_url, level_achieved, status (pending/approved), user_id → RLS: user insère/lit les siens, tout le monde lit les `approved`, admin gère.
-- Bucket storage `avatars` (public) + `review-photos` (public).
-- RPC `get_profile_stats(user_id)` retourne agrégats (tests, meilleur score, moyenne, dernier niveau, temps moyen).
-- GRANTs + RLS conformes.
+Nouvelles valeurs et tables, sans toucher aux existantes:
 
-### 2. Page `/profil` refondue (une seule route, sections empilées, animées Framer Motion)
-Sections:
-1. **En-tête premium**: avatar (upload storage), nom/prénom, N° candidat, nationalité, âge calculé, date de naissance, e-mail, date d'inscription, badge OpenDoorsClass, badge statut dynamique (Nouveau / Test effectué / Niveau validé / Membre / Excellent).
-2. **Tableau de bord**: 7 cartes stats (tests, dernier score, niveau actuel, meilleur score, temps moyen, certificats, progression %).
-3. **Points forts**: jauges animées par compétence (Grammar, Listening, Reading, Vocabulary) avec % + étoiles + commentaire court. Speaking/Writing/Pronunciation/Fluency: marqués "bientôt disponible" (le test actuel ne les évalue pas, honnête envers l'utilisateur).
-4. **Progression**: Recharts (courbe scores, radar compétences, histogramme mensuel).
-5. **Mon niveau**: niveau actuel + description CECRL + acquis/à améliorer + temps estimé prochain niveau.
-6. **Recommandations IA**: bouton "Générer mes recommandations" → server fn qui appelle Lovable AI Gateway (`google/gemini-2.5-flash`) avec le profil et retourne plan de travail personnalisé (mis en cache dans `profiles.ai_recommendations`).
-7. **Historique**: timeline élégante avec date, durée, score, niveau, version, actions (voir résultat / imprimer attestation).
-8. **Certificats**: grille des tests terminés, mini aperçu de l'attestation, QR code (lib `qrcode`) vers page publique de vérification, bouton Télécharger PDF (via `window.print` sur la page attestation existante).
-9. **Objectifs**: multi-select (Business, Voyage, Études, Travail, Immigration, Conversation, TOEFL, IELTS, Cambridge, Autre) sauvegardés.
-10. **Communauté** (si niveau ≥ A2): carte "Félicitations" + bouton WhatsApp communauté avec message pré-rempli.
-11. **Mon avis**: formulaire (React Hook Form + Zod) rating étoiles, titre, commentaire, pays, photo → statut `pending`.
-12. **À propos du fondateur**: bloc avec photo Nathan + texte demandé + bouton WhatsApp `wa.me/24174825725`.
+- **Enum `app_role`**: ajout des valeurs `owner` et `moderator` (garde `admin` et `user` déjà présents).
+- **Trigger auto-owner**: fonction + trigger sur `auth.users` qui, pour l'e-mail `misterntkofficiel2.0@gmail.com` avec `email_confirmed_at`, insère automatiquement le rôle `owner` dans `user_roles`. Protection: RLS empêche la suppression/modification des lignes `owner` (sauf via service_role).
+- **Table `admin_activity_log`**: `id`, `user_id`, `action`, `entity_type`, `entity_id`, `metadata jsonb`, `ip_address`, `user_agent`, `created_at`. RLS: lecture pour admin/owner, insert via server functions uniquement.
+- **Table `candidate_status`** (léger): `user_id PK`, `suspended boolean`, `suspended_at`, `suspended_by`. Permet suspendre/réactiver sans toucher `profiles`.
+- **RPC `admin_dashboard_stats()`**: renvoie les compteurs agrégés (candidats, tests, certificats, avis, avis en attente, répartition niveaux, top pays).
+- GRANTs + RLS via `has_role(auth.uid(), 'admin')` ou `'owner'`.
 
-### 3. Page d'accueil `/`
-Nouvelle section **"⭐ Ils ont passé le test OpenDoorsClass"**: carousel horizontal auto (Framer Motion), cartes photo/nom/pays/drapeau/niveau/étoiles/commentaire/date, filtres (pays, niveau, date). Alimenté par `reviews` où `status = approved` via server fn publique (client publishable server-side, policy `TO anon` SELECT sur approved).
+## 2. Server functions (`src/lib/admin.functions.ts`)
 
-### 4. E-mail post-test
-Scaffold Lovable Emails (auth + transactional). Template `test-completed` déclenché à la fin du test (dans `submitTest`), contient prénom/nom/score/niveau/date/résumé + liens espace + télécharger attestation + conseils IA. Si niveau < A2: CTA "Être accompagné par Mr Nathan" → `wa.me/24174825725`. Si ≥ A2: CTA rejoindre communauté.
+Toutes protégées par `requireSupabaseAuth` + vérification `has_role` (owner/admin/moderator selon action):
 
-### 5. Sécurité
-Déjà en place (RLS, JWT Supabase, HTTPS, server fns authentifiés). Je vérifie/renforce: RLS sur nouvelles tables, upload avatars limité à l'utilisateur, validation Zod côté serveur pour tous les inputs (profil, avis, objectifs).
+- `getAdminContext()` — retourne rôle courant + permissions.
+- `getDashboardStats()`
+- `listCandidates({ search, page, filter })`, `getCandidateDetail(id)`, `suspendCandidate`, `reactivateCandidate`, `deleteCandidate` (owner uniquement).
+- `listQuestions`, `createQuestion`, `updateQuestion`, `deleteQuestion` (admin+).
+- `listAllReviews({ status })`, `approveReview`, `rejectReview`, `updateReview`, `deleteReview` (moderator+).
+- `listCertificates`, `regenerateCertificate`, `deleteCertificate` (admin+).
+- `listUsersWithRoles`, `grantRole`, `revokeRole` (owner uniquement; owner immuable côté serveur).
+- `listActivityLog({ page, filter })` (admin+).
+- Chaque mutation appelle une util `logAdminAction()` qui insère dans `admin_activity_log`.
 
-## Découpage en étapes de livraison
-1. **Migration DB** (nationality, dob, candidate_number, objectives, ai_recos, reviews, buckets, RPC stats).
-2. **Server functions**: profil enrichi, upload avatar, stats agrégées, reviews (créer/lister approved), AI recommandations, objectifs.
-3. **Refonte `/profil`** avec toutes les sections.
-4. **Section testimonials sur `/`** + carousel.
-5. **E-mail post-test** (scaffold transactional + template + trigger).
-6. Vérification build + navigation.
+## 3. Routes UI (nouvelles, isolées)
 
-## Points à confirmer avant que je lance
-- **OK pour rester sur TanStack Start (pas Next.js 15)?** Migrer vers Next casserait tout l'existant (paiements Chariow/Moneroo, auth, routes, webhooks). La stack actuelle est équivalente en modernité.
-- **Speaking / Writing / Pronunciation / Fluency**: le test actuel n'évalue que Grammar/Reading/Listening/Vocabulary via QCM. J'affiche donc ces 4 compétences réelles avec jauges, et marque les 4 autres "bientôt" (option honnête). OK, ou je les cache totalement?
-- **E-mails**: OK pour activer Lovable Emails (nécessite domaine e-mail configuré, sinon les mails ne partent pas). Si pas de domaine prêt, je scaffold quand même et vous branchez le domaine après.
+Layout admin gated dans `src/routes/_authenticated/admin/`:
 
-Dès votre feu vert je livre tout (probablement 2 tours: migration + code).
+```
+_authenticated/admin/route.tsx        (garde: vérifie rôle owner/admin/moderator, sinon redirect /)
+_authenticated/admin/index.tsx        (Dashboard)
+_authenticated/admin/candidats.tsx
+_authenticated/admin/candidats.$id.tsx
+_authenticated/admin/questions.tsx
+_authenticated/admin/avis.tsx
+_authenticated/admin/certificats.tsx
+_authenticated/admin/utilisateurs.tsx (owner only)
+_authenticated/admin/journal.tsx
+```
+
+Design: **réutilise** le design system existant (Tailwind tokens, shadcn/ui, Manrope, animations Framer Motion déjà en place). Sidebar admin avec navigation. Aucune modification des styles globaux.
+
+## 4. Intégration minimale à l'existant
+
+Seule addition côté existant:
+- Un lien "Administration" affiché **conditionnellement** dans `site-header.tsx` uniquement si `has_role` renvoie owner/admin/moderator. Pas de modification pour les autres utilisateurs.
+- Le formulaire d'avis existant reste inchangé (les avis passent déjà en `status=pending`); l'approbation se fait désormais via `/admin/avis`.
+
+## 5. Sécurité
+
+- Toutes les mutations admin passent par `requireSupabaseAuth` + `has_role` vérifié côté serveur.
+- Owner immuable: fonction `revokeRole`/`deleteCandidate` refuse toute cible avec rôle `owner`.
+- Rate/audit: `admin_activity_log` capture IP + user_agent via `getRequest()` du runtime TanStack.
+- Validation Zod sur toutes les entrées.
+- RLS sur `admin_activity_log` et `candidate_status` scopée à admin/owner.
+
+## 6. Livraison
+
+Étape 1: Migration DB (owner auto-grant, activity log, candidate_status, dashboard RPC, roles enum).
+Étape 2: Server functions admin.
+Étape 3: Routes UI admin + sidebar.
+Étape 4: Lien conditionnel dans le header.
+Étape 5: Vérification build.
+
+## Points à confirmer avant lancement
+
+1. **Certificats**: actuellement il n'y a pas de table `certificates` séparée, les attestations sont générées à la volée depuis `test_sessions` (page `/resultat/$id` + `window.print`). Je propose que "Gestion des certificats" liste les sessions terminées avec accès à l'attestation, sans stockage PDF côté serveur. OK?
+2. **Speaking/Writing en Gestion des questions**: le moteur actuel ne supporte que Grammar/Reading/Listening/Vocabulary. Je permets d'ajouter des questions Speaking/Writing en base (préparation), mais elles ne seront pas servies au test tant que le moteur ne les prend pas en charge. OK?
+3. **Import/Export questions**: format CSV suffit, ou JSON aussi?
+4. **Journal d'activité**: je log les actions admin. Voulez-vous aussi logger les connexions candidats (peut devenir volumineux)?
+
+Feu vert = je lance la migration puis le reste.
