@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_activity_log: {
+        Row: {
+          action: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      candidate_status: {
+        Row: {
+          reason: string | null
+          suspended: boolean
+          suspended_at: string | null
+          suspended_by: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          reason?: string | null
+          suspended?: boolean
+          suspended_at?: string | null
+          suspended_by?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          reason?: string | null
+          suspended?: boolean
+          suspended_at?: string | null
+          suspended_by?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       level_messages: {
         Row: {
           id: string
@@ -400,6 +463,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_dashboard_stats: { Args: never; Returns: Json }
       get_profile_stats: {
         Args: { p_user_id: string }
         Returns: {
