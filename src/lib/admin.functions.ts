@@ -143,6 +143,37 @@ export const deleteCandidate = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const adjustCandidateCredits = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v: { userId: string; delta: number; reason?: string }) => v)
+  .handler(async ({ context, data }) => {
+    const roles = await getRoles(context.supabase, context.userId);
+    requireRole(roles, ["owner", "admin"]);
+    if (!Number.isInteger(data.delta) || data.delta === 0) {
+      throw new Error("Valeur invalide.");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: profile, error: pErr } = await supabaseAdmin
+      .from("profiles")
+      .select("id, credits_remaining")
+      .eq("id", data.userId)
+      .maybeSingle();
+    if (pErr) throw new Error(pErr.message);
+    if (!profile) throw new Error("Candidat introuvable.");
+    const next = Math.max(0, (profile.credits_remaining ?? 0) + data.delta);
+    const { error: uErr } = await supabaseAdmin
+      .from("profiles")
+      .update({ credits_remaining: next })
+      .eq("id", data.userId);
+    if (uErr) throw new Error(uErr.message);
+    await logAction(
+      "candidate.credits_adjust",
+      { type: "user", id: data.userId },
+      { actor_id: context.userId, meta: { delta: data.delta, reason: data.reason ?? null, new_balance: next } }
+    );
+    return { ok: true, credits: next };
+  });
+
 export const getCandidateDetail = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((v: { userId: string }) => v)
@@ -197,7 +228,7 @@ export const moderateReview = createServerFn({ method: "POST" })
 const questionSchema = z.object({
   id: z.string().optional(),
   level: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]),
-  category: z.enum(["grammar", "vocabulary", "reading", "listening"]),
+  category: z.enum(["grammar", "vocabulary", "reading", "listening", "speaking"]),
   question_text: z.string().min(3),
   options: z.array(z.string().min(1)).min(2).max(6),
   correct_answer: z.string().min(1),

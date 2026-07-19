@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export type ClientQuestion = {
   id: string;
   level: "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
-  category: "grammar" | "vocabulary" | "reading" | "listening";
+  category: "grammar" | "vocabulary" | "reading" | "listening" | "speaking";
   question_text: string;
   options: string[];
   audio_url: string | null;
@@ -87,7 +87,18 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
 
     for (const q of questions ?? []) {
       const userAns = data.answers[q.id];
-      const isCorrect = userAns === q.correct_answer;
+      let isCorrect = false;
+      if (q.category === "speaking") {
+        // Speaking answers are stored as JSON {transcript, score} produced by transcribeAndScoreSpeaking.
+        try {
+          const parsed = userAns ? JSON.parse(userAns) : null;
+          if (parsed && typeof parsed.score === "number" && parsed.score >= 60) isCorrect = true;
+        } catch {
+          isCorrect = false;
+        }
+      } else {
+        isCorrect = userAns === q.correct_answer;
+      }
       const lvl = q.level as string;
       const cat = q.category as string;
       perLevel[lvl] ??= { correct: 0, total: 0, percent: 0 };
@@ -215,4 +226,120 @@ export const getTestHistory = createServerFn({ method: "GET" })
       .limit(50);
     if (error) throw new Error(error.message);
     return data ?? [];
+  });
+
+const SpeakingInput = z.object({
+  sessionId: z.string().uuid(),
+  questionId: z.string().uuid(),
+  audioBase64: z.string().min(100),
+  mimeType: z.string().default("audio/webm"),
+});
+
+// Transcribe user's speaking answer, grade it with AI, and store the result.
+export const transcribeAndScoreSpeaking = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => SpeakingInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("Lovable AI non configuré.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Verify session ownership
+    const { data: session } = await context.supabase
+      .from("test_sessions")
+      .select("id, user_id, completed_at, answers")
+      .eq("id", data.sessionId)
+      .maybeSingle();
+    if (!session) throw new Error("Session introuvable.");
+    if (session.completed_at) throw new Error("Session déjà terminée.");
+
+    // Fetch question prompt
+    const { data: question } = await supabaseAdmin
+      .from("questions")
+      .select("id, question_text, level, category")
+      .eq("id", data.questionId)
+      .maybeSingle();
+    if (!question || question.category !== "speaking") {
+      throw new Error("Question invalide.");
+    }
+
+    // Decode audio -> Blob for multipart upload
+    const buffer = Uint8Array.from(atob(data.audioBase64), (c) => c.charCodeAt(0));
+    // Pick extension based on mimeType
+    const ext =
+      data.mimeType.includes("mp4") ? "mp4" :
+      data.mimeType.includes("mpeg") ? "mp3" :
+      data.mimeType.includes("wav") ? "wav" :
+      data.mimeType.includes("ogg") ? "ogg" :
+      "webm";
+
+    // 1) Transcribe via Lovable AI STT
+    const stt = new FormData();
+    const audioBlob = new Blob([buffer], { type: data.mimeType });
+    stt.append("file", audioBlob, `speaking.${ext}`);
+    stt.append("model", "openai/gpt-4o-transcribe");
+
+    const sttRes = await fetch("https://ai.gateway.lovable.dev/v1/audio/transcriptions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}` },
+      body: stt,
+    });
+    if (!sttRes.ok) {
+      const errTxt = await sttRes.text().catch(() => "");
+      throw new Error(`Transcription échouée (${sttRes.status}): ${errTxt.slice(0, 200)}`);
+    }
+    const sttJson = (await sttRes.json()) as { text?: string };
+    const transcript = (sttJson.text ?? "").trim();
+
+    // 2) Grade via chat completion, JSON output
+    let score = 0;
+    let feedback = "";
+    if (transcript.length > 0) {
+      const gradeRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "openai/gpt-5.5",
+          reasoning_effort: "none",
+          response_format: { type: "json_object" },
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an English CEFR examiner. Score a spoken answer transcript for a level test. Return strict JSON with keys: score (integer 0 to 100 based on fluency, grammar, vocabulary, coherence and task fulfillment), feedback (one short sentence in French, no dashes). Be strict but fair.",
+            },
+            {
+              role: "user",
+              content: `CEFR target level: ${question.level}. Task prompt: ${question.question_text}\n\nCandidate transcript:\n"""${transcript}"""`,
+            },
+          ],
+        }),
+      });
+      if (gradeRes.ok) {
+        const gj = (await gradeRes.json()) as { choices?: { message?: { content?: string } }[] };
+        const raw = gj.choices?.[0]?.message?.content ?? "{}";
+        try {
+          const parsed = JSON.parse(raw);
+          const s = Math.max(0, Math.min(100, Math.round(Number(parsed.score) || 0)));
+          score = s;
+          feedback = typeof parsed.feedback === "string" ? parsed.feedback : "";
+        } catch {
+          score = 0;
+        }
+      }
+    }
+
+    // Persist into session.answers
+    const nextAnswers = { ...((session.answers as Record<string, string>) ?? {}) };
+    nextAnswers[data.questionId] = JSON.stringify({ transcript, score, feedback });
+    await supabaseAdmin
+      .from("test_sessions")
+      .update({ answers: nextAnswers })
+      .eq("id", data.sessionId);
+
+    return { transcript, score, feedback };
   });

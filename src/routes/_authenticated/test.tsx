@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, Clock, Headphones, Loader2, Play } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Headphones, Loader2, Mic, Play, Square } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
   getTestQuestions,
   startTestSession,
   submitTestAnswers,
+  transcribeAndScoreSpeaking,
   type ClientQuestion,
 } from "@/lib/test.functions";
 
@@ -24,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/test")({
 
 const TEST_DURATION_SEC = 30 * 60;
 
-type Phase = "intro" | "listening-intro" | "running" | "submitting";
+type Phase = "intro" | "listening-intro" | "speaking-intro" | "running" | "submitting";
 
 function TestPage() {
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ function TestPage() {
   const [remaining, setRemaining] = useState(TEST_DURATION_SEC);
   const [loading, setLoading] = useState(false);
   const [seenListeningIntro, setSeenListeningIntro] = useState(false);
+  const [seenSpeakingIntro, setSeenSpeakingIntro] = useState(false);
 
   const startTest = async () => {
     setLoading(true);
@@ -99,7 +101,10 @@ function TestPage() {
     if (phase === "running" && q?.category === "listening" && !seenListeningIntro) {
       setPhase("listening-intro");
     }
-  }, [phase, q, seenListeningIntro]);
+    if (phase === "running" && q?.category === "speaking" && !seenSpeakingIntro) {
+      setPhase("speaking-intro");
+    }
+  }, [phase, q, seenListeningIntro, seenSpeakingIntro]);
 
   const goto = (delta: number) => {
     setCurrent((c) => Math.min(Math.max(0, c + delta), questions.length - 1));
@@ -172,6 +177,39 @@ function TestPage() {
     );
   }
 
+  if (phase === "speaking-intro") {
+    return (
+      <Shell>
+        <Card className="mx-auto max-w-2xl">
+          <CardContent className="p-8 space-y-6 text-center">
+            <div className="mx-auto grid size-16 place-items-center rounded-full bg-primary/10 text-primary">
+              <Mic className="size-8" />
+            </div>
+            <h2 className="text-2xl font-bold">Section expression orale</h2>
+            <p className="text-muted-foreground">
+              Vous allez répondre en anglais à voix haute. Autorisez l'accès au microphone,
+              parlez clairement, puis arrêtez l'enregistrement. Votre réponse sera
+              transcrite et notée automatiquement par l'IA.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Astuce : un environnement calme améliore la précision de la transcription.
+            </p>
+            <Button
+              size="lg"
+              onClick={() => {
+                setSeenSpeakingIntro(true);
+                setPhase("running");
+              }}
+              className="bg-brand-gradient text-primary-foreground"
+            >
+              Je suis prêt
+            </Button>
+          </CardContent>
+        </Card>
+      </Shell>
+    );
+  }
+
   if (phase === "submitting" || !q) {
     return (
       <Shell>
@@ -206,6 +244,15 @@ function TestPage() {
           <CardContent className="p-6 space-y-5">
             {q.audio_url ? <AudioPlayer key={q.id} url={q.audio_url} maxPlays={q.max_plays} /> : null}
             <h2 className="text-lg font-semibold leading-relaxed">{q.question_text}</h2>
+            {q.category === "speaking" ? (
+              <SpeakingRecorder
+                key={q.id}
+                sessionId={sessionId!}
+                questionId={q.id}
+                existing={answers[q.id]}
+                onScored={(value) => setAnswers((a) => ({ ...a, [q.id]: value }))}
+              />
+            ) : (
             <RadioGroup
               value={answers[q.id] ?? ""}
               onValueChange={setAnswer}
@@ -225,6 +272,7 @@ function TestPage() {
                 );
               })}
             </RadioGroup>
+            )}
           </CardContent>
         </Card>
 
@@ -317,6 +365,183 @@ function AudioPlayer({ url, maxPlays }: { url: string; maxPlays: number }) {
           {playing ? "Lecture en cours..." : remaining > 0 ? "Écouter" : "Plus d'écoutes"}
         </Button>
       </div>
+    </div>
+  );
+}
+function SpeakingRecorder({
+  sessionId,
+  questionId,
+  existing,
+  onScored,
+}: {
+  sessionId: string;
+  questionId: string;
+  existing?: string;
+  onScored: (value: string) => void;
+}) {
+  const scoreFn = useServerFn(transcribeAndScoreSpeaking);
+  const [recording, setRecording] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [level, setLevel] = useState(0);
+  const [seconds, setSeconds] = useState(0);
+  const mediaRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const rafRef = useRef<number | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const parsed = (() => {
+    if (!existing) return null;
+    try {
+      const p = JSON.parse(existing) as { transcript: string; score: number; feedback?: string };
+      return p;
+    } catch { return null; }
+  })();
+
+  const stopAll = () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = null;
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    audioCtxRef.current?.close().catch(() => {});
+    audioCtxRef.current = null;
+  };
+
+  const start = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      const mime =
+        MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" :
+        MediaRecorder.isTypeSupported("audio/mp4") ? "audio/mp4" : "";
+      const rec = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+      chunksRef.current = [];
+      rec.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      rec.onstop = async () => {
+        const type = rec.mimeType || "audio/webm";
+        const blob = new Blob(chunksRef.current, { type });
+        stopAll();
+        setLevel(0);
+        setRecording(false);
+        if (blob.size < 2048) {
+          toast.error("Enregistrement trop court, réessayez.");
+          return;
+        }
+        setProcessing(true);
+        try {
+          const arrayBuf = await blob.arrayBuffer();
+          // base64
+          let binary = "";
+          const bytes = new Uint8Array(arrayBuf);
+          const chunk = 0x8000;
+          for (let i = 0; i < bytes.length; i += chunk) {
+            binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)) as unknown as number[]);
+          }
+          const b64 = btoa(binary);
+          const res = await scoreFn({
+            data: { sessionId, questionId, audioBase64: b64, mimeType: type },
+          });
+          onScored(JSON.stringify(res));
+          toast.success(`Réponse notée : ${res.score}/100`);
+        } catch (e) {
+          toast.error(e instanceof Error ? e.message : "Erreur transcription.");
+        } finally {
+          setProcessing(false);
+        }
+      };
+      rec.start();
+      mediaRef.current = rec;
+
+      // Audio analyser for waveform
+      const ctx = new AudioContext();
+      audioCtxRef.current = ctx;
+      const source = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 256;
+      source.connect(analyser);
+      const buf = new Uint8Array(analyser.frequencyBinCount);
+      const tick = () => {
+        analyser.getByteTimeDomainData(buf);
+        let sum = 0;
+        for (let i = 0; i < buf.length; i++) {
+          const v = (buf[i] - 128) / 128;
+          sum += v * v;
+        }
+        const rms = Math.sqrt(sum / buf.length);
+        setLevel(Math.min(1, rms * 3));
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      tick();
+
+      setSeconds(0);
+      timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
+      setRecording(true);
+    } catch {
+      toast.error("Accès au micro refusé.");
+    }
+  };
+
+  const stop = () => {
+    mediaRef.current?.state === "recording" && mediaRef.current.stop();
+  };
+
+  useEffect(() => () => stopAll(), []);
+
+  // 10 animated bars driven by level + slight jitter per bar
+  const bars = Array.from({ length: 18 }, (_, i) => {
+    const jitter = 0.35 + Math.abs(Math.sin((Date.now() / 120) + i)) * 0.65;
+    const h = recording ? Math.max(6, level * 60 * jitter + 6) : 6;
+    return h;
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-lg border border-border bg-muted/40 p-5">
+        <div className="flex h-16 items-center justify-center gap-1">
+          {bars.map((h, i) => (
+            <span
+              key={i}
+              className={`inline-block w-1.5 rounded-full transition-all duration-100 ${recording ? "bg-primary" : "bg-muted-foreground/30"}`}
+              style={{ height: `${h}px` }}
+            />
+          ))}
+        </div>
+        <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+          <span>{recording ? `Enregistrement... ${seconds}s` : processing ? "Analyse IA en cours..." : "Prêt à enregistrer"}</span>
+          <span>Micro requis</span>
+        </div>
+        <div className="mt-4 flex justify-center">
+          {!recording ? (
+            <Button type="button" onClick={start} disabled={processing} className="bg-brand-gradient text-primary-foreground">
+              {processing ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Mic className="mr-2 size-4" />}
+              {processing ? "Traitement..." : parsed ? "Réenregistrer" : "Commencer à parler"}
+            </Button>
+          ) : (
+            <Button type="button" onClick={stop} variant="destructive">
+              <Square className="mr-2 size-4" /> Arrêter
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {parsed && !recording && !processing && (
+        <div className="rounded-lg border border-border bg-card p-4 text-sm space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="font-medium">Note IA : {parsed.score}/100</span>
+            <Badge variant={parsed.score >= 60 ? "secondary" : "outline"}>
+              {parsed.score >= 60 ? "Validé" : "À améliorer"}
+            </Badge>
+          </div>
+          {parsed.feedback ? <p className="text-xs text-muted-foreground">{parsed.feedback}</p> : null}
+          <details className="text-xs text-muted-foreground">
+            <summary className="cursor-pointer">Voir la transcription</summary>
+            <p className="mt-2 whitespace-pre-wrap">{parsed.transcript || "(aucune parole détectée)"}</p>
+          </details>
+        </div>
+      )}
     </div>
   );
 }

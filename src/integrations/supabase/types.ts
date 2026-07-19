@@ -494,7 +494,12 @@ export type Database = {
       cecrl_level: "A1" | "A2" | "B1" | "B2" | "C1" | "C2"
       level_range: "A1-A2" | "B1-B2" | "C1-C2"
       payment_status: "pending" | "success" | "failed" | "cancelled"
-      question_category: "grammar" | "vocabulary" | "reading" | "listening"
+      question_category:
+        | "grammar"
+        | "vocabulary"
+        | "reading"
+        | "listening"
+        | "speaking"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -626,7 +631,13 @@ export const Constants = {
       cecrl_level: ["A1", "A2", "B1", "B2", "C1", "C2"],
       level_range: ["A1-A2", "B1-B2", "C1-C2"],
       payment_status: ["pending", "success", "failed", "cancelled"],
-      question_category: ["grammar", "vocabulary", "reading", "listening"],
+      question_category: [
+        "grammar",
+        "vocabulary",
+        "reading",
+        "listening",
+        "speaking",
+      ],
     },
   },
 } as const
