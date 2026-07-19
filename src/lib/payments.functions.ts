@@ -49,12 +49,6 @@ export const createCheckout = createServerFn({ method: "POST" })
       .maybeSingle();
     if (planError || !plan) throw new Error("Plan de crédits introuvable.");
 
-    const { data: profile } = await context.supabase
-      .from("profiles")
-      .select("first_name, last_name")
-      .eq("id", context.userId)
-      .maybeSingle();
-
     await context.supabase
       .from("profiles")
       .update({ first_name: data.firstName, last_name: data.lastName })
