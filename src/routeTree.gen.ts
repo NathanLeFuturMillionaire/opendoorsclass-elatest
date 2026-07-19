@@ -20,6 +20,7 @@ import { Route as AuthenticatedAchatCreditsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
+import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin/utilisateurs'
 import { Route as AuthenticatedAdminQuestionsRouteImport } from './routes/_authenticated/admin/questions'
 import { Route as AuthenticatedAdminCertificatsRouteImport } from './routes/_authenticated/admin/certificats'
 import { Route as AuthenticatedAdminCandidatsRouteImport } from './routes/_authenticated/admin/candidats'
@@ -83,6 +84,12 @@ const AuthenticatedResultatIdRoute = AuthenticatedResultatIdRouteImport.update({
   path: '/resultat/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminUtilisateursRoute =
+  AuthenticatedAdminUtilisateursRouteImport.update({
+    id: '/utilisateurs',
+    path: '/utilisateurs',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminQuestionsRoute =
   AuthenticatedAdminQuestionsRouteImport.update({
     id: '/questions',
@@ -126,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
+  '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
@@ -142,6 +150,7 @@ export interface FileRoutesByTo {
   '/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
+  '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
@@ -161,6 +170,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/_authenticated/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
   '/_authenticated/admin/questions': typeof AuthenticatedAdminQuestionsRoute
+  '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/_authenticated/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
@@ -180,6 +190,7 @@ export interface FileRouteTypes {
     | '/admin/candidats'
     | '/admin/certificats'
     | '/admin/questions'
+    | '/admin/utilisateurs'
     | '/resultat/$id'
     | '/admin/'
     | '/api/public/chariow-webhook/$secret'
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/admin/candidats'
     | '/admin/certificats'
     | '/admin/questions'
+    | '/admin/utilisateurs'
     | '/resultat/$id'
     | '/admin'
     | '/api/public/chariow-webhook/$secret'
@@ -214,6 +226,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/candidats'
     | '/_authenticated/admin/certificats'
     | '/_authenticated/admin/questions'
+    | '/_authenticated/admin/utilisateurs'
     | '/_authenticated/resultat/$id'
     | '/_authenticated/admin/'
     | '/api/public/chariow-webhook/$secret'
@@ -305,6 +318,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedResultatIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/utilisateurs': {
+      id: '/_authenticated/admin/utilisateurs'
+      path: '/utilisateurs'
+      fullPath: '/admin/utilisateurs'
+      preLoaderRoute: typeof AuthenticatedAdminUtilisateursRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/questions': {
       id: '/_authenticated/admin/questions'
       path: '/questions'
@@ -348,6 +368,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCandidatsRoute: typeof AuthenticatedAdminCandidatsRoute
   AuthenticatedAdminCertificatsRoute: typeof AuthenticatedAdminCertificatsRoute
   AuthenticatedAdminQuestionsRoute: typeof AuthenticatedAdminQuestionsRoute
+  AuthenticatedAdminUtilisateursRoute: typeof AuthenticatedAdminUtilisateursRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
@@ -357,6 +378,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminCandidatsRoute: AuthenticatedAdminCandidatsRoute,
     AuthenticatedAdminCertificatsRoute: AuthenticatedAdminCertificatsRoute,
     AuthenticatedAdminQuestionsRoute: AuthenticatedAdminQuestionsRoute,
+    AuthenticatedAdminUtilisateursRoute: AuthenticatedAdminUtilisateursRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   }
 
