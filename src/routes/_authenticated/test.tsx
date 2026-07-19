@@ -53,7 +53,8 @@ function TestPage() {
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       if (msg.includes("INSUFFICIENT_CREDITS")) {
-        toast.error("Vous n'avez plus de crédits. Veuillez recharger votre compte.");
+        toast.error("Vous n'avez plus de crédits. Redirection vers l'achat.");
+        navigate({ to: "/achat-credits" });
       } else {
         toast.error(msg);
       }
