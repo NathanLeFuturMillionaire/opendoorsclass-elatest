@@ -302,7 +302,7 @@ export const listUsersWithRoles = createServerFn({ method: "GET" })
         user_id: r.user_id,
         email: emailMap.get(r.user_id) ?? null,
         profile: profileMap.get(r.user_id) ?? null,
-        roles: [],
+        roles: [] as string[],
       };
       cur.roles.push((r as any).role);
       byUser.set(r.user_id, cur);
