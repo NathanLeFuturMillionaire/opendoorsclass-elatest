@@ -22,51 +22,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { listPublicReviews } from "@/lib/reviews.functions";
+import { useT } from "@/lib/i18n";
+import { WorldReachSection } from "@/components/world-reach-section";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-const STEPS = [
-  {
-    icon: Sparkles,
-    title: "Créez votre compte",
-    text: "Inscription en 30 secondes, avec Google ou par e-mail.",
-  },
-  {
-    icon: BookOpen,
-    title: "Passez le test CECRL",
-    text: "Environ 30 minutes, difficulté croissante de A1 à C2, grammaire, vocabulaire, compréhension écrite et orale.",
-  },
-  {
-    icon: Trophy,
-    title: "Recevez votre niveau",
-    text: "Résultat visuel immédiat, attestation PDF, recommandations personnalisées.",
-  },
-];
-
-const BENEFITS = [
-  {
-    icon: Target,
-    title: "Standard CECRL reconnu",
-    text: "Une évaluation alignée sur les six niveaux internationaux, de A1 (débutant) à C2 (maîtrise).",
-  },
-  {
-    icon: Clock,
-    title: "Rapide et précis",
-    text: "Environ 30 minutes pour une vision claire de votre niveau réel en anglais.",
-  },
-  {
-    icon: Headphones,
-    title: "Compréhension orale incluse",
-    text: "Des audios authentiques, jusqu'à 5 écoutes par question, casque recommandé.",
-  },
-  {
-    icon: FileDown,
-    title: "Attestation officielle",
-    text: "Une attestation PDF à télécharger, à partager avec votre école ou votre employeur.",
-  },
-];
+const STEP_ICONS = [Sparkles, BookOpen, Trophy];
+const BENEFIT_ICONS = [Target, Clock, Headphones, FileDown];
 
 const FALLBACK_TESTIMONIALS = [
   {
@@ -77,6 +41,7 @@ const FALLBACK_TESTIMONIALS = [
     comment:
       "Le test est vraiment bien pensé, la partie audio est authentique. J'ai eu mon niveau exact et un plan pour progresser.",
     country: "Gabon",
+    avatar_url: null as string | null,
   },
   {
     display_name: "Steeve M.",
@@ -85,6 +50,7 @@ const FALLBACK_TESTIMONIALS = [
     title: "Simple et clair",
     comment: "Simple, clair, en français. J'ai enfin compris où je me situais et par où commencer avec Nathan.",
     country: "Gabon",
+    avatar_url: null as string | null,
   },
   {
     display_name: "Grace N.",
@@ -93,10 +59,23 @@ const FALLBACK_TESTIMONIALS = [
     title: "Attestation utile",
     comment: "L'attestation m'a permis de rassurer mon recruteur. La plateforme est fluide, même sur mon téléphone.",
     country: "Gabon",
+    avatar_url: null as string | null,
   },
 ];
 
 function HomePage() {
+  const t = useT();
+  const STEPS = [
+    { icon: STEP_ICONS[0], title: t("how.s1.title"), text: t("how.s1.text") },
+    { icon: STEP_ICONS[1], title: t("how.s2.title"), text: t("how.s2.text") },
+    { icon: STEP_ICONS[2], title: t("how.s3.title"), text: t("how.s3.text") },
+  ];
+  const BENEFITS = [
+    { icon: BENEFIT_ICONS[0], title: t("why.b1.title"), text: t("why.b1.text") },
+    { icon: BENEFIT_ICONS[1], title: t("why.b2.title"), text: t("why.b2.text") },
+    { icon: BENEFIT_ICONS[2], title: t("why.b3.title"), text: t("why.b3.text") },
+    { icon: BENEFIT_ICONS[3], title: t("why.b4.title"), text: t("why.b4.text") },
+  ];
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
@@ -112,32 +91,31 @@ function HomePage() {
           <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-20 md:grid-cols-2 md:items-center md:py-24">
             <div>
               <Badge variant="secondary" className="mb-4">
-                Nouveau, plateforme officielle OpenDoorsClass
+                {t("hero.badge")}
               </Badge>
               <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
-                Découvrez votre <span className="text-brand-gradient">véritable niveau d'anglais</span> en 30 minutes.
+                {t("hero.title.a")} <span className="text-brand-gradient">{t("hero.title.b")}</span>{t("hero.title.c")}
               </h1>
               <p className="mt-5 max-w-xl text-lg text-muted-foreground">
-                Un test complet, aligné sur le CECRL (A1 à C2), conçu pour les passionnés de la langue anglaise en
-                Afrique francophone.
+                {t("hero.desc")}
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button asChild size="lg" className="bg-brand-gradient text-primary-foreground shadow-md">
-                  <Link to="/auth">Commencer le test maintenant</Link>
+                  <Link to="/auth">{t("hero.cta.start")}</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline">
-                  <a href="#comment">Comment ça marche</a>
+                  <a href="#comment">{t("hero.cta.how")}</a>
                 </Button>
               </div>
               <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="size-4 text-brand-green" /> Résultat immédiat
+                  <CheckCircle2 className="size-4 text-brand-green" /> {t("hero.tag.instant")}
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="size-4 text-brand-green" /> Attestation PDF
+                  <CheckCircle2 className="size-4 text-brand-green" /> {t("hero.tag.pdf")}
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="size-4 text-brand-green" /> Adapté mobile
+                  <CheckCircle2 className="size-4 text-brand-green" /> {t("hero.tag.mobile")}
                 </li>
               </ul>
             </div>
@@ -147,12 +125,12 @@ function HomePage() {
               <Card className="relative overflow-hidden border-border/60 shadow-xl">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>Aperçu du test</span>
+                    <span>{t("hero.preview.step")}</span>
                     <span className="rounded-full bg-brand-yellow-soft px-2 py-0.5 text-xs font-semibold text-brand-yellow-foreground">
-                      Question 12 / 30
+                      {t("hero.preview.count")}
                     </span>
                   </div>
-                  <p className="mt-4 text-base font-semibold">Choose the correct sentence:</p>
+                  <p className="mt-4 text-base font-semibold">{t("hero.preview.q")}</p>
                   <div className="mt-4 space-y-2">
                     {[
                       "She don't like tea.",
@@ -176,9 +154,9 @@ function HomePage() {
                   </div>
                   <div className="mt-5 flex items-center justify-between text-xs text-muted-foreground">
                     <span className="inline-flex items-center gap-1">
-                      <Clock className="size-3.5" /> 24:12 restantes
+                      <Clock className="size-3.5" /> {t("hero.preview.remaining")}
                     </span>
-                    <span>Niveau ciblé, B1</span>
+                    <span>{t("hero.preview.level")}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -190,12 +168,10 @@ function HomePage() {
         <section id="comment" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">
             <Badge variant="outline" className="mb-3">
-              Comment ça marche
+              {t("how.badge")}
             </Badge>
-            <h2 className="text-3xl font-bold sm:text-4xl">Trois étapes, un niveau clair.</h2>
-            <p className="mt-3 text-muted-foreground">
-              Un parcours simple, pensé pour être fait sur téléphone ou sur ordinateur.
-            </p>
+            <h2 className="text-3xl font-bold sm:text-4xl">{t("how.title")}</h2>
+            <p className="mt-3 text-muted-foreground">{t("how.desc")}</p>
           </div>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             {STEPS.map((s, i) => (
@@ -206,7 +182,7 @@ function HomePage() {
                       <s.icon className="size-5" />
                     </span>
                     <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      Étape {i + 1}
+                      {t("how.step")} {i + 1}
                     </span>
                   </div>
                   <h3 className="mt-4 text-lg font-semibold">{s.title}</h3>
@@ -222,9 +198,9 @@ function HomePage() {
           <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
             <div className="mx-auto max-w-2xl text-center">
               <Badge variant="outline" className="mb-3">
-                Pourquoi OpenDoorsClass
+                {t("why.badge")}
               </Badge>
-              <h2 className="text-3xl font-bold sm:text-4xl">Un test conçu pour vous, ici.</h2>
+              <h2 className="text-3xl font-bold sm:text-4xl">{t("why.title")}</h2>
             </div>
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {BENEFITS.map((b) => (
@@ -239,6 +215,8 @@ function HomePage() {
             </div>
           </div>
         </section>
+
+        <WorldReachSection />
 
         <TestimonialsSection />
 
@@ -258,23 +236,17 @@ function HomePage() {
             </div>
             <div className="md:col-span-3">
               <Badge variant="outline" className="mb-3">
-                Le fondateur
+                {t("fd.badge")}
               </Badge>
               <h2 className="text-3xl font-bold sm:text-4xl">
-                MAYUKWA Nathan Harysthote,
-                <span className="block text-brand-gradient">professeur d'anglais passionné.</span>
+                {t("fd.title.a")}
+                <span className="block text-brand-gradient">{t("fd.title.b")}</span>
               </h2>
-              <p className="mt-4 text-muted-foreground">
-                Formateur au Gabon, Nathan accompagne depuis plusieurs années des élèves, étudiants et professionnels
-                vers un anglais utile, celui qui ouvre les portes de l'école, du travail et du voyage.
-              </p>
-              <p className="mt-3 text-muted-foreground">
-                OpenDoorsClass est né d'un constat simple, chaque apprenant mérite d'abord de connaître son vrai niveau
-                avant de choisir un parcours. Ce test est la première étape de ce voyage.
-              </p>
+              <p className="mt-4 text-muted-foreground">{t("fd.p1")}</p>
+              <p className="mt-3 text-muted-foreground">{t("fd.p2")}</p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Button asChild size="lg" className="bg-brand-gradient text-primary-foreground">
-                  <Link to="/auth">Passer le test</Link>
+                  <Link to="/auth">{t("fd.cta.test")}</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline">
                   <a
@@ -282,7 +254,7 @@ function HomePage() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <MessageCircle className="mr-2 size-4" /> Contacter sur WhatsApp
+                    <MessageCircle className="mr-2 size-4" /> {t("fd.cta.wa")}
                   </a>
                 </Button>
               </div>
@@ -293,13 +265,11 @@ function HomePage() {
         {/* Final CTA */}
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <div className="relative overflow-hidden rounded-3xl bg-brand-gradient p-10 text-center text-primary-foreground shadow-2xl sm:p-14">
-            <h2 className="text-3xl font-extrabold sm:text-4xl">Prêt à connaître votre vrai niveau d'anglais ?</h2>
-            <p className="mt-3 text-primary-foreground/90">
-              Créez votre compte, passez le test, recevez votre attestation.
-            </p>
+            <h2 className="text-3xl font-extrabold sm:text-4xl">{t("cta.title")}</h2>
+            <p className="mt-3 text-primary-foreground/90">{t("cta.desc")}</p>
             <div className="mt-8 flex justify-center">
               <Button asChild size="lg" variant="secondary" className="shadow-lg">
-                <Link to="/auth">Commencer maintenant</Link>
+                <Link to="/auth">{t("cta.start")}</Link>
               </Button>
             </div>
           </div>
@@ -312,6 +282,7 @@ function HomePage() {
 }
 
 function TestimonialsSection() {
+  const t = useT();
   const fetchReviews = useServerFn(listPublicReviews);
   const { data } = useQuery({
     queryKey: ["public-reviews"],
@@ -327,6 +298,7 @@ function TestimonialsSection() {
           title: r.title,
           comment: r.comment,
           country: r.country ?? "",
+          avatar_url: (r as { avatar_url?: string | null }).avatar_url ?? null,
         }))
       : FALLBACK_TESTIMONIALS;
 
@@ -360,10 +332,10 @@ function TestimonialsSection() {
     <section id="temoignages" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
       <div className="mx-auto max-w-2xl text-center">
         <Badge variant="outline" className="mb-3">
-          Témoignages
+          {t("tm.badge")}
         </Badge>
-        <h2 className="text-3xl font-bold sm:text-4xl">Ils ont passé le test.</h2>
-        <p className="mt-3 text-muted-foreground">Retours authentiques de candidats OpenDoorsClass.</p>
+        <h2 className="text-3xl font-bold sm:text-4xl">{t("tm.title")}</h2>
+        <p className="mt-3 text-muted-foreground">{t("tm.desc")}</p>
       </div>
       <div
         ref={scrollerRef}
@@ -393,9 +365,23 @@ function TestimonialsSection() {
                 {t.title ? <p className="mt-3 text-sm font-semibold">{t.title}</p> : null}
                 <p className="mt-2 text-sm text-foreground/90">« {t.comment} »</p>
                 <div className="mt-auto pt-5 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-semibold">{t.display_name}</p>
-                    {t.country ? <p className="text-xs text-muted-foreground">{t.country}</p> : null}
+                  <div className="flex items-center gap-2.5">
+                    {t.avatar_url ? (
+                      <img
+                        src={t.avatar_url}
+                        alt={t.display_name}
+                        className="size-10 rounded-full object-cover ring-2 ring-background"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="grid size-10 place-items-center rounded-full bg-brand-blue-soft text-xs font-bold text-brand-blue">
+                        {(t.display_name?.[0] ?? "?").toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-semibold">{t.display_name}</p>
+                      {t.country ? <p className="text-xs text-muted-foreground">{t.country}</p> : null}
+                    </div>
                   </div>
                   {t.level_achieved ? (
                     <span className="rounded-full bg-brand-blue text-brand-blue-foreground px-3 py-1 text-xs font-semibold">
