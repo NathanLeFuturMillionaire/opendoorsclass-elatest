@@ -1,4 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { motion } from "framer-motion";
 import {
   BookOpen,
   CheckCircle2,
@@ -7,6 +11,7 @@ import {
   Headphones,
   MessageCircle,
   Sparkles,
+  Star,
   Target,
   Trophy,
 } from "lucide-react";
@@ -16,6 +21,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { listPublicReviews } from "@/lib/reviews.functions";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -62,24 +68,33 @@ const BENEFITS = [
   },
 ];
 
-const TESTIMONIALS = [
+const FALLBACK_TESTIMONIALS = [
   {
-    name: "Marina O.",
-    level: "B2",
-    quote:
+    display_name: "Marina O.",
+    level_achieved: "B2",
+    rating: 5,
+    title: "Bien pensé",
+    comment:
       "Le test est vraiment bien pensé, la partie audio est authentique. J'ai eu mon niveau exact et un plan pour progresser.",
+    country: "Gabon",
   },
   {
-    name: "Steeve M.",
-    level: "A2",
-    quote:
+    display_name: "Steeve M.",
+    level_achieved: "A2",
+    rating: 5,
+    title: "Simple et clair",
+    comment:
       "Simple, clair, en français. J'ai enfin compris où je me situais et par où commencer avec Nathan.",
+    country: "Gabon",
   },
   {
-    name: "Grace N.",
-    level: "C1",
-    quote:
+    display_name: "Grace N.",
+    level_achieved: "C1",
+    rating: 5,
+    title: "Attestation utile",
+    comment:
       "L'attestation m'a permis de rassurer mon recruteur. La plateforme est fluide, même sur mon téléphone.",
+    country: "Gabon",
   },
 ];
 
