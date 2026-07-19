@@ -47,7 +47,7 @@ function PaymentReturnPage() {
           return;
         }
         attempts += 1;
-        if (attempts < 8) {
+        if (attempts < 25) {
           setTimeout(poll, 2000);
         } else {
           setStatus("pending");
@@ -72,7 +72,7 @@ function PaymentReturnPage() {
               <div className="mx-auto h-14 w-14 animate-spin rounded-full border-4 border-brand-blue border-t-transparent" />
               <h1 className="mt-6 text-2xl font-bold">Vérification de votre paiement</h1>
               <p className="mt-2 text-muted-foreground">
-                Nous confirmons la transaction avec Chariow. Cela prend quelques secondes.
+                Nous confirmons votre transaction. Cela prend quelques secondes.
               </p>
             </>
           )}
@@ -99,7 +99,7 @@ function PaymentReturnPage() {
             <>
               <h1 className="text-2xl font-bold">Paiement en cours de traitement</h1>
               <p className="mt-2 text-muted-foreground">
-                Chariow n'a pas encore confirmé la transaction. Vos crédits seront ajoutés dès la confirmation.
+                La confirmation prend un peu plus de temps que prévu. Vos crédits seront ajoutés automatiquement dès la validation, actualisez cette page dans un instant.
               </p>
               <Button asChild className="mt-6" variant="outline">
                 <Link to="/tableau-de-bord">Retour au tableau de bord</Link>
