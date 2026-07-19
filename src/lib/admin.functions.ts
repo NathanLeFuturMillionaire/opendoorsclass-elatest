@@ -197,7 +197,7 @@ export const moderateReview = createServerFn({ method: "POST" })
 const questionSchema = z.object({
   id: z.string().optional(),
   level: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]),
-  category: z.enum(["grammar", "vocabulary", "reading", "listening"]),
+  category: z.enum(["grammar", "vocabulary", "reading", "listening", "speaking"]),
   question_text: z.string().min(3),
   options: z.array(z.string().min(1)).min(2).max(6),
   correct_answer: z.string().min(1),
