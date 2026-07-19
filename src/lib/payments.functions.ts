@@ -17,6 +17,8 @@ export const getTestAccessPlan = createServerFn({ method: "GET" }).handler(async
 
 const CheckoutInput = z.object({
   origin: z.string().url(),
+  firstName: z.string().trim().min(1, "Prénom requis.").max(80),
+  lastName: z.string().trim().min(1, "Nom requis.").max(80),
   phone: z
     .string()
     .trim()
@@ -53,6 +55,11 @@ export const createCheckout = createServerFn({ method: "POST" })
       .eq("id", context.userId)
       .maybeSingle();
 
+    await context.supabase
+      .from("profiles")
+      .update({ first_name: data.firstName, last_name: data.lastName })
+      .eq("id", context.userId);
+
     const reference = `odc-${context.userId.slice(0, 8)}-${Date.now()}`;
 
     const { data: payment, error: insertError } = await context.supabase
@@ -76,8 +83,8 @@ export const createCheckout = createServerFn({ method: "POST" })
       {
         product_id: productId,
         email,
-        first_name: profile?.first_name ?? "Client",
-        last_name: profile?.last_name ?? "OpenDoorsClass",
+        first_name: data.firstName,
+        last_name: data.lastName,
         phone: { number: data.phone, country_code: data.countryCode },
         redirect_url: returnUrl,
         custom_metadata: {
