@@ -100,7 +100,7 @@ function BuyCreditsPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="mt-0.5 text-brand-green">✓</span>
-                    <span>Paiement sécurisé Moneroo: Mobile Money, cartes, virements.</span>
+                    <span>Paiement sécurisé Chariow: Mobile Money, cartes, virements.</span>
                   </li>
                 </ul>
                 <Button
@@ -109,10 +109,10 @@ function BuyCreditsPage() {
                   onClick={handleBuy}
                   className="mt-8 w-full bg-brand-gradient text-primary-foreground transition-transform hover:scale-[1.01]"
                 >
-                  {loading ? "Redirection vers Moneroo..." : "Payer et recevoir mes crédits"}
+                  {loading ? "Redirection vers le paiement..." : "Payer et recevoir mes crédits"}
                 </Button>
                 <p className="mt-3 text-center text-xs text-muted-foreground">
-                  Vous serez redirigé vers la page sécurisée de Moneroo.
+                  Vous serez redirigé vers la page sécurisée de Chariow.
                 </p>
               </div>
             )}
