@@ -15,7 +15,20 @@ export const getTestAccessPlan = createServerFn({ method: "GET" }).handler(async
   return data;
 });
 
-const CheckoutInput = z.object({ origin: z.string().url() });
+const CheckoutInput = z.object({
+  origin: z.string().url(),
+  phone: z
+    .string()
+    .trim()
+    .min(6, "Numéro de téléphone invalide.")
+    .max(20, "Numéro de téléphone invalide.")
+    .regex(/^[0-9]+$/, "Le numéro doit contenir uniquement des chiffres (sans indicatif, sans espaces)."),
+  countryCode: z
+    .string()
+    .trim()
+    .length(2, "Code pays invalide.")
+    .transform((v) => v.toUpperCase()),
+});
 
 export const createCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -65,7 +78,7 @@ export const createCheckout = createServerFn({ method: "POST" })
         email,
         first_name: profile?.first_name ?? "Client",
         last_name: profile?.last_name ?? "OpenDoorsClass",
-        phone: { number: "0000000000", country_code: "GA" },
+        phone: { number: data.phone, country_code: data.countryCode },
         redirect_url: returnUrl,
         custom_metadata: {
           payment_id: payment.id,
