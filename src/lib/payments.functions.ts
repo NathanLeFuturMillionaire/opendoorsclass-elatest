@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { initializeMonerooPayment, verifyMonerooTransaction } from "@/lib/moneroo";
+import { initChariowCheckout, getChariowSale } from "@/lib/chariow";
 
 export const getTestAccessPlan = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -21,8 +21,9 @@ export const createCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => CheckoutInput.parse(input))
   .handler(async ({ data, context }) => {
-    const secret = process.env.MONEROO_SECRET_KEY;
-    if (!secret) throw new Error("Clé Moneroo non configurée.");
+    const apiKey = process.env.CHARIOW_API_KEY;
+    const productId = process.env.CHARIOW_PRODUCT_ID;
+    if (!apiKey || !productId) throw new Error("Chariow non configuré.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -55,33 +56,46 @@ export const createCheckout = createServerFn({ method: "POST" })
       .single();
     if (insertError) throw new Error(insertError.message);
 
-    const returnUrl = `${data.origin}/paiement-retour`;
+    const returnUrl = `${data.origin}/paiement-retour?payment_id=${payment.id}`;
+    const email = (context.claims?.email as string) ?? "client@opendoorsclass.com";
 
-    const { data: monerooData } = await initializeMonerooPayment(
+    const { data: checkout } = await initChariowCheckout(
       {
-        amount: plan.price,
-        currency: plan.currency,
-        description: `OpenDoorsClass: ${plan.credits_included} crédits de test`,
-        customer: {
-          email: (context.claims?.email as string) ?? "client@opendoorsclass.com",
-          first_name: profile?.first_name ?? "Client",
-          last_name: profile?.last_name ?? "OpenDoorsClass",
-        },
-        return_url: returnUrl,
-        metadata: {
+        product_id: productId,
+        email,
+        first_name: profile?.first_name ?? "Client",
+        last_name: profile?.last_name ?? "OpenDoorsClass",
+        phone: { number: "0000000000", country_code: "GA" },
+        redirect_url: returnUrl,
+        custom_metadata: {
           payment_id: payment.id,
           reference,
+          user_id: context.userId,
         },
       },
-      secret
+      apiKey
     );
+
+    if (!checkout.purchase || !checkout.payment.checkout_url) {
+      await context.supabase
+        .from("payments")
+        .update({ status: "failed" })
+        .eq("id", payment.id);
+      throw new Error(
+        checkout.message ??
+          "Chariow n'a pas retourné d'URL de paiement (produit déjà acheté ou indisponible)."
+      );
+    }
 
     await context.supabase
       .from("payments")
-      .update({ moneroo_transaction_id: monerooData.id })
+      .update({
+        chariow_sale_id: checkout.purchase.id,
+        moneroo_transaction_id: checkout.purchase.id,
+      })
       .eq("id", payment.id);
 
-    return { checkoutUrl: monerooData.checkout_url, paymentId: payment.id };
+    return { checkoutUrl: checkout.payment.checkout_url, paymentId: payment.id };
   });
 
 export const checkPaymentStatus = createServerFn({ method: "GET" })
@@ -90,7 +104,7 @@ export const checkPaymentStatus = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: payment } = await context.supabase
       .from("payments")
-      .select("id, moneroo_transaction_id, status, credits_added")
+      .select("id, chariow_sale_id, status, credits_added")
       .eq("id", data.paymentId)
       .eq("user_id", context.userId)
       .maybeSingle();
@@ -100,18 +114,32 @@ export const checkPaymentStatus = createServerFn({ method: "GET" })
       return { status: "success", credits: payment.credits_added };
     }
 
-    if (!payment.moneroo_transaction_id) {
+    if (!payment.chariow_sale_id) {
       return { status: payment.status, credits: 0 };
     }
 
-    const secret = process.env.MONEROO_SECRET_KEY;
-    if (!secret) throw new Error("Clé Moneroo non configurée.");
+    const apiKey = process.env.CHARIOW_API_KEY;
+    if (!apiKey) throw new Error("Chariow non configuré.");
 
-    const verification = await verifyMonerooTransaction(payment.moneroo_transaction_id, secret);
-    const remoteStatus = verification.data.status as "pending" | "success" | "failed" | "cancelled";
+    const sale = await getChariowSale(payment.chariow_sale_id, apiKey);
+    const rs = sale.data.status;
+    const remoteStatus: "pending" | "success" | "failed" | "cancelled" =
+      rs === "completed"
+        ? "success"
+        : rs === "failed" || rs === "refunded"
+          ? "failed"
+          : "pending";
 
     if (remoteStatus === "success") {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: fresh } = await supabaseAdmin
+        .from("payments")
+        .select("status")
+        .eq("id", payment.id)
+        .maybeSingle();
+      if (fresh?.status === "success") {
+        return { status: "success", credits: payment.credits_added };
+      }
       await supabaseAdmin.rpc("increment_credits", {
         p_user_id: context.userId,
         p_amount: payment.credits_added,
