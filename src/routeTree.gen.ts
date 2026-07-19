@@ -18,6 +18,7 @@ import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedPaiementRetourRouteImport } from './routes/_authenticated/paiement-retour'
 import { Route as AuthenticatedAchatCreditsRouteImport } from './routes/_authenticated/achat-credits'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
 import { Route as ApiPublicChariowWebhookSecretRouteImport } from './routes/api/public/chariow-webhook.$secret'
 
@@ -68,6 +69,11 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
 const AuthenticatedResultatIdRoute = AuthenticatedResultatIdRouteImport.update({
   id: '/resultat/$id',
   path: '/resultat/$id',
@@ -83,25 +89,26 @@ const ApiPublicChariowWebhookSecretRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/admin': typeof AuthenticatedAdminRouteRoute
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
   '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/admin': typeof AuthenticatedAdminRouteRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
   '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
 }
 export interface FileRoutesById {
@@ -109,13 +116,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRouteRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/achat-credits': typeof AuthenticatedAchatCreditsRoute
   '/_authenticated/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/_authenticated/test': typeof AuthenticatedTestRoute
   '/_authenticated/resultat/$id': typeof AuthenticatedResultatIdRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
 }
 export interface FileRouteTypes {
@@ -130,18 +138,19 @@ export interface FileRouteTypes {
     | '/tableau-de-bord'
     | '/test'
     | '/resultat/$id'
+    | '/admin/'
     | '/api/public/chariow-webhook/$secret'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
-    | '/admin'
     | '/achat-credits'
     | '/paiement-retour'
     | '/profil'
     | '/tableau-de-bord'
     | '/test'
     | '/resultat/$id'
+    | '/admin'
     | '/api/public/chariow-webhook/$secret'
   id:
     | '__root__'
@@ -155,6 +164,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tableau-de-bord'
     | '/_authenticated/test'
     | '/_authenticated/resultat/$id'
+    | '/_authenticated/admin/'
     | '/api/public/chariow-webhook/$secret'
   fileRoutesById: FileRoutesById
 }
@@ -230,6 +240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/resultat/$id': {
       id: '/_authenticated/resultat/$id'
       path: '/resultat/$id'
@@ -247,8 +264,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRoute
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedAchatCreditsRoute: typeof AuthenticatedAchatCreditsRoute
   AuthenticatedPaiementRetourRoute: typeof AuthenticatedPaiementRetourRoute
   AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
@@ -258,7 +289,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRoute,
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedAchatCreditsRoute: AuthenticatedAchatCreditsRoute,
   AuthenticatedPaiementRetourRoute: AuthenticatedPaiementRetourRoute,
   AuthenticatedProfilRoute: AuthenticatedProfilRoute,
