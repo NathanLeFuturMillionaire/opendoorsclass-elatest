@@ -27,10 +27,10 @@ async function logAction(action: string, entity?: { type?: string; id?: string }
       action,
       entity_type: entity?.type ?? null,
       entity_id: entity?.id ?? null,
-      metadata,
+      metadata: metadata as any,
       ip_address: ip,
       user_agent: ua,
-    });
+    } as any);
   } catch (e) {
     console.error("logAction failed", e);
   }
@@ -197,7 +197,7 @@ export const moderateReview = createServerFn({ method: "POST" })
 const questionSchema = z.object({
   id: z.string().optional(),
   level: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]),
-  category: z.enum(["grammar", "vocabulary", "reading", "listening", "speaking", "writing"]),
+  category: z.enum(["grammar", "vocabulary", "reading", "listening"]),
   question_text: z.string().min(3),
   options: z.array(z.string().min(1)).min(2).max(6),
   correct_answer: z.string().min(1),
@@ -319,7 +319,7 @@ export const grantRole = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
       .from("user_roles")
-      .insert({ user_id: data.userId, role: data.role });
+      .insert({ user_id: data.userId, role: data.role as any });
     if (error && !error.message.includes("duplicate")) throw new Error(error.message);
     await logAction("role.grant", { type: "user", id: data.userId }, { actor_id: context.userId, role: data.role });
     return { ok: true };
@@ -337,7 +337,7 @@ export const revokeRole = createServerFn({ method: "POST" })
       .from("user_roles")
       .delete()
       .eq("user_id", data.userId)
-      .eq("role", data.role);
+      .eq("role", data.role as any);
     if (error) throw new Error(error.message);
     await logAction("role.revoke", { type: "user", id: data.userId }, { actor_id: context.userId, role: data.role });
     return { ok: true };
