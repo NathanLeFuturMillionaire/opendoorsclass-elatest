@@ -6,6 +6,15 @@ import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { getTestAccessPlan, createCheckout, getMyProfile } from "@/lib/payments.functions";
 
 export const Route = createFileRoute("/_authenticated/achat-credits")({
@@ -30,14 +39,23 @@ function BuyCreditsPage() {
   const fetchProfile = useServerFn(getMyProfile);
   const startCheckout = useServerFn(createCheckout);
   const [loading, setLoading] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [countryCode, setCountryCode] = useState("GA");
 
   const planQuery = useQuery({ queryKey: ["test-access-plan"], queryFn: () => fetchPlan() });
   const profileQuery = useQuery({ queryKey: ["my-profile"], queryFn: () => fetchProfile() });
 
   const handleBuy = async () => {
+    const digits = phone.replace(/\D/g, "").replace(/^0+/, "");
+    if (digits.length < 6) {
+      toast.error("Veuillez saisir un numéro de téléphone valide.");
+      return;
+    }
     setLoading(true);
     try {
-      const { checkoutUrl } = await startCheckout({ data: { origin: window.location.origin } });
+      const { checkoutUrl } = await startCheckout({
+        data: { origin: window.location.origin, phone: digits, countryCode },
+      });
       window.location.href = checkoutUrl;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Impossible de démarrer le paiement.");
@@ -103,6 +121,50 @@ function BuyCreditsPage() {
                     <span>Paiement sécurisé Chariow: Mobile Money, cartes, virements.</span>
                   </li>
                 </ul>
+                <div className="mt-8 space-y-4 rounded-2xl border border-border bg-muted/40 p-4">
+                  <div>
+                    <Label className="text-sm font-semibold">
+                      Numéro de téléphone pour le paiement
+                    </Label>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Requis par Chariow (Mobile Money, notifications). Chiffres uniquement, sans indicatif.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-[140px_1fr] gap-3">
+                    <div>
+                      <Label htmlFor="country" className="text-xs">Pays</Label>
+                      <Select value={countryCode} onValueChange={setCountryCode}>
+                        <SelectTrigger id="country" className="mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="GA">Gabon (+241)</SelectItem>
+                          <SelectItem value="CM">Cameroun (+237)</SelectItem>
+                          <SelectItem value="CI">Côte d'Ivoire (+225)</SelectItem>
+                          <SelectItem value="SN">Sénégal (+221)</SelectItem>
+                          <SelectItem value="CD">RD Congo (+243)</SelectItem>
+                          <SelectItem value="CG">Congo (+242)</SelectItem>
+                          <SelectItem value="BJ">Bénin (+229)</SelectItem>
+                          <SelectItem value="TG">Togo (+228)</SelectItem>
+                          <SelectItem value="BF">Burkina Faso (+226)</SelectItem>
+                          <SelectItem value="ML">Mali (+223)</SelectItem>
+                          <SelectItem value="FR">France (+33)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="phone" className="text-xs">Numéro</Label>
+                      <Input
+                        id="phone"
+                        inputMode="tel"
+                        placeholder="74825725"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
                 <Button
                   size="lg"
                   disabled={loading}
