@@ -339,7 +339,7 @@ function ProfilePage() {
                             fillOpacity={0.35}
                           />
                           <Tooltip
-                            formatter={(v: number) => [`${v}%`, "Score"]}
+                            formatter={(v) => [`${v as number}%`, "Score"]}
                           />
                         </RadarChart>
                       </ResponsiveContainer>
@@ -377,7 +377,7 @@ function ProfilePage() {
                               tickFormatter={(v) => `${v}%`}
                             />
                             <Tooltip
-                              formatter={(v: number) => [`${v}%`, "Score"]}
+                              formatter={(v) => [`${v as number}%`, "Score"]}
                               labelFormatter={(_, p) =>
                                 (p?.[0]?.payload as { date?: string } | undefined)
                                   ?.date ?? ""
