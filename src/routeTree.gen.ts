@@ -21,6 +21,7 @@ import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
 import { Route as AuthenticatedAdminCandidatsRouteImport } from './routes/_authenticated/admin/candidats'
+import { Route as AuthenticatedAdminAvisRouteImport } from './routes/_authenticated/admin/avis'
 import { Route as ApiPublicChariowWebhookSecretRouteImport } from './routes/api/public/chariow-webhook.$secret'
 
 const AuthRoute = AuthRouteImport.update({
@@ -86,6 +87,11 @@ const AuthenticatedAdminCandidatsRoute =
     path: '/candidats',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminAvisRoute = AuthenticatedAdminAvisRouteImport.update({
+  id: '/avis',
+  path: '/avis',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
 const ApiPublicChariowWebhookSecretRoute =
   ApiPublicChariowWebhookSecretRouteImport.update({
     id: '/api/public/chariow-webhook/$secret',
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
+  '/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
+  '/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/_authenticated/test': typeof AuthenticatedTestRoute
+  '/_authenticated/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/_authenticated/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/_authenticated/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
     | '/profil'
     | '/tableau-de-bord'
     | '/test'
+    | '/admin/avis'
     | '/admin/candidats'
     | '/resultat/$id'
     | '/admin/'
@@ -160,6 +170,7 @@ export interface FileRouteTypes {
     | '/profil'
     | '/tableau-de-bord'
     | '/test'
+    | '/admin/avis'
     | '/admin/candidats'
     | '/resultat/$id'
     | '/admin'
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profil'
     | '/_authenticated/tableau-de-bord'
     | '/_authenticated/test'
+    | '/_authenticated/admin/avis'
     | '/_authenticated/admin/candidats'
     | '/_authenticated/resultat/$id'
     | '/_authenticated/admin/'
@@ -274,6 +286,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCandidatsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/avis': {
+      id: '/_authenticated/admin/avis'
+      path: '/avis'
+      fullPath: '/admin/avis'
+      preLoaderRoute: typeof AuthenticatedAdminAvisRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/api/public/chariow-webhook/$secret': {
       id: '/api/public/chariow-webhook/$secret'
       path: '/api/public/chariow-webhook/$secret'
@@ -285,12 +304,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminAvisRoute: typeof AuthenticatedAdminAvisRoute
   AuthenticatedAdminCandidatsRoute: typeof AuthenticatedAdminCandidatsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminAvisRoute: AuthenticatedAdminAvisRoute,
     AuthenticatedAdminCandidatsRoute: AuthenticatedAdminCandidatsRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   }
