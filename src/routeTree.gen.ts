@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/test'
 import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
+import { Route as ApiPublicMonerooWebhookRouteImport } from './routes/api/public/moneroo-webhook'
 import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
 
 const AuthRoute = AuthRouteImport.update({
@@ -41,6 +42,11 @@ const AuthenticatedTableauDeBordRoute =
     path: '/tableau-de-bord',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicMonerooWebhookRoute = ApiPublicMonerooWebhookRouteImport.update({
+  id: '/api/public/moneroo-webhook',
+  path: '/api/public/moneroo-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedResultatIdRoute = AuthenticatedResultatIdRouteImport.update({
   id: '/resultat/$id',
   path: '/resultat/$id',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
+  '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
+  '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -69,12 +77,25 @@ export interface FileRoutesById {
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/_authenticated/test': typeof AuthenticatedTestRoute
   '/_authenticated/resultat/$id': typeof AuthenticatedResultatIdRoute
+  '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/tableau-de-bord' | '/test' | '/resultat/$id'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/tableau-de-bord'
+    | '/test'
+    | '/resultat/$id'
+    | '/api/public/moneroo-webhook'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/tableau-de-bord' | '/test' | '/resultat/$id'
+  to:
+    | '/'
+    | '/auth'
+    | '/tableau-de-bord'
+    | '/test'
+    | '/resultat/$id'
+    | '/api/public/moneroo-webhook'
   id:
     | '__root__'
     | '/'
@@ -83,12 +104,14 @@ export interface FileRouteTypes {
     | '/_authenticated/tableau-de-bord'
     | '/_authenticated/test'
     | '/_authenticated/resultat/$id'
+    | '/api/public/moneroo-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicMonerooWebhookRoute: typeof ApiPublicMonerooWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -128,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTableauDeBordRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/moneroo-webhook': {
+      id: '/api/public/moneroo-webhook'
+      path: '/api/public/moneroo-webhook'
+      fullPath: '/api/public/moneroo-webhook'
+      preLoaderRoute: typeof ApiPublicMonerooWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/resultat/$id': {
       id: '/_authenticated/resultat/$id'
       path: '/resultat/$id'
@@ -157,6 +187,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicMonerooWebhookRoute: ApiPublicMonerooWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
