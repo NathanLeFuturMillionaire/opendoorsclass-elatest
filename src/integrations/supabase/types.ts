@@ -38,6 +38,7 @@ export type Database = {
       payments: {
         Row: {
           amount: number
+          chariow_sale_id: string | null
           confirmed_at: string | null
           created_at: string
           credits_added: number
@@ -46,12 +47,14 @@ export type Database = {
           moneroo_reference: string
           moneroo_transaction_id: string | null
           payment_method: string | null
+          provider: string
           raw_payload: Json | null
           status: Database["public"]["Enums"]["payment_status"]
           user_id: string
         }
         Insert: {
           amount: number
+          chariow_sale_id?: string | null
           confirmed_at?: string | null
           created_at?: string
           credits_added?: number
@@ -60,12 +63,14 @@ export type Database = {
           moneroo_reference: string
           moneroo_transaction_id?: string | null
           payment_method?: string | null
+          provider?: string
           raw_payload?: Json | null
           status?: Database["public"]["Enums"]["payment_status"]
           user_id: string
         }
         Update: {
           amount?: number
+          chariow_sale_id?: string | null
           confirmed_at?: string | null
           created_at?: string
           credits_added?: number
@@ -74,6 +79,7 @@ export type Database = {
           moneroo_reference?: string
           moneroo_transaction_id?: string | null
           payment_method?: string | null
+          provider?: string
           raw_payload?: Json | null
           status?: Database["public"]["Enums"]["payment_status"]
           user_id?: string

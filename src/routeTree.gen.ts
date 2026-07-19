@@ -16,8 +16,8 @@ import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/t
 import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
 import { Route as AuthenticatedPaiementRetourRouteImport } from './routes/_authenticated/paiement-retour'
 import { Route as AuthenticatedAchatCreditsRouteImport } from './routes/_authenticated/achat-credits'
-import { Route as ApiPublicMonerooWebhookRouteImport } from './routes/api/public/moneroo-webhook'
 import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
+import { Route as ApiPublicChariowWebhookSecretRouteImport } from './routes/api/public/chariow-webhook.$secret'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -56,16 +56,17 @@ const AuthenticatedAchatCreditsRoute =
     path: '/achat-credits',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const ApiPublicMonerooWebhookRoute = ApiPublicMonerooWebhookRouteImport.update({
-  id: '/api/public/moneroo-webhook',
-  path: '/api/public/moneroo-webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedResultatIdRoute = AuthenticatedResultatIdRouteImport.update({
   id: '/resultat/$id',
   path: '/resultat/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicChariowWebhookSecretRoute =
+  ApiPublicChariowWebhookSecretRouteImport.update({
+    id: '/api/public/chariow-webhook/$secret',
+    path: '/api/public/chariow-webhook/$secret',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,7 +76,7 @@ export interface FileRoutesByFullPath {
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
-  '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
+  '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,7 +86,7 @@ export interface FileRoutesByTo {
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
-  '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
+  '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,7 +98,7 @@ export interface FileRoutesById {
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/_authenticated/test': typeof AuthenticatedTestRoute
   '/_authenticated/resultat/$id': typeof AuthenticatedResultatIdRoute
-  '/api/public/moneroo-webhook': typeof ApiPublicMonerooWebhookRoute
+  '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -109,7 +110,7 @@ export interface FileRouteTypes {
     | '/tableau-de-bord'
     | '/test'
     | '/resultat/$id'
-    | '/api/public/moneroo-webhook'
+    | '/api/public/chariow-webhook/$secret'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -119,7 +120,7 @@ export interface FileRouteTypes {
     | '/tableau-de-bord'
     | '/test'
     | '/resultat/$id'
-    | '/api/public/moneroo-webhook'
+    | '/api/public/chariow-webhook/$secret'
   id:
     | '__root__'
     | '/'
@@ -130,14 +131,14 @@ export interface FileRouteTypes {
     | '/_authenticated/tableau-de-bord'
     | '/_authenticated/test'
     | '/_authenticated/resultat/$id'
-    | '/api/public/moneroo-webhook'
+    | '/api/public/chariow-webhook/$secret'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  ApiPublicMonerooWebhookRoute: typeof ApiPublicMonerooWebhookRoute
+  ApiPublicChariowWebhookSecretRoute: typeof ApiPublicChariowWebhookSecretRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -191,19 +192,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAchatCreditsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/public/moneroo-webhook': {
-      id: '/api/public/moneroo-webhook'
-      path: '/api/public/moneroo-webhook'
-      fullPath: '/api/public/moneroo-webhook'
-      preLoaderRoute: typeof ApiPublicMonerooWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/resultat/$id': {
       id: '/_authenticated/resultat/$id'
       path: '/resultat/$id'
       fullPath: '/resultat/$id'
       preLoaderRoute: typeof AuthenticatedResultatIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/chariow-webhook/$secret': {
+      id: '/api/public/chariow-webhook/$secret'
+      path: '/api/public/chariow-webhook/$secret'
+      fullPath: '/api/public/chariow-webhook/$secret'
+      preLoaderRoute: typeof ApiPublicChariowWebhookSecretRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -231,18 +232,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  ApiPublicMonerooWebhookRoute: ApiPublicMonerooWebhookRoute,
+  ApiPublicChariowWebhookSecretRoute: ApiPublicChariowWebhookSecretRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
