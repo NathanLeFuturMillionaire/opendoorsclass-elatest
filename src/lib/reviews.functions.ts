@@ -86,9 +86,28 @@ export const listPublicReviews = createServerFn({ method: "GET" }).handler(async
   });
   const { data } = await client
     .from("reviews")
-    .select("id, rating, title, comment, country, display_name, level_achieved, created_at")
+    .select("id, user_id, rating, title, comment, country, display_name, level_achieved, created_at")
     .eq("status", "approved")
     .order("created_at", { ascending: false })
     .limit(20);
-  return data ?? [];
+  const reviews = data ?? [];
+  if (reviews.length === 0) return [];
+  const userIds = Array.from(new Set(reviews.map((r) => r.user_id).filter(Boolean))) as string[];
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: profs } = await supabaseAdmin
+    .from("profiles")
+    .select("id, avatar_url")
+    .in("id", userIds);
+  const avatarByUser = new Map((profs ?? []).map((p: any) => [p.id, p.avatar_url as string | null]));
+  return reviews.map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    title: r.title,
+    comment: r.comment,
+    country: r.country,
+    display_name: r.display_name,
+    level_achieved: r.level_achieved,
+    created_at: r.created_at,
+    avatar_url: avatarByUser.get(r.user_id) ?? null,
+  }));
 });
