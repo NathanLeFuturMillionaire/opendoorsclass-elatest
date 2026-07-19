@@ -32,7 +32,10 @@ function PaymentReturnPage() {
       return;
     }
     let cancelled = false;
-    let attempts = 0;
+    // Objectif : confirmation en 3s max. Chaque appel `checkPaymentStatus` interroge le PSP,
+    // le premier passage confirme quasi systématiquement les paiements réussis.
+    const delays = [0, 600, 1200, 1800];
+    let idx = 0;
     const poll = async () => {
       try {
         const result = await check({ data: { paymentId } });
@@ -46,9 +49,9 @@ function PaymentReturnPage() {
           setStatus(result.status);
           return;
         }
-        attempts += 1;
-        if (attempts < 25) {
-          setTimeout(poll, 2000);
+        idx += 1;
+        if (idx < delays.length) {
+          setTimeout(poll, delays[idx]);
         } else {
           setStatus("pending");
         }
@@ -56,7 +59,7 @@ function PaymentReturnPage() {
         if (!cancelled) setStatus("unknown");
       }
     };
-    poll();
+    setTimeout(poll, delays[0]);
     return () => {
       cancelled = true;
     };
