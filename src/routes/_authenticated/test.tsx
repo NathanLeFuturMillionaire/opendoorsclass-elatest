@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, Clock, Headphones, Loader2, Play } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Headphones, Loader2, Mic, Play, Square } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
   getTestQuestions,
   startTestSession,
   submitTestAnswers,
+  transcribeAndScoreSpeaking,
   type ClientQuestion,
 } from "@/lib/test.functions";
 
@@ -24,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/test")({
 
 const TEST_DURATION_SEC = 30 * 60;
 
-type Phase = "intro" | "listening-intro" | "running" | "submitting";
+type Phase = "intro" | "listening-intro" | "speaking-intro" | "running" | "submitting";
 
 function TestPage() {
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ function TestPage() {
   const [remaining, setRemaining] = useState(TEST_DURATION_SEC);
   const [loading, setLoading] = useState(false);
   const [seenListeningIntro, setSeenListeningIntro] = useState(false);
+  const [seenSpeakingIntro, setSeenSpeakingIntro] = useState(false);
 
   const startTest = async () => {
     setLoading(true);
@@ -99,7 +101,10 @@ function TestPage() {
     if (phase === "running" && q?.category === "listening" && !seenListeningIntro) {
       setPhase("listening-intro");
     }
-  }, [phase, q, seenListeningIntro]);
+    if (phase === "running" && q?.category === "speaking" && !seenSpeakingIntro) {
+      setPhase("speaking-intro");
+    }
+  }, [phase, q, seenListeningIntro, seenSpeakingIntro]);
 
   const goto = (delta: number) => {
     setCurrent((c) => Math.min(Math.max(0, c + delta), questions.length - 1));
@@ -172,6 +177,39 @@ function TestPage() {
     );
   }
 
+  if (phase === "speaking-intro") {
+    return (
+      <Shell>
+        <Card className="mx-auto max-w-2xl">
+          <CardContent className="p-8 space-y-6 text-center">
+            <div className="mx-auto grid size-16 place-items-center rounded-full bg-primary/10 text-primary">
+              <Mic className="size-8" />
+            </div>
+            <h2 className="text-2xl font-bold">Section expression orale</h2>
+            <p className="text-muted-foreground">
+              Vous allez répondre en anglais à voix haute. Autorisez l'accès au microphone,
+              parlez clairement, puis arrêtez l'enregistrement. Votre réponse sera
+              transcrite et notée automatiquement par l'IA.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Astuce : un environnement calme améliore la précision de la transcription.
+            </p>
+            <Button
+              size="lg"
+              onClick={() => {
+                setSeenSpeakingIntro(true);
+                setPhase("running");
+              }}
+              className="bg-brand-gradient text-primary-foreground"
+            >
+              Je suis prêt
+            </Button>
+          </CardContent>
+        </Card>
+      </Shell>
+    );
+  }
+
   if (phase === "submitting" || !q) {
     return (
       <Shell>
@@ -206,6 +244,15 @@ function TestPage() {
           <CardContent className="p-6 space-y-5">
             {q.audio_url ? <AudioPlayer key={q.id} url={q.audio_url} maxPlays={q.max_plays} /> : null}
             <h2 className="text-lg font-semibold leading-relaxed">{q.question_text}</h2>
+            {q.category === "speaking" ? (
+              <SpeakingRecorder
+                key={q.id}
+                sessionId={sessionId!}
+                questionId={q.id}
+                existing={answers[q.id]}
+                onScored={(value) => setAnswers((a) => ({ ...a, [q.id]: value }))}
+              />
+            ) : (
             <RadioGroup
               value={answers[q.id] ?? ""}
               onValueChange={setAnswer}
@@ -225,6 +272,7 @@ function TestPage() {
                 );
               })}
             </RadioGroup>
+            )}
           </CardContent>
         </Card>
 
