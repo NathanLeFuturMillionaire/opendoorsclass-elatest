@@ -111,17 +111,15 @@ export const checkPaymentStatus = createServerFn({ method: "GET" })
     const remoteStatus = verification.data.status as "pending" | "success" | "failed" | "cancelled";
 
     if (remoteStatus === "success") {
-      if (payment.status !== "success") {
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        await supabaseAdmin.rpc("increment_credits", {
-          p_user_id: context.userId,
-          p_amount: payment.credits_added,
-        });
-        await supabaseAdmin
-          .from("payments")
-          .update({ status: "success", confirmed_at: new Date().toISOString() })
-          .eq("id", payment.id);
-      }
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.rpc("increment_credits", {
+        p_user_id: context.userId,
+        p_amount: payment.credits_added,
+      });
+      await supabaseAdmin
+        .from("payments")
+        .update({ status: "success", confirmed_at: new Date().toISOString() })
+        .eq("id", payment.id);
       return { status: "success", credits: payment.credits_added };
     }
 
