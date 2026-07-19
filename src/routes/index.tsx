@@ -83,8 +83,7 @@ const FALLBACK_TESTIMONIALS = [
     level_achieved: "A2",
     rating: 5,
     title: "Simple et clair",
-    comment:
-      "Simple, clair, en français. J'ai enfin compris où je me situais et par où commencer avec Nathan.",
+    comment: "Simple, clair, en français. J'ai enfin compris où je me situais et par où commencer avec Nathan.",
     country: "Gabon",
   },
   {
@@ -92,8 +91,7 @@ const FALLBACK_TESTIMONIALS = [
     level_achieved: "C1",
     rating: 5,
     title: "Attestation utile",
-    comment:
-      "L'attestation m'a permis de rassurer mon recruteur. La plateforme est fluide, même sur mon téléphone.",
+    comment: "L'attestation m'a permis de rassurer mon recruteur. La plateforme est fluide, même sur mon téléphone.",
     country: "Gabon",
   },
 ];
@@ -117,10 +115,11 @@ function HomePage() {
                 Nouveau, plateforme officielle OpenDoorsClass
               </Badge>
               <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
-                Découvrez votre <span className="text-brand-gradient">niveau d'anglais</span> en 30 minutes.
+                Découvrez votre <span className="text-brand-gradient">véritable niveau d'anglais</span> en 30 minutes.
               </h1>
               <p className="mt-5 max-w-xl text-lg text-muted-foreground">
-                Un test complet, aligné sur le CECRL (A1 à C2), conçu par le professeur Nathan Harysthote pour les apprenants d'Afrique francophone.
+                Un test complet, aligné sur le CECRL (A1 à C2), conçu pour les passionnés de la langue anglaise en
+                Afrique francophone.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button asChild size="lg" className="bg-brand-gradient text-primary-foreground shadow-md">
@@ -153,9 +152,7 @@ function HomePage() {
                       Question 12 / 30
                     </span>
                   </div>
-                  <p className="mt-4 text-base font-semibold">
-                    Choose the correct sentence:
-                  </p>
+                  <p className="mt-4 text-base font-semibold">Choose the correct sentence:</p>
                   <div className="mt-4 space-y-2">
                     {[
                       "She don't like tea.",
@@ -167,9 +164,7 @@ function HomePage() {
                         key={choice}
                         className={
                           "flex items-center gap-3 rounded-xl border px-3 py-2 text-sm " +
-                          (i === 2
-                            ? "border-brand-green bg-brand-green-soft"
-                            : "border-border bg-muted/30")
+                          (i === 2 ? "border-brand-green bg-brand-green-soft" : "border-border bg-muted/30")
                         }
                       >
                         <span className="grid size-6 place-items-center rounded-full border border-border bg-background text-xs font-semibold">
@@ -194,7 +189,9 @@ function HomePage() {
         {/* Comment ça marche */}
         <section id="comment" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">
-            <Badge variant="outline" className="mb-3">Comment ça marche</Badge>
+            <Badge variant="outline" className="mb-3">
+              Comment ça marche
+            </Badge>
             <h2 className="text-3xl font-bold sm:text-4xl">Trois étapes, un niveau clair.</h2>
             <p className="mt-3 text-muted-foreground">
               Un parcours simple, pensé pour être fait sur téléphone ou sur ordinateur.
@@ -224,7 +221,9 @@ function HomePage() {
         <section className="border-y border-border bg-secondary/40">
           <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
             <div className="mx-auto max-w-2xl text-center">
-              <Badge variant="outline" className="mb-3">Pourquoi OpenDoorsClass</Badge>
+              <Badge variant="outline" className="mb-3">
+                Pourquoi OpenDoorsClass
+              </Badge>
               <h2 className="text-3xl font-bold sm:text-4xl">Un test conçu pour vous, ici.</h2>
             </div>
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -258,16 +257,20 @@ function HomePage() {
               </div>
             </div>
             <div className="md:col-span-3">
-              <Badge variant="outline" className="mb-3">Le fondateur</Badge>
+              <Badge variant="outline" className="mb-3">
+                Le fondateur
+              </Badge>
               <h2 className="text-3xl font-bold sm:text-4xl">
                 MAYUKWA Nathan Harysthote,
                 <span className="block text-brand-gradient">professeur d'anglais passionné.</span>
               </h2>
               <p className="mt-4 text-muted-foreground">
-                Formateur au Gabon, Nathan accompagne depuis plusieurs années des élèves, étudiants et professionnels vers un anglais utile, celui qui ouvre les portes de l'école, du travail et du voyage.
+                Formateur au Gabon, Nathan accompagne depuis plusieurs années des élèves, étudiants et professionnels
+                vers un anglais utile, celui qui ouvre les portes de l'école, du travail et du voyage.
               </p>
               <p className="mt-3 text-muted-foreground">
-                OpenDoorsClass est né d'un constat simple, chaque apprenant mérite d'abord de connaître son vrai niveau avant de choisir un parcours. Ce test est la première étape de ce voyage.
+                OpenDoorsClass est né d'un constat simple, chaque apprenant mérite d'abord de connaître son vrai niveau
+                avant de choisir un parcours. Ce test est la première étape de ce voyage.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Button asChild size="lg" className="bg-brand-gradient text-primary-foreground">
@@ -290,9 +293,7 @@ function HomePage() {
         {/* Final CTA */}
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <div className="relative overflow-hidden rounded-3xl bg-brand-gradient p-10 text-center text-primary-foreground shadow-2xl sm:p-14">
-            <h2 className="text-3xl font-extrabold sm:text-4xl">
-              Prêt à connaître votre vrai niveau d'anglais ?
-            </h2>
+            <h2 className="text-3xl font-extrabold sm:text-4xl">Prêt à connaître votre vrai niveau d'anglais ?</h2>
             <p className="mt-3 text-primary-foreground/90">
               Créez votre compte, passez le test, recevez votre attestation.
             </p>
@@ -362,9 +363,7 @@ function TestimonialsSection() {
           Témoignages
         </Badge>
         <h2 className="text-3xl font-bold sm:text-4xl">Ils ont passé le test.</h2>
-        <p className="mt-3 text-muted-foreground">
-          Retours authentiques de candidats OpenDoorsClass.
-        </p>
+        <p className="mt-3 text-muted-foreground">Retours authentiques de candidats OpenDoorsClass.</p>
       </div>
       <div
         ref={scrollerRef}
@@ -391,16 +390,12 @@ function TestimonialsSection() {
                     />
                   ))}
                 </div>
-                {t.title ? (
-                  <p className="mt-3 text-sm font-semibold">{t.title}</p>
-                ) : null}
+                {t.title ? <p className="mt-3 text-sm font-semibold">{t.title}</p> : null}
                 <p className="mt-2 text-sm text-foreground/90">« {t.comment} »</p>
                 <div className="mt-auto pt-5 flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold">{t.display_name}</p>
-                    {t.country ? (
-                      <p className="text-xs text-muted-foreground">{t.country}</p>
-                    ) : null}
+                    {t.country ? <p className="text-xs text-muted-foreground">{t.country}</p> : null}
                   </div>
                   {t.level_achieved ? (
                     <span className="rounded-full bg-brand-blue text-brand-blue-foreground px-3 py-1 text-xs font-semibold">
