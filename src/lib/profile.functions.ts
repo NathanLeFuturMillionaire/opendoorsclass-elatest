@@ -147,7 +147,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
         last_name: data.lastName,
         nationality: data.nationality ?? null,
         date_of_birth: data.dateOfBirth ?? null,
-        objectives: data.objectives ?? null,
+        objectives: (data.objectives ?? null) as string[] | null,
       })
       .eq("id", context.userId);
     if (error) throw new Error(error.message);
