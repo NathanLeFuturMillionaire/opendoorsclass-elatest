@@ -35,7 +35,7 @@ function AdminLayout() {
     );
   }
 
-  const nav = [
+  const nav: Array<{ to: string; label: string; icon: any; exact?: boolean; adminOnly?: boolean; ownerOnly?: boolean }> = [
     { to: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
     { to: "/admin/candidats", label: "Candidats", icon: Users },
     { to: "/admin/questions", label: "Questions", icon: HelpCircle, adminOnly: true },
@@ -43,7 +43,7 @@ function AdminLayout() {
     { to: "/admin/certificats", label: "Certificats", icon: Award },
     { to: "/admin/utilisateurs", label: "Utilisateurs", icon: Shield, ownerOnly: true },
     { to: "/admin/journal", label: "Journal", icon: ScrollText, adminOnly: true },
-  ] as const;
+  ];
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-7xl gap-6 px-4 py-8 sm:px-6">
@@ -60,7 +60,7 @@ function AdminLayout() {
             return (
               <Link
                 key={item.to}
-                to={item.to}
+                to={item.to as any}
                 activeOptions={{ exact: item.exact }}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
