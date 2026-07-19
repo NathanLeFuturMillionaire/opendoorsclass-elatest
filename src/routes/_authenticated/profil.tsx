@@ -48,8 +48,11 @@ import {
   getProfileFull,
   updateMyProfile,
   generateAIRecommendations,
+  updateMyAvatar,
 } from "@/lib/profile.functions";
 import { getMyReview, submitMyReview } from "@/lib/reviews.functions";
+import { supabase } from "@/integrations/supabase/client";
+import { Camera } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/profil")({
   component: ProfilePage,
@@ -108,6 +111,7 @@ function ProfilePage() {
   const doGenAI = useServerFn(generateAIRecommendations);
   const fetchMyReview = useServerFn(getMyReview);
   const doSubmitReview = useServerFn(submitMyReview);
+  const doUpdateAvatar = useServerFn(updateMyAvatar);
   const qc = useQueryClient();
 
   const { data: profile, isLoading } = useQuery({
@@ -124,6 +128,7 @@ function ProfilePage() {
   const [nationality, setNationality] = useState("");
   const [dob, setDob] = useState("");
   const [objectivesText, setObjectivesText] = useState("");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   useEffect(() => {
     if (!profile) return;
@@ -190,6 +195,44 @@ function ProfilePage() {
   const statusMeta = STATUS_LABEL[status] ?? STATUS_LABEL.nouveau;
   const age = ageFromDob(profile?.date_of_birth);
 
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Veuillez choisir une image.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image trop volumineuse (5 Mo maximum).");
+      return;
+    }
+    setUploadingAvatar(true);
+    try {
+      const { data: userRes } = await supabase.auth.getUser();
+      const uid = userRes.user?.id;
+      if (!uid) throw new Error("Session expirée.");
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+      const path = `${uid}/avatar-${Date.now()}.${ext || "jpg"}`;
+      const up = await supabase.storage
+        .from("avatars")
+        .upload(path, file, { cacheControl: "3600", upsert: true, contentType: file.type });
+      if (up.error) throw up.error;
+      const signed = await supabase.storage
+        .from("avatars")
+        .createSignedUrl(path, 60 * 60 * 24 * 365);
+      if (signed.error || !signed.data?.signedUrl) throw signed.error ?? new Error("URL indisponible.");
+      await doUpdateAvatar({ data: { avatarUrl: signed.data.signedUrl } });
+      toast.success("Photo de profil mise à jour.");
+      qc.invalidateQueries({ queryKey: ["profile-full"] });
+      qc.invalidateQueries({ queryKey: ["public-reviews"] });
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Échec du téléversement.");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
@@ -211,12 +254,36 @@ function ProfilePage() {
               <div className="pointer-events-none absolute -bottom-20 left-10 h-52 w-52 rounded-full bg-brand-green-soft blur-3xl opacity-60" />
               <div className="relative flex flex-col gap-6 md:flex-row md:items-center">
                 <div className="relative">
-                  <div className="grid size-24 place-items-center rounded-full bg-brand-gradient text-3xl font-black text-primary-foreground shadow-lg sm:size-28">
-                    {initials}
-                  </div>
-                  <span className="absolute -bottom-1 -right-1 rounded-full bg-background p-1 shadow">
-                    <BadgeCheck className="size-6 text-brand-blue" />
-                  </span>
+                  {profile.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt={[firstName, lastName].filter(Boolean).join(" ") || "Candidat"}
+                      className="size-24 rounded-full object-cover shadow-lg ring-4 ring-background sm:size-28"
+                    />
+                  ) : (
+                    <div className="grid size-24 place-items-center rounded-full bg-brand-gradient text-3xl font-black text-primary-foreground shadow-lg sm:size-28">
+                      {initials}
+                    </div>
+                  )}
+                  <label
+                    htmlFor="avatar-upload"
+                    className="absolute -bottom-1 -right-1 grid size-9 cursor-pointer place-items-center rounded-full bg-background shadow ring-1 ring-border transition hover:bg-muted"
+                    title="Changer la photo"
+                  >
+                    {uploadingAvatar ? (
+                      <Loader2 className="size-4 animate-spin text-brand-blue" />
+                    ) : (
+                      <Camera className="size-4 text-brand-blue" />
+                    )}
+                    <input
+                      id="avatar-upload"
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      onChange={handleAvatarChange}
+                      disabled={uploadingAvatar}
+                    />
+                  </label>
                 </div>
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2">
