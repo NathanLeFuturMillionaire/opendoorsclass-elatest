@@ -304,7 +304,7 @@ export const listUsersWithRoles = createServerFn({ method: "GET" })
         profile: profileMap.get(r.user_id) ?? null,
         roles: [],
       };
-      cur.roles.push(r.role);
+      cur.roles.push((r as any).role);
       byUser.set(r.user_id, cur);
     }
     return Array.from(byUser.values()).sort((a, b) => (a.roles.includes("owner") ? -1 : b.roles.includes("owner") ? 1 : 0));
