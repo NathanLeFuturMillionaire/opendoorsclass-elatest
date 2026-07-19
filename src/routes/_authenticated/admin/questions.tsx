@@ -114,7 +114,7 @@ function QuestionsPage() {
                 </Select>
                 <Select value={editing.category} onValueChange={(v) => setEditing({ ...editing, category: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{["grammar","vocabulary","reading","listening"].map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                  <SelectContent>{["grammar","vocabulary","reading","listening","speaking"].map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <Textarea placeholder="Énoncé de la question" value={editing.question_text} onChange={(e) => setEditing({ ...editing, question_text: e.target.value })} rows={3} />
