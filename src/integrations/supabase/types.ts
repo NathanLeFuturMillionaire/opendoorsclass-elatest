@@ -130,30 +130,48 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ai_recommendations: string | null
+          ai_recommendations_at: string | null
           avatar_url: string | null
+          candidate_number: string | null
           created_at: string
           credits_remaining: number
+          date_of_birth: string | null
           first_name: string | null
           id: string
           last_name: string | null
+          nationality: string | null
+          objectives: string[]
           updated_at: string
         }
         Insert: {
+          ai_recommendations?: string | null
+          ai_recommendations_at?: string | null
           avatar_url?: string | null
+          candidate_number?: string | null
           created_at?: string
           credits_remaining?: number
+          date_of_birth?: string | null
           first_name?: string | null
           id: string
           last_name?: string | null
+          nationality?: string | null
+          objectives?: string[]
           updated_at?: string
         }
         Update: {
+          ai_recommendations?: string | null
+          ai_recommendations_at?: string | null
           avatar_url?: string | null
+          candidate_number?: string | null
           created_at?: string
           credits_remaining?: number
+          date_of_birth?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
+          nationality?: string | null
+          objectives?: string[]
           updated_at?: string
         }
         Relationships: []
@@ -203,6 +221,51 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          comment: string
+          country: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          level_achieved: string | null
+          photo_url: string | null
+          rating: number
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment: string
+          country?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          level_achieved?: string | null
+          photo_url?: string | null
+          rating: number
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string
+          country?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          level_achieved?: string | null
+          photo_url?: string | null
+          rating?: number
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       test_access_plan: {
         Row: {
           credits_included: number
@@ -235,10 +298,12 @@ export type Database = {
           answers: Json
           completed_at: string | null
           created_at: string
+          duration_seconds: number | null
           id: string
           level_result: Database["public"]["Enums"]["cecrl_level"] | null
           per_category_scores: Json
           score: number | null
+          skill_scores: Json | null
           started_at: string
           user_id: string
         }
@@ -246,10 +311,12 @@ export type Database = {
           answers?: Json
           completed_at?: string | null
           created_at?: string
+          duration_seconds?: number | null
           id?: string
           level_result?: Database["public"]["Enums"]["cecrl_level"] | null
           per_category_scores?: Json
           score?: number | null
+          skill_scores?: Json | null
           started_at?: string
           user_id: string
         }
@@ -257,10 +324,12 @@ export type Database = {
           answers?: Json
           completed_at?: string | null
           created_at?: string
+          duration_seconds?: number | null
           id?: string
           level_result?: Database["public"]["Enums"]["cecrl_level"] | null
           per_category_scores?: Json
           score?: number | null
+          skill_scores?: Json | null
           started_at?: string
           user_id?: string
         }
@@ -331,6 +400,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_profile_stats: {
+        Args: { p_user_id: string }
+        Returns: {
+          avg_duration_seconds: number
+          best_level: string
+          best_score: number
+          completed_tests: number
+          last_level: string
+          last_score: number
+          total_tests: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
