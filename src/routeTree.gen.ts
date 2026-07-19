@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/test'
 import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
+import { Route as AuthenticatedPaiementRetourRouteImport } from './routes/_authenticated/paiement-retour'
 import { Route as AuthenticatedAchatCreditsRouteImport } from './routes/_authenticated/achat-credits'
 import { Route as ApiPublicMonerooWebhookRouteImport } from './routes/api/public/moneroo-webhook'
 import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
@@ -43,6 +44,12 @@ const AuthenticatedTableauDeBordRoute =
     path: '/tableau-de-bord',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPaiementRetourRoute =
+  AuthenticatedPaiementRetourRouteImport.update({
+    id: '/paiement-retour',
+    path: '/paiement-retour',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAchatCreditsRoute =
   AuthenticatedAchatCreditsRouteImport.update({
     id: '/achat-credits',
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
+  '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
@@ -73,6 +81,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
+  '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
@@ -84,6 +93,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/achat-credits': typeof AuthenticatedAchatCreditsRoute
+  '/_authenticated/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/_authenticated/test': typeof AuthenticatedTestRoute
   '/_authenticated/resultat/$id': typeof AuthenticatedResultatIdRoute
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/achat-credits'
+    | '/paiement-retour'
     | '/tableau-de-bord'
     | '/test'
     | '/resultat/$id'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/achat-credits'
+    | '/paiement-retour'
     | '/tableau-de-bord'
     | '/test'
     | '/resultat/$id'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/achat-credits'
+    | '/_authenticated/paiement-retour'
     | '/_authenticated/tableau-de-bord'
     | '/_authenticated/test'
     | '/_authenticated/resultat/$id'
@@ -164,6 +177,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTableauDeBordRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/paiement-retour': {
+      id: '/_authenticated/paiement-retour'
+      path: '/paiement-retour'
+      fullPath: '/paiement-retour'
+      preLoaderRoute: typeof AuthenticatedPaiementRetourRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/achat-credits': {
       id: '/_authenticated/achat-credits'
       path: '/achat-credits'
@@ -190,6 +210,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAchatCreditsRoute: typeof AuthenticatedAchatCreditsRoute
+  AuthenticatedPaiementRetourRoute: typeof AuthenticatedPaiementRetourRoute
   AuthenticatedTableauDeBordRoute: typeof AuthenticatedTableauDeBordRoute
   AuthenticatedTestRoute: typeof AuthenticatedTestRoute
   AuthenticatedResultatIdRoute: typeof AuthenticatedResultatIdRoute
@@ -197,6 +218,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAchatCreditsRoute: AuthenticatedAchatCreditsRoute,
+  AuthenticatedPaiementRetourRoute: AuthenticatedPaiementRetourRoute,
   AuthenticatedTableauDeBordRoute: AuthenticatedTableauDeBordRoute,
   AuthenticatedTestRoute: AuthenticatedTestRoute,
   AuthenticatedResultatIdRoute: AuthenticatedResultatIdRoute,
