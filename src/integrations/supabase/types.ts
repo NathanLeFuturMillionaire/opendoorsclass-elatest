@@ -426,7 +426,7 @@ export type Database = {
       start_test_session: { Args: never; Returns: string }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "owner" | "moderator"
       cecrl_level: "A1" | "A2" | "B1" | "B2" | "C1" | "C2"
       level_range: "A1-A2" | "B1-B2" | "C1-C2"
       payment_status: "pending" | "success" | "failed" | "cancelled"
@@ -558,7 +558,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "owner", "moderator"],
       cecrl_level: ["A1", "A2", "B1", "B2", "C1", "C2"],
       level_range: ["A1-A2", "B1-B2", "C1-C2"],
       payment_status: ["pending", "success", "failed", "cancelled"],
