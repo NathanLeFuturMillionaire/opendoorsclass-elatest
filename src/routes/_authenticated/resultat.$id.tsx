@@ -126,12 +126,12 @@ function ResultPage() {
 
                   <div className="mx-auto mt-6 inline-flex flex-col items-center rounded-2xl bg-brand-gradient px-10 py-6 text-primary-foreground shadow-lg">
                     <Award className="size-8 opacity-90" />
-                    <div className="mt-2 text-6xl font-black leading-none tracking-tight">
-                      {r.levelResult}
-                    </div>
-                    <div className="mt-2 text-xs uppercase tracking-widest opacity-90">
-                      {LEVEL_TITLE[r.levelResult] ?? ""}
-                    </div>
+                     <div className="mt-2 text-6xl font-black leading-none tracking-tight">
+                       {r.levelResult ?? "N/A"}
+                     </div>
+                     <div className="mt-2 text-xs uppercase tracking-widest opacity-90">
+                       {r.levelResult ? (LEVEL_TITLE[r.levelResult] ?? "") : ""}
+                     </div>
                     <div className="mt-3 text-sm font-medium opacity-95">
                       Score global : {r.score}%
                     </div>
