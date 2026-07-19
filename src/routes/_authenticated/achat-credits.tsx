@@ -6,6 +6,15 @@ import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { getTestAccessPlan, createCheckout, getMyProfile } from "@/lib/payments.functions";
 
 export const Route = createFileRoute("/_authenticated/achat-credits")({
@@ -30,14 +39,26 @@ function BuyCreditsPage() {
   const fetchProfile = useServerFn(getMyProfile);
   const startCheckout = useServerFn(createCheckout);
   const [loading, setLoading] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [countryCode, setCountryCode] = useState("GA");
 
   const planQuery = useQuery({ queryKey: ["test-access-plan"], queryFn: () => fetchPlan() });
   const profileQuery = useQuery({ queryKey: ["my-profile"], queryFn: () => fetchProfile() });
 
   const handleBuy = async () => {
+    const cleanedPhone = phone.replace(/[\s.-]/g, "").replace(/^\+?\d{1,3}?/, (m) =>
+      m.startsWith("+") ? "" : m
+    );
+    const digits = phone.replace(/\D/g, "").replace(/^0+/, "");
+    if (digits.length < 6) {
+      toast.error("Veuillez saisir un numéro de téléphone valide.");
+      return;
+    }
     setLoading(true);
     try {
-      const { checkoutUrl } = await startCheckout({ data: { origin: window.location.origin } });
+      const { checkoutUrl } = await startCheckout({
+        data: { origin: window.location.origin, phone: digits, countryCode },
+      });
       window.location.href = checkoutUrl;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Impossible de démarrer le paiement.");
