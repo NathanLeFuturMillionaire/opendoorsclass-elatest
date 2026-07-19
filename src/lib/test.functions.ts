@@ -162,7 +162,7 @@ export const getSessionResult = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: session, error } = await context.supabase
       .from("test_sessions")
-      .select("id, score, level_result, per_category_scores, completed_at")
+      .select("id, score, level_result, per_category_scores, completed_at, started_at")
       .eq("id", data.sessionId)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -181,6 +181,12 @@ export const getSessionResult = createServerFn({ method: "GET" })
       .eq("level_range", range)
       .maybeSingle();
 
+    const { data: profile } = await context.supabase
+      .from("profiles")
+      .select("first_name, last_name")
+      .eq("id", context.userId)
+      .maybeSingle();
+
     return {
       sessionId: session.id,
       score: session.score,
@@ -191,5 +197,22 @@ export const getSessionResult = createServerFn({ method: "GET" })
       >,
       recommendation: msg?.message_text ?? "",
       completedAt: session.completed_at,
+      startedAt: session.started_at,
+      candidateFirstName: profile?.first_name ?? "",
+      candidateLastName: profile?.last_name ?? "",
+      candidateEmail: (context.claims?.email as string) ?? "",
     };
+  });
+
+export const getTestHistory = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("test_sessions")
+      .select("id, started_at, completed_at, score, level_result")
+      .eq("user_id", context.userId)
+      .order("started_at", { ascending: false })
+      .limit(50);
+    if (error) throw new Error(error.message);
+    return data ?? [];
   });
