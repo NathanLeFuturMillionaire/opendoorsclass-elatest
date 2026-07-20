@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { checkPaymentStatus } from "@/lib/payments.functions";
+import { useT } from "@/lib/i18n";
 
 const searchSchema = z.object({
   payment_id: z.string().uuid().optional(),
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/_authenticated/paiement-retour")({
 type Status = "checking" | "success" | "pending" | "failed" | "cancelled" | "unknown";
 
 function PaymentReturnPage() {
+  const t = useT();
   const search = Route.useSearch();
   const paymentId = search.payment_id ?? search.paymentId;
   const check = useServerFn(checkPaymentStatus);
@@ -73,10 +75,8 @@ function PaymentReturnPage() {
           {status === "checking" && (
             <>
               <div className="mx-auto h-14 w-14 animate-spin rounded-full border-4 border-brand-blue border-t-transparent" />
-              <h1 className="mt-6 text-2xl font-bold">Vérification de votre paiement</h1>
-              <p className="mt-2 text-muted-foreground">
-                Nous confirmons votre transaction. Cela prend quelques secondes.
-              </p>
+              <h1 className="mt-6 text-2xl font-bold">{t("pay.checking")}</h1>
+              <p className="mt-2 text-muted-foreground">{t("pay.checking.desc")}</p>
             </>
           )}
           {status === "success" && (
@@ -84,28 +84,24 @@ function PaymentReturnPage() {
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-green text-2xl text-brand-green-foreground">
                 ✓
               </div>
-              <h1 className="mt-6 text-2xl font-bold">Paiement confirmé</h1>
-              <p className="mt-2 text-muted-foreground">
-                {credits} crédits viennent d'être ajoutés à votre compte.
-              </p>
+              <h1 className="mt-6 text-2xl font-bold">{t("pay.success")}</h1>
+              <p className="mt-2 text-muted-foreground">{t("pay.success.desc").replace("{n}", String(credits))}</p>
               <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
                 <Button asChild className="bg-brand-gradient text-primary-foreground">
-                  <Link to="/test">Commencer un test</Link>
+                  <Link to="/test">{t("pay.success.start")}</Link>
                 </Button>
                 <Button asChild variant="outline">
-                  <Link to="/tableau-de-bord">Retour au tableau de bord</Link>
+                  <Link to="/tableau-de-bord">{t("pay.success.back")}</Link>
                 </Button>
               </div>
             </>
           )}
           {status === "pending" && (
             <>
-              <h1 className="text-2xl font-bold">Paiement en cours de traitement</h1>
-              <p className="mt-2 text-muted-foreground">
-                La confirmation prend un peu plus de temps que prévu. Vos crédits seront ajoutés automatiquement dès la validation, actualisez cette page dans un instant.
-              </p>
+              <h1 className="text-2xl font-bold">{t("pay.pending")}</h1>
+              <p className="mt-2 text-muted-foreground">{t("pay.pending.desc")}</p>
               <Button asChild className="mt-6" variant="outline">
-                <Link to="/tableau-de-bord">Retour au tableau de bord</Link>
+                <Link to="/tableau-de-bord">{t("pay.success.back")}</Link>
               </Button>
             </>
           )}
@@ -114,23 +110,21 @@ function PaymentReturnPage() {
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-destructive text-2xl text-destructive-foreground">
                 !
               </div>
-              <h1 className="mt-6 text-2xl font-bold">Paiement non abouti</h1>
+              <h1 className="mt-6 text-2xl font-bold">{t("pay.failed")}</h1>
               <p className="mt-2 text-muted-foreground">
-                La transaction a été {status === "cancelled" ? "annulée" : "refusée"}. Vous pouvez réessayer sans frais.
+                {status === "cancelled" ? t("pay.failed.desc.cancelled") : t("pay.failed.desc.failed")}
               </p>
               <Button asChild className="mt-6 bg-brand-gradient text-primary-foreground">
-                <Link to="/achat-credits">Réessayer le paiement</Link>
+                <Link to="/achat-credits">{t("pay.retry")}</Link>
               </Button>
             </>
           )}
           {status === "unknown" && (
             <>
-              <h1 className="text-2xl font-bold">Statut indisponible</h1>
-              <p className="mt-2 text-muted-foreground">
-                Nous n'avons pas retrouvé ce paiement. Contactez-nous sur WhatsApp si des crédits manquent.
-              </p>
+              <h1 className="text-2xl font-bold">{t("pay.unknown")}</h1>
+              <p className="mt-2 text-muted-foreground">{t("pay.unknown.desc")}</p>
               <Button asChild className="mt-6" variant="outline">
-                <Link to="/tableau-de-bord">Retour au tableau de bord</Link>
+                <Link to="/tableau-de-bord">{t("pay.success.back")}</Link>
               </Button>
             </>
           )}
