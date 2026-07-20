@@ -16,25 +16,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getTestAccessPlan, createCheckout, getMyProfile } from "@/lib/payments.functions";
+import { useT, useI18n } from "@/lib/i18n";
+import { computeLocalPrice } from "@/lib/geo-price";
 
 export const Route = createFileRoute("/_authenticated/achat-credits")({
   component: BuyCreditsPage,
 });
 
-const CURRENCY_LABELS: Record<string, string> = {
-  XAF: "FCFA",
-  XOF: "FCFA",
-};
-
-function displayCurrency(currency: string) {
-  return CURRENCY_LABELS[currency] ?? currency;
-}
-
-function formatFcfa(amount: number, currency: string) {
-  return `${new Intl.NumberFormat("fr-FR").format(amount)} ${displayCurrency(currency)}`;
-}
-
 function BuyCreditsPage() {
+  const t = useT();
+  const { locale } = useI18n();
   const fetchPlan = useServerFn(getTestAccessPlan);
   const fetchProfile = useServerFn(getMyProfile);
   const startCheckout = useServerFn(createCheckout);
@@ -58,12 +49,12 @@ function BuyCreditsPage() {
 
   const handleBuy = async () => {
     if (!firstName.trim() || !lastName.trim()) {
-      toast.error("Veuillez saisir votre nom et prénom.");
+      toast.error(t("buy.err.name"));
       return;
     }
     const digits = phone.replace(/\D/g, "").replace(/^0+/, "");
     if (digits.length < 6) {
-      toast.error("Veuillez saisir un numéro de téléphone valide.");
+      toast.error(locale === "fr" ? "Veuillez saisir un numéro de téléphone valide." : "Please enter a valid phone number.");
       return;
     }
     setLoading(true);
@@ -79,13 +70,14 @@ function BuyCreditsPage() {
       });
       window.location.href = checkoutUrl;
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Impossible de démarrer le paiement.");
+      toast.error(e instanceof Error ? e.message : t("buy.err.default"));
       setLoading(false);
     }
   };
 
   const plan = planQuery.data;
   const credits = profileQuery.data?.credits_remaining ?? 0;
+  const localPrice = plan ? computeLocalPrice(plan.price, locale) : null;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
