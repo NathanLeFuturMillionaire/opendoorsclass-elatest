@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SiteHeader } from "@/components/site-header";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
+  const t = useT();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
@@ -52,11 +54,11 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        toast.success("Compte créé, vérifiez votre e-mail pour confirmer.");
+        toast.success(t("auth.created"));
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast.success("Bienvenue !");
+        toast.success(t("auth.welcome"));
         navigate({ to: "/tableau-de-bord", replace: true });
       }
     } catch (err) {
@@ -90,13 +92,16 @@ function AuthPage() {
         <Card className="w-full border-border shadow-lg">
           <CardHeader className="space-y-2 text-center">
             <CardTitle className="text-2xl">
-              {mode === "signup" ? "Créer un compte" : "Se connecter"}
+              {mode === "signup" ? t("auth.signup") : t("auth.signin")}
             </CardTitle>
             <CardDescription>
-              Accédez au test de niveau d'anglais OpenDoorsClass.
+              {t("auth.desc")}
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="mb-4 rounded-lg border border-brand-green/30 bg-brand-green-soft px-3 py-2 text-center text-xs font-semibold text-brand-green">
+              🎁 {t("auth.gift")}
+            </div>
             <Button
               type="button"
               variant="outline"
@@ -104,17 +109,17 @@ function AuthPage() {
               onClick={handleGoogle}
               disabled={loading}
             >
-              Continuer avec Google
+              {t("auth.google")}
             </Button>
             <div className="my-4 flex items-center gap-3 text-xs uppercase text-muted-foreground">
               <div className="h-px flex-1 bg-border" />
-              ou
+              {t("auth.or")}
               <div className="h-px flex-1 bg-border" />
             </div>
             <Tabs value={mode} onValueChange={(v) => setMode(v as "signin" | "signup")}>
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Connexion</TabsTrigger>
-                <TabsTrigger value="signup">Inscription</TabsTrigger>
+                <TabsTrigger value="signin">{t("auth.tab.signin")}</TabsTrigger>
+                <TabsTrigger value="signup">{t("auth.tab.signup")}</TabsTrigger>
               </TabsList>
               <TabsContent value="signin" />
               <TabsContent value="signup" />
@@ -122,7 +127,7 @@ function AuthPage() {
             <form onSubmit={handleEmailAuth} className="mt-4 space-y-4">
               {mode === "signup" ? (
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Nom complet</Label>
+                  <Label htmlFor="fullName">{t("auth.fullname")}</Label>
                   <Input
                     id="fullName"
                     value={fullName}
@@ -134,7 +139,7 @@ function AuthPage() {
                 </div>
               ) : null}
               <div className="space-y-2">
-                <Label htmlFor="email">E-mail</Label>
+                <Label htmlFor="email">{t("auth.email")}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -146,7 +151,7 @@ function AuthPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Mot de passe</Label>
+                <Label htmlFor="password">{t("auth.password")}</Label>
                 <Input
                   id="password"
                   type="password"
@@ -162,15 +167,15 @@ function AuthPage() {
                 className="w-full bg-brand-gradient text-primary-foreground"
                 disabled={loading}
               >
-                {loading ? "Un instant..." : mode === "signup" ? "Créer mon compte" : "Se connecter"}
+                {loading ? t("auth.loading") : mode === "signup" ? t("auth.submit.signup") : t("auth.submit.signin")}
               </Button>
             </form>
             <p className="mt-4 text-center text-xs text-muted-foreground">
-              En continuant, vous acceptez nos conditions d'utilisation.
+              {t("auth.terms")}
             </p>
             <p className="mt-6 text-center text-sm">
               <Link to="/" className="text-primary hover:underline">
-                Retour à l'accueil
+                {t("auth.back")}
               </Link>
             </p>
           </CardContent>
