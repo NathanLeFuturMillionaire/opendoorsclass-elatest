@@ -394,3 +394,158 @@ export const listActivityLog = createServerFn({ method: "GET" })
     const m = new Map((profs ?? []).map((p: any) => [p.id, p]));
     return (rows ?? []).map((r: any) => ({ ...r, actor: r.user_id ? m.get(r.user_id) : null }));
   });
+
+// ============================================================
+// FINANCE (owner only)
+// ============================================================
+
+export const getFinanceOverview = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const roles = await getRoles(context.supabase, context.userId);
+    requireRole(roles, ["owner"]);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: payments, error } = await supabaseAdmin
+      .from("payments")
+      .select("id, user_id, amount, currency, credits_added, status, payment_method, provider, moneroo_reference, moneroo_transaction_id, chariow_sale_id, created_at, confirmed_at")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+
+    const list = payments ?? [];
+    const success = list.filter((p: any) => p.status === "success");
+
+    const userIds = Array.from(new Set(list.map((p: any) => p.user_id)));
+    const { data: profs } = await supabaseAdmin
+      .from("profiles")
+      .select("id, first_name, last_name, nationality, candidate_number")
+      .in("id", userIds.length ? userIds : ["00000000-0000-0000-0000-000000000000"]);
+    const { data: users } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+    const emailMap = new Map((users?.users ?? []).map((u: any) => [u.id, u.email]));
+    const profMap = new Map((profs ?? []).map((p: any) => [p.id, p]));
+
+    // Best level per user
+    const { data: sessions } = await supabaseAdmin
+      .from("test_sessions")
+      .select("user_id, level_result, score, completed_at")
+      .in("user_id", userIds.length ? userIds : ["00000000-0000-0000-0000-000000000000"])
+      .not("completed_at", "is", null);
+    const levelMap = new Map<string, string>();
+    for (const s of sessions ?? []) {
+      if (!levelMap.has(s.user_id) && s.level_result) levelMap.set(s.user_id, s.level_result);
+    }
+
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfWeek = startOfDay - ((now.getDay() + 6) % 7) * 86400000;
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+    let totalRevenue = 0;
+    let todayCount = 0, todayAmount = 0;
+    let weekCount = 0, weekAmount = 0;
+    let monthCount = 0, monthAmount = 0;
+    let biggest = 0;
+    const byDay = new Map<string, { amount: number; count: number }>();
+    const byMonth = new Map<string, { amount: number; count: number }>();
+    const byCountry = new Map<string, { amount: number; count: number }>();
+    const byMethod = new Map<string, { amount: number; count: number }>();
+
+    for (const p of success as any[]) {
+      const t = new Date(p.confirmed_at ?? p.created_at).getTime();
+      const amt = Number(p.amount ?? 0);
+      totalRevenue += amt;
+      if (amt > biggest) biggest = amt;
+      if (t >= startOfDay) { todayCount++; todayAmount += amt; }
+      if (t >= startOfWeek) { weekCount++; weekAmount += amt; }
+      if (t >= startOfMonth) { monthCount++; monthAmount += amt; }
+
+      const d = new Date(t);
+      const dayKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const dCur = byDay.get(dayKey) ?? { amount: 0, count: 0 };
+      dCur.amount += amt; dCur.count += 1; byDay.set(dayKey, dCur);
+      const mCur = byMonth.get(monthKey) ?? { amount: 0, count: 0 };
+      mCur.amount += amt; mCur.count += 1; byMonth.set(monthKey, mCur);
+
+      const prof: any = profMap.get(p.user_id);
+      const country = prof?.nationality ?? "Inconnu";
+      const cCur = byCountry.get(country) ?? { amount: 0, count: 0 };
+      cCur.amount += amt; cCur.count += 1; byCountry.set(country, cCur);
+
+      const method = (p.payment_method ?? p.provider ?? "autre").toString();
+      const meCur = byMethod.get(method) ?? { amount: 0, count: 0 };
+      meCur.amount += amt; meCur.count += 1; byMethod.set(method, meCur);
+    }
+
+    const dailySeries: Array<{ day: string; amount: number; count: number }> = [];
+    for (let i = 89; i >= 0; i--) {
+      const d = new Date(startOfDay - i * 86400000);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      const v = byDay.get(key) ?? { amount: 0, count: 0 };
+      dailySeries.push({ day: key, amount: v.amount, count: v.count });
+    }
+    const monthlySeries: Array<{ month: string; amount: number; count: number }> = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const v = byMonth.get(key) ?? { amount: 0, count: 0 };
+      monthlySeries.push({ month: key, amount: v.amount, count: v.count });
+    }
+
+    const topCountries = Array.from(byCountry.entries())
+      .map(([country, v]) => ({ country, ...v, percentage: totalRevenue ? (v.amount / totalRevenue) * 100 : 0 }))
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 10);
+
+    const methodBreakdown = Array.from(byMethod.entries())
+      .map(([method, v]) => ({ method, ...v }))
+      .sort((a, b) => b.amount - a.amount);
+
+    const paidUsers = new Set(success.map((p: any) => p.user_id)).size;
+    const { count: totalCandidates } = await supabaseAdmin
+      .from("profiles")
+      .select("id", { count: "exact", head: true });
+    const conversion = totalCandidates ? (paidUsers / totalCandidates) * 100 : 0;
+
+    const rows = list.map((p: any) => {
+      const prof: any = profMap.get(p.user_id);
+      return {
+        id: p.id,
+        created_at: p.created_at,
+        confirmed_at: p.confirmed_at,
+        first_name: prof?.first_name ?? null,
+        last_name: prof?.last_name ?? null,
+        email: emailMap.get(p.user_id) ?? null,
+        candidate_number: prof?.candidate_number ?? null,
+        country: prof?.nationality ?? null,
+        amount: p.amount,
+        currency: p.currency,
+        credits_added: p.credits_added,
+        method: p.payment_method ?? p.provider ?? "chariow",
+        status: p.status,
+        reference: p.moneroo_reference,
+        transaction_id: p.moneroo_transaction_id ?? p.chariow_sale_id,
+        level: levelMap.get(p.user_id) ?? null,
+      };
+    });
+
+    return {
+      totals: {
+        revenue: totalRevenue,
+        count: success.length,
+        avgTicket: success.length ? Math.round(totalRevenue / success.length) : 0,
+        biggest,
+        paidUsers,
+        totalCandidates: totalCandidates ?? 0,
+        conversion,
+      },
+      today: { count: todayCount, amount: todayAmount },
+      week: { count: weekCount, amount: weekAmount },
+      month: { count: monthCount, amount: monthAmount },
+      dailySeries,
+      monthlySeries,
+      topCountries,
+      methodBreakdown,
+      rows,
+    };
+  });
