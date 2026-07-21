@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getAdminContext } from "@/lib/admin.functions";
-import { LayoutDashboard, Users, MessageSquareText, HelpCircle, Award, Shield, ScrollText, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, Users, MessageSquareText, HelpCircle, Award, Shield, ScrollText, ArrowLeft, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -41,6 +41,7 @@ function AdminLayout() {
     { to: "/admin/questions", label: "Questions", icon: HelpCircle, adminOnly: true },
     { to: "/admin/avis", label: "Avis", icon: MessageSquareText },
     { to: "/admin/certificats", label: "Certificats", icon: Award },
+    { to: "/admin/finance", label: "Finance", icon: Wallet, ownerOnly: true },
     { to: "/admin/utilisateurs", label: "Utilisateurs", icon: Shield, ownerOnly: true },
     { to: "/admin/journal", label: "Journal", icon: ScrollText, adminOnly: true },
   ];
