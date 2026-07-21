@@ -95,30 +95,15 @@ function FinancePage() {
   const [search, setSearch] = useState("");
   const [datePreset, setDatePreset] = useState<string>("all");
 
-  if (ctxQ.isLoading) return <div className="text-muted-foreground">Chargement...</div>;
-  if (!ctxQ.data?.isOwner) {
-    return (
-      <div className="mx-auto max-w-lg py-16 text-center">
-        <ShieldAlert className="mx-auto size-10 text-muted-foreground" />
-        <h1 className="mt-4 text-2xl font-bold">Accès restreint</h1>
-        <p className="mt-2 text-muted-foreground">
-          Seul l'administrateur principal peut consulter le tableau de bord financier.
-        </p>
-      </div>
-    );
-  }
-
-  if (q.isLoading || !q.data) return <div className="text-muted-foreground">Chargement des données financières...</div>;
   const d = q.data;
-
   const chartData = useMemo(() => {
-    if (range === "12m") return d.monthlySeries.map((r) => ({ label: r.month, amount: r.amount, count: r.count }));
-    if (range === "all") return d.monthlySeries.map((r) => ({ label: r.month, amount: r.amount, count: r.count }));
+    if (!d) return [];
+    if (range === "12m" || range === "all") return d.monthlySeries.map((r) => ({ label: r.month, amount: r.amount, count: r.count }));
     const days = range === "7" ? 7 : range === "30" ? 30 : 90;
     return d.dailySeries.slice(-days).map((r) => ({ label: r.day.slice(5), amount: r.amount, count: r.count }));
   }, [d, range]);
 
-  const rows: PaymentRow[] = d.rows as PaymentRow[];
+  const rows: PaymentRow[] = (d?.rows ?? []) as PaymentRow[];
 
   const filteredRows = useMemo(() => {
     const now = new Date();
@@ -149,6 +134,20 @@ function FinancePage() {
       return true;
     });
   }, [rows, search, statusFilter, datePreset]);
+
+  if (ctxQ.isLoading) return <div className="text-muted-foreground">Chargement...</div>;
+  if (!ctxQ.data?.isOwner) {
+    return (
+      <div className="mx-auto max-w-lg py-16 text-center">
+        <ShieldAlert className="mx-auto size-10 text-muted-foreground" />
+        <h1 className="mt-4 text-2xl font-bold">Accès restreint</h1>
+        <p className="mt-2 text-muted-foreground">
+          Seul l'administrateur principal peut consulter le tableau de bord financier.
+        </p>
+      </div>
+    );
+  }
+  if (q.isLoading || !d) return <div className="text-muted-foreground">Chargement des données financières...</div>;
 
   const exportCSV = () => {
     const headers = ["Date", "Nom", "Prénom", "Email", "Pays", "Montant", "Devise", "Moyen", "Statut", "Référence", "Transaction", "Niveau"];
