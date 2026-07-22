@@ -30,7 +30,7 @@ export const getProfileFull = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("profiles")
       .select(
-        "id, first_name, last_name, avatar_url, credits_remaining, created_at, nationality, date_of_birth, candidate_number, objectives, ai_recommendations, ai_recommendations_at"
+        "id, first_name, last_name, avatar_url, credits_remaining, created_at, nationality, date_of_birth, candidate_number, objectives, ai_recommendations, ai_recommendations_at, plan, plan_activated_at"
       )
       .eq("id", context.userId)
       .maybeSingle();
@@ -44,6 +44,13 @@ export const getProfileFull = createServerFn({ method: "GET" })
       )
       .eq("user_id", context.userId)
       .order("started_at", { ascending: false });
+
+    const { data: paymentsHistory } = await context.supabase
+      .from("payments")
+      .select("id, amount, currency, status, offer_code, confirmed_at, created_at")
+      .eq("user_id", context.userId)
+      .order("created_at", { ascending: false })
+      .limit(20);
 
     const completedList = (sessions ?? []).filter((s) => s.completed_at);
     const sessionsCompleted = completedList.length;
@@ -121,6 +128,7 @@ export const getProfileFull = createServerFn({ method: "GET" })
         score: s.score,
         level_result: s.level_result,
       })),
+      payments: paymentsHistory ?? [],
     };
   });
 
