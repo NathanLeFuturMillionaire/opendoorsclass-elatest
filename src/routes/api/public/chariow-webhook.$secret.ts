@@ -60,7 +60,7 @@ export const Route = createFileRoute("/api/public/chariow-webhook/$secret")({
 
         const { data: payment } = await supabaseAdmin
           .from("payments")
-          .select("id, user_id, status, credits_added")
+          .select("id, user_id, status, credits_added, offer_code")
           .eq("id", paymentId)
           .maybeSingle();
 
@@ -85,6 +85,22 @@ export const Route = createFileRoute("/api/public/chariow-webhook/$secret")({
             p_user_id: payment.user_id,
             p_amount: payment.credits_added,
           });
+          const { data: prof } = await supabaseAdmin
+            .from("profiles")
+            .select("plan")
+            .eq("id", payment.user_id)
+            .maybeSingle();
+          const currentPlan = prof?.plan ?? null;
+          const nextPlan =
+            payment.offer_code === "premium"
+              ? "premium"
+              : currentPlan === "premium"
+                ? "premium"
+                : "standard";
+          await supabaseAdmin
+            .from("profiles")
+            .update({ plan: nextPlan, plan_activated_at: new Date().toISOString() })
+            .eq("id", payment.user_id);
           await supabaseAdmin
             .from("payments")
             .update({

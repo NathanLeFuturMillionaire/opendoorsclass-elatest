@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { Check, Crown, Loader2, Sparkles } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getTestAccessPlan, createCheckout, getMyProfile } from "@/lib/payments.functions";
+import { listTestOffers, createCheckout, getMyProfile } from "@/lib/payments.functions";
 import { useT, useI18n } from "@/lib/i18n";
 import { computeLocalPrice } from "@/lib/geo-price";
 
@@ -26,19 +27,18 @@ export const Route = createFileRoute("/_authenticated/achat-credits")({
 function BuyCreditsPage() {
   const t = useT();
   const { locale } = useI18n();
-  const fetchPlan = useServerFn(getTestAccessPlan);
+  const fetchOffers = useServerFn(listTestOffers);
   const fetchProfile = useServerFn(getMyProfile);
   const startCheckout = useServerFn(createCheckout);
-  const [loading, setLoading] = useState(false);
+  const [loadingCode, setLoadingCode] = useState<"standard" | "premium" | null>(null);
   const [phone, setPhone] = useState("");
   const [countryCode, setCountryCode] = useState("GA");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
 
-  const planQuery = useQuery({ queryKey: ["test-access-plan"], queryFn: () => fetchPlan() });
+  const offersQuery = useQuery({ queryKey: ["test-offers"], queryFn: () => fetchOffers() });
   const profileQuery = useQuery({ queryKey: ["my-profile"], queryFn: () => fetchProfile() });
 
-  // Prefill name fields from the connected user profile.
   const profileData = profileQuery.data;
   useEffect(() => {
     if (profileData) {
@@ -47,21 +47,28 @@ function BuyCreditsPage() {
     }
   }, [profileData]);
 
-  const handleBuy = async () => {
+  const isFr = locale === "fr";
+
+  const handleBuy = async (offerCode: "standard" | "premium") => {
     if (!firstName.trim() || !lastName.trim()) {
       toast.error(t("buy.err.name"));
       return;
     }
     const digits = phone.replace(/\D/g, "").replace(/^0+/, "");
     if (digits.length < 6) {
-      toast.error(locale === "fr" ? "Veuillez saisir un numéro de téléphone valide." : "Please enter a valid phone number.");
+      toast.error(
+        isFr
+          ? "Veuillez saisir un numéro de téléphone valide."
+          : "Please enter a valid phone number."
+      );
       return;
     }
-    setLoading(true);
+    setLoadingCode(offerCode);
     try {
       const { checkoutUrl } = await startCheckout({
         data: {
           origin: window.location.origin,
+          offerCode,
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           phone: digits,
@@ -71,144 +78,178 @@ function BuyCreditsPage() {
       window.location.href = checkoutUrl;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t("buy.err.default"));
-      setLoading(false);
+      setLoadingCode(null);
     }
   };
 
-  const plan = planQuery.data;
   const credits = profileQuery.data?.credits_remaining ?? 0;
-  const localPrice = plan ? computeLocalPrice(plan.price, locale) : null;
+  const currentPlan = profileQuery.data?.plan ?? null;
+  const offers = offersQuery.data ?? [];
+  const standard = offers.find((o) => o.code === "standard");
+  const premium = offers.find((o) => o.code === "premium");
+
+  const STANDARD_FEATURES = isFr
+    ? [
+        "Accès au test officiel complet (Grammar, Reading, Listening, Speaking, Writing)",
+        "Calcul du score et niveau CECRL (A1 à C2)",
+        "Rapport détaillé avec corrections",
+        "Certificat officiel PDF téléchargeable",
+        "Historique de vos résultats",
+      ]
+    : [
+        "Full official test (Grammar, Reading, Listening, Speaking, Writing)",
+        "Automatic scoring and CEFR level (A1 to C2)",
+        "Detailed report with corrections",
+        "Downloadable official PDF certificate",
+        "Full results history",
+      ];
+
+  const PREMIUM_FEATURES = isFr
+    ? [
+        "Tout le contenu de l'offre Standard",
+        "Analyse approfondie du Speaking et du Writing",
+        "Rapport Premium enrichi avec graphiques détaillés",
+        "Conseils pédagogiques personnalisés par IA",
+        "Plan de progression sur mesure",
+        "Certificat Premium et traitement prioritaire",
+      ]
+    : [
+        "Everything in Standard",
+        "In-depth Speaking and Writing analysis",
+        "Enriched Premium report with detailed charts",
+        "AI-powered personalised guidance",
+        "Tailored progression plan",
+        "Premium certificate and priority processing",
+      ];
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-12 sm:px-6">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-12 sm:px-6">
         <div className="animate-fade-up">
           <p className="text-sm font-medium text-brand-green">{t("buy.badge")}</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{t("buy.title")}</h1>
-          <p className="mt-3 text-muted-foreground">{t("buy.desc")}</p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+            {isFr ? "Choisissez votre offre" : "Choose your offer"}
+          </h1>
+          <p className="mt-3 max-w-2xl text-muted-foreground">
+            {isFr
+              ? "Deux formules pour évaluer votre niveau d'anglais et débloquer vos rapports. Vos crédits sont ajoutés automatiquement dès la validation du paiement."
+              : "Two plans to assess your English and unlock your reports. Credits are added automatically once payment is confirmed."}
+          </p>
+          {currentPlan ? (
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs">
+              {currentPlan === "premium" ? (
+                <>
+                  <Crown className="size-3.5 text-brand-yellow-foreground" />
+                  <span className="font-semibold">
+                    {isFr ? "Offre actuelle : Premium" : "Current plan: Premium"}
+                  </span>
+                </>
+              ) : (
+                <span className="font-semibold">
+                  {isFr ? "Offre actuelle : Standard" : "Current plan: Standard"}
+                </span>
+              )}
+            </div>
+          ) : null}
         </div>
 
-        <div className="mt-8 grid gap-6 md:grid-cols-[2fr_1fr]">
-          <div className="animate-scale-in rounded-3xl border border-border bg-card p-8 shadow-sm">
-            {planQuery.isLoading || !plan ? (
-              <div className="h-40 animate-shimmer rounded-2xl bg-muted" />
-            ) : (
-              <div>
-                <div className="inline-flex items-center rounded-full bg-brand-yellow-soft px-3 py-1 text-xs font-semibold text-brand-yellow-foreground">
-                  {t("buy.recommended")}
+        <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
+          <div className="space-y-6">
+            <div className="animate-scale-in rounded-3xl border border-border bg-card p-6 shadow-sm">
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-sm font-semibold">{t("buy.candidate")}</Label>
+                  <p className="mt-1 text-xs text-muted-foreground">{t("buy.candidate.hint")}</p>
                 </div>
-                <h2 className="mt-4 text-2xl font-bold">
-                  {t("buy.plan.title").replace("{n}", String(plan.credits_included))}
-                </h2>
-                <p className="mt-1 text-muted-foreground">{t("buy.plan.subtitle")}</p>
-                <div className="mt-6">
-                  <div className="text-4xl font-extrabold text-brand-gradient">
-                    {localPrice
-                      ? `${new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US").format(plan.price)} FCFA`
-                      : ""}
-                  </div>
-                  {localPrice && localPrice.currency !== "XAF" ? (
-                    <div className="mt-1 text-base font-semibold text-muted-foreground">
-                      ≈ {new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
-                        style: "currency",
-                        currency: localPrice.currency,
-                        maximumFractionDigits:
-                          localPrice.currency === "JPY" || localPrice.currency === "NGN" ? 0 : 2,
-                      }).format(localPrice.amount)}
-                    </div>
-                  ) : null}
-                  <p className="mt-2 text-xs text-muted-foreground">{t("buy.price.note")}</p>
-                </div>
-                <ul className="mt-6 space-y-2 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="mt-0.5 text-brand-green">✓</span>
-                    <span>{t("buy.feature.1")}</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-0.5 text-brand-green">✓</span>
-                    <span>{t("buy.feature.2")}</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-0.5 text-brand-green">✓</span>
-                    <span>{t("buy.feature.3")}</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-0.5 text-brand-green">✓</span>
-                    <span>{t("buy.feature.4")}</span>
-                  </li>
-                </ul>
-                <div className="mt-8 space-y-4 rounded-2xl border border-border bg-muted/40 p-4">
+                <div className="grid gap-3 sm:grid-cols-2">
                   <div>
-                    <Label className="text-sm font-semibold">{t("buy.candidate")}</Label>
-                    <p className="mt-1 text-xs text-muted-foreground">{t("buy.candidate.hint")}</p>
+                    <Label htmlFor="firstName" className="text-xs">{t("buy.firstname")}</Label>
+                    <Input
+                      id="firstName"
+                      placeholder="Nathan"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="mt-1"
+                    />
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div>
-                      <Label htmlFor="firstName" className="text-xs">{t("buy.firstname")}</Label>
-                      <Input
-                        id="firstName"
-                        placeholder="Nathan"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="lastName" className="text-xs">{t("buy.lastname")}</Label>
-                      <Input
-                        id="lastName"
-                        placeholder="MAYUKWA"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-[140px_1fr] gap-3">
-                    <div>
-                      <Label htmlFor="country" className="text-xs">{t("buy.country")}</Label>
-                      <Select value={countryCode} onValueChange={setCountryCode}>
-                        <SelectTrigger id="country" className="mt-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="GA">Gabon (+241)</SelectItem>
-                          <SelectItem value="CM">Cameroun (+237)</SelectItem>
-                          <SelectItem value="CI">Côte d'Ivoire (+225)</SelectItem>
-                          <SelectItem value="SN">Sénégal (+221)</SelectItem>
-                          <SelectItem value="CD">RD Congo (+243)</SelectItem>
-                          <SelectItem value="CG">Congo (+242)</SelectItem>
-                          <SelectItem value="BJ">Bénin (+229)</SelectItem>
-                          <SelectItem value="TG">Togo (+228)</SelectItem>
-                          <SelectItem value="BF">Burkina Faso (+226)</SelectItem>
-                          <SelectItem value="ML">Mali (+223)</SelectItem>
-                          <SelectItem value="FR">France (+33)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="phone" className="text-xs">{t("buy.phone")}</Label>
-                      <Input
-                        id="phone"
-                        inputMode="tel"
-                        placeholder="74825725"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="lastName" className="text-xs">{t("buy.lastname")}</Label>
+                    <Input
+                      id="lastName"
+                      placeholder="MAYUKWA"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="mt-1"
+                    />
                   </div>
                 </div>
-                <Button
-                  size="lg"
-                  disabled={loading}
-                  onClick={handleBuy}
-                  className="mt-8 w-full bg-brand-gradient text-primary-foreground transition-transform hover:scale-[1.01]"
-                >
-                  {loading ? t("buy.paying") : t("buy.pay")}
-                </Button>
-                <p className="mt-3 text-center text-xs text-muted-foreground">{t("buy.pay.hint")}</p>
+                <div className="grid grid-cols-[140px_1fr] gap-3">
+                  <div>
+                    <Label htmlFor="country" className="text-xs">{t("buy.country")}</Label>
+                    <Select value={countryCode} onValueChange={setCountryCode}>
+                      <SelectTrigger id="country" className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="GA">Gabon (+241)</SelectItem>
+                        <SelectItem value="CM">Cameroun (+237)</SelectItem>
+                        <SelectItem value="CI">Côte d'Ivoire (+225)</SelectItem>
+                        <SelectItem value="SN">Sénégal (+221)</SelectItem>
+                        <SelectItem value="CD">RD Congo (+243)</SelectItem>
+                        <SelectItem value="CG">Congo (+242)</SelectItem>
+                        <SelectItem value="BJ">Bénin (+229)</SelectItem>
+                        <SelectItem value="TG">Togo (+228)</SelectItem>
+                        <SelectItem value="BF">Burkina Faso (+226)</SelectItem>
+                        <SelectItem value="ML">Mali (+223)</SelectItem>
+                        <SelectItem value="FR">France (+33)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="phone" className="text-xs">{t("buy.phone")}</Label>
+                    <Input
+                      id="phone"
+                      inputMode="tel"
+                      placeholder="74825725"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {offersQuery.isLoading || !standard || !premium ? (
+              <div className="h-64 animate-shimmer rounded-3xl bg-muted" />
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2">
+                <OfferCard
+                  variant="standard"
+                  label="Standard"
+                  price={standard.price}
+                  credits={standard.credits_included}
+                  locale={locale}
+                  features={STANDARD_FEATURES}
+                  loading={loadingCode === "standard"}
+                  disabled={loadingCode !== null}
+                  onBuy={() => handleBuy("standard")}
+                  isFr={isFr}
+                />
+                <OfferCard
+                  variant="premium"
+                  label="Premium"
+                  price={premium.price}
+                  credits={premium.credits_included}
+                  locale={locale}
+                  features={PREMIUM_FEATURES}
+                  loading={loadingCode === "premium"}
+                  disabled={loadingCode !== null}
+                  onBuy={() => handleBuy("premium")}
+                  isFr={isFr}
+                  recommended
+                />
               </div>
             )}
           </div>
@@ -236,6 +277,93 @@ function BuyCreditsPage() {
         </div>
       </main>
       <SiteFooter />
+    </div>
+  );
+}
+
+function OfferCard(props: {
+  variant: "standard" | "premium";
+  label: string;
+  price: number;
+  credits: number;
+  locale: "fr" | "en";
+  features: string[];
+  loading: boolean;
+  disabled: boolean;
+  onBuy: () => void;
+  isFr: boolean;
+  recommended?: boolean;
+}) {
+  const local = computeLocalPrice(props.price, props.locale);
+  const nf = new Intl.NumberFormat(props.locale === "fr" ? "fr-FR" : "en-US");
+  const isPremium = props.variant === "premium";
+  return (
+    <div
+      className={`relative flex flex-col rounded-3xl border p-6 shadow-sm transition-transform hover:-translate-y-0.5 ${
+        isPremium
+          ? "border-transparent bg-brand-gradient text-primary-foreground"
+          : "border-border bg-card"
+      }`}
+    >
+      {props.recommended ? (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-yellow px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-yellow-foreground shadow">
+          {props.isFr ? "Recommandé" : "Recommended"}
+        </div>
+      ) : null}
+      <div className="flex items-center gap-2">
+        {isPremium ? <Crown className="size-5" /> : <Sparkles className="size-5 text-brand-blue" />}
+        <h3 className="text-xl font-bold">{props.label}</h3>
+      </div>
+      <div className="mt-4">
+        <div className={`text-4xl font-extrabold ${isPremium ? "" : "text-brand-gradient"}`}>
+          {nf.format(props.price)} FCFA
+        </div>
+        {local && local.currency !== "XAF" ? (
+          <div className={`mt-1 text-sm font-semibold ${isPremium ? "opacity-90" : "text-muted-foreground"}`}>
+            ≈{" "}
+            {new Intl.NumberFormat(props.locale === "fr" ? "fr-FR" : "en-US", {
+              style: "currency",
+              currency: local.currency,
+              maximumFractionDigits:
+                local.currency === "JPY" || local.currency === "NGN" ? 0 : 2,
+            }).format(local.amount)}
+          </div>
+        ) : null}
+        <p className={`mt-2 text-xs ${isPremium ? "opacity-90" : "text-muted-foreground"}`}>
+          {props.isFr
+            ? `${props.credits} crédits ajoutés à votre compte`
+            : `${props.credits} credits added to your account`}
+        </p>
+      </div>
+      <ul className="mt-6 space-y-2 text-sm">
+        {props.features.map((f) => (
+          <li key={f} className="flex items-start gap-2">
+            <Check className={`mt-0.5 size-4 shrink-0 ${isPremium ? "opacity-90" : "text-brand-green"}`} />
+            <span>{f}</span>
+          </li>
+        ))}
+      </ul>
+      <Button
+        size="lg"
+        disabled={props.disabled}
+        onClick={props.onBuy}
+        className={`mt-6 w-full ${
+          isPremium
+            ? "bg-background text-foreground hover:bg-background/90"
+            : "bg-brand-gradient text-primary-foreground"
+        }`}
+      >
+        {props.loading ? (
+          <>
+            <Loader2 className="mr-2 size-4 animate-spin" />
+            {props.isFr ? "Redirection..." : "Redirecting..."}
+          </>
+        ) : props.isFr ? (
+          `Choisir ${props.label}`
+        ) : (
+          `Choose ${props.label}`
+        )}
+      </Button>
     </div>
   );
 }

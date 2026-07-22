@@ -109,6 +109,7 @@ export type Database = {
           id: string
           moneroo_reference: string
           moneroo_transaction_id: string | null
+          offer_code: string | null
           payment_method: string | null
           provider: string
           raw_payload: Json | null
@@ -125,6 +126,7 @@ export type Database = {
           id?: string
           moneroo_reference: string
           moneroo_transaction_id?: string | null
+          offer_code?: string | null
           payment_method?: string | null
           provider?: string
           raw_payload?: Json | null
@@ -141,6 +143,7 @@ export type Database = {
           id?: string
           moneroo_reference?: string
           moneroo_transaction_id?: string | null
+          offer_code?: string | null
           payment_method?: string | null
           provider?: string
           raw_payload?: Json | null
@@ -205,6 +208,8 @@ export type Database = {
           last_name: string | null
           nationality: string | null
           objectives: string[]
+          plan: Database["public"]["Enums"]["subscription_plan"] | null
+          plan_activated_at: string | null
           updated_at: string
         }
         Insert: {
@@ -220,6 +225,8 @@ export type Database = {
           last_name?: string | null
           nationality?: string | null
           objectives?: string[]
+          plan?: Database["public"]["Enums"]["subscription_plan"] | null
+          plan_activated_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -235,6 +242,8 @@ export type Database = {
           last_name?: string | null
           nationality?: string | null
           objectives?: string[]
+          plan?: Database["public"]["Enums"]["subscription_plan"] | null
+          plan_activated_at?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -331,27 +340,39 @@ export type Database = {
       }
       test_access_plan: {
         Row: {
+          chariow_product_id: string | null
+          code: string | null
           credits_included: number
           currency: string
           id: string
           is_active: boolean
+          label: string | null
           price: number
+          sort_order: number
           updated_at: string
         }
         Insert: {
+          chariow_product_id?: string | null
+          code?: string | null
           credits_included: number
           currency?: string
           id?: string
           is_active?: boolean
+          label?: string | null
           price: number
+          sort_order?: number
           updated_at?: string
         }
         Update: {
+          chariow_product_id?: string | null
+          code?: string | null
           credits_included?: number
           currency?: string
           id?: string
           is_active?: boolean
+          label?: string | null
           price?: number
+          sort_order?: number
           updated_at?: string
         }
         Relationships: []
@@ -500,6 +521,7 @@ export type Database = {
         | "reading"
         | "listening"
         | "speaking"
+      subscription_plan: "standard" | "premium"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -638,6 +660,7 @@ export const Constants = {
         "listening",
         "speaking",
       ],
+      subscription_plan: ["standard", "premium"],
     },
   },
 } as const

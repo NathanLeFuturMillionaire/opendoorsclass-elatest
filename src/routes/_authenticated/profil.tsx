@@ -9,6 +9,7 @@ import {
   Calendar,
   CheckCircle2,
   ClipboardList,
+  Crown,
   Globe2,
   Loader2,
   Mail,
@@ -322,6 +323,24 @@ function ProfilePage() {
                       <Wallet className="size-3" /> {profile.credits_remaining}{" "}
                       crédits
                     </Badge>
+                    {profile.plan === "premium" ? (
+                      <Badge className="gap-1 bg-brand-gradient text-primary-foreground">
+                        <Crown className="size-3" /> Offre Premium
+                      </Badge>
+                    ) : profile.plan === "standard" ? (
+                      <Badge variant="secondary" className="gap-1">
+                        Offre Standard
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="gap-1 text-muted-foreground">
+                        Aucune offre active
+                      </Badge>
+                    )}
+                    {profile.plan_activated_at ? (
+                      <span className="text-muted-foreground">
+                        depuis le {fmtDate(profile.plan_activated_at)}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
