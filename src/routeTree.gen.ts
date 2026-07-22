@@ -16,6 +16,7 @@ import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/t
 import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
 import { Route as AuthenticatedPaiementRetourRouteImport } from './routes/_authenticated/paiement-retour'
+import { Route as AuthenticatedAchatCreditsRouteImport } from './routes/_authenticated/achat-credits'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
@@ -62,6 +63,12 @@ const AuthenticatedPaiementRetourRoute =
   AuthenticatedPaiementRetourRouteImport.update({
     id: '/paiement-retour',
     path: '/paiement-retour',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAchatCreditsRoute =
+  AuthenticatedAchatCreditsRouteImport.update({
+    id: '/achat-credits',
+    path: '/achat-credits',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
@@ -131,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/achat-credits': typeof AuthenticatedAchatCreditsRoute
   '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
@@ -149,6 +157,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/achat-credits': typeof AuthenticatedAchatCreditsRoute
   '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
@@ -170,6 +179,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/achat-credits': typeof AuthenticatedAchatCreditsRoute
   '/_authenticated/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
+    | '/achat-credits'
     | '/paiement-retour'
     | '/profil'
     | '/tableau-de-bord'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/achat-credits'
     | '/paiement-retour'
     | '/profil'
     | '/tableau-de-bord'
@@ -229,6 +241,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/admin'
+    | '/_authenticated/achat-credits'
     | '/_authenticated/paiement-retour'
     | '/_authenticated/profil'
     | '/_authenticated/tableau-de-bord'
@@ -301,6 +314,13 @@ declare module '@tanstack/react-router' {
       path: '/paiement-retour'
       fullPath: '/paiement-retour'
       preLoaderRoute: typeof AuthenticatedPaiementRetourRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/achat-credits': {
+      id: '/_authenticated/achat-credits'
+      path: '/achat-credits'
+      fullPath: '/achat-credits'
+      preLoaderRoute: typeof AuthenticatedAchatCreditsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin': {
@@ -413,6 +433,7 @@ const AuthenticatedAdminRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedAchatCreditsRoute: typeof AuthenticatedAchatCreditsRoute
   AuthenticatedPaiementRetourRoute: typeof AuthenticatedPaiementRetourRoute
   AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
   AuthenticatedTableauDeBordRoute: typeof AuthenticatedTableauDeBordRoute
@@ -422,6 +443,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedAchatCreditsRoute: AuthenticatedAchatCreditsRoute,
   AuthenticatedPaiementRetourRoute: AuthenticatedPaiementRetourRoute,
   AuthenticatedProfilRoute: AuthenticatedProfilRoute,
   AuthenticatedTableauDeBordRoute: AuthenticatedTableauDeBordRoute,
