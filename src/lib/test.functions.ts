@@ -194,7 +194,7 @@ export const getSessionResult = createServerFn({ method: "GET" })
 
     const { data: profile } = await context.supabase
       .from("profiles")
-      .select("first_name, last_name")
+      .select("first_name, last_name, avatar_url, candidate_number, nationality, country")
       .eq("id", context.userId)
       .maybeSingle();
 
@@ -212,6 +212,10 @@ export const getSessionResult = createServerFn({ method: "GET" })
       candidateFirstName: profile?.first_name ?? "",
       candidateLastName: profile?.last_name ?? "",
       candidateEmail: (context.claims?.email as string) ?? "",
+      candidateAvatar: profile?.avatar_url ?? null,
+      candidateNumber: profile?.candidate_number ?? null,
+      candidateNationality: profile?.nationality ?? null,
+      candidateCountry: profile?.country ?? null,
     };
   });
 
