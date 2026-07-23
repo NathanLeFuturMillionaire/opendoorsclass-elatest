@@ -1,13 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Award, Loader2, MessageCircle, Printer, ShieldCheck } from "lucide-react";
+import QRCode from "qrcode";
+import { Download, Loader2, MessageCircle, Printer } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { getSessionResult } from "@/lib/test.functions";
 
 export const Route = createFileRoute("/_authenticated/resultat/$id")({
@@ -23,6 +22,31 @@ const LEVEL_TITLE: Record<string, string> = {
   C2: "Maîtrise",
 };
 
+const LEVEL_TITLE_EN: Record<string, string> = {
+  A1: "Beginner",
+  A2: "Elementary",
+  B1: "Intermediate",
+  B2: "Upper Intermediate",
+  C1: "Advanced",
+  C2: "Proficient",
+};
+
+const CATEGORY_EN: Record<string, string> = {
+  grammar: "Grammar",
+  vocabulary: "Vocabulary",
+  reading: "Reading",
+  listening: "Listening",
+  speaking: "Speaking",
+};
+
+function mention(score: number | null | undefined) {
+  const s = score ?? 0;
+  if (s >= 90) return { fr: "Passé avec distinction", en: "Passed with Distinction" };
+  if (s >= 80) return { fr: "Passé avec mérite", en: "Passed with Merit" };
+  if (s >= 70) return { fr: "Réussi", en: "Passed" };
+  return { fr: "Évalué", en: "Assessed" };
+}
+
 function ResultPage() {
   const { id } = Route.useParams();
   const fetchResult = useServerFn(getSessionResult);
@@ -31,6 +55,9 @@ function ResultPage() {
     data: Awaited<ReturnType<typeof getSessionResult>> | null;
     error: string | null;
   }>({ loading: true, data: null, error: null });
+  const [qr, setQr] = useState<string>("");
+  const [downloading, setDownloading] = useState(false);
+  const certRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -51,23 +78,60 @@ function ResultPage() {
     };
   }, [id, fetchResult]);
 
+  useEffect(() => {
+    QRCode.toDataURL("https://wa.me/24174825725", {
+      margin: 1,
+      width: 180,
+      color: { dark: "#0B1F3A", light: "#FFFFFF" },
+    }).then(setQr).catch(() => setQr(""));
+  }, []);
+
   const r = state.data;
-  const verifId = r ? r.sessionId.slice(0, 8).toUpperCase() : "";
+  const verifId = r
+    ? (r.candidateNumber ?? `ODC-${r.sessionId.slice(0, 8).toUpperCase()}`)
+    : "";
   const dateStr = r?.completedAt
-    ? new Date(r.completedAt).toLocaleDateString("fr-FR", {
+    ? new Date(r.completedAt).toLocaleDateString("en-GB", {
         day: "2-digit",
         month: "long",
         year: "numeric",
       })
     : "";
-  const fullName = r ? `${r.candidateFirstName} ${r.candidateLastName}`.trim() || "Candidat" : "";
+  const fullName = r
+    ? `${r.candidateFirstName} ${r.candidateLastName}`.trim() || "Candidate"
+    : "";
+  const m = mention(r?.score ?? null);
+
+  const downloadPdf = async () => {
+    if (!certRef.current) return;
+    setDownloading(true);
+    try {
+      const { default: html2canvas } = await import("html2canvas");
+      const { default: jsPDF } = await import("jspdf");
+      const canvas = await html2canvas(certRef.current, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+      });
+      const img = canvas.toDataURL("image/jpeg", 0.95);
+      const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      pdf.addImage(img, "JPEG", 0, 0, pageW, pageH);
+      pdf.save(`OpenDoorsClass-Certificate-${verifId}.pdf`);
+    } catch (e) {
+      window.print();
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <div className="print:hidden">
         <SiteHeader />
       </div>
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6">
         {state.loading ? (
           <div className="flex flex-col items-center gap-3 py-16">
             <Loader2 className="size-8 animate-spin text-primary" />
@@ -78,116 +142,426 @@ function ResultPage() {
             {state.error ?? "Résultat introuvable."}
           </CardContent></Card>
         ) : (
-          <div className="space-y-6 animate-fade-up">
-            {/* Certificate preview */}
-            <div
-              id="certificate"
-              className="relative overflow-hidden rounded-3xl border-2 border-primary/20 bg-card shadow-xl print:rounded-none print:border-0 print:shadow-none"
-            >
-              <div className="absolute inset-0 pointer-events-none opacity-[0.04]">
-                <div className="absolute -top-24 -left-24 size-96 rounded-full bg-brand-gradient blur-3xl" />
-                <div className="absolute -bottom-24 -right-24 size-96 rounded-full bg-brand-gradient blur-3xl" />
-              </div>
+          <div className="space-y-6 animate-fade-in">
+            <div className="mx-auto overflow-auto">
+              <div
+                ref={certRef}
+                className="mx-auto"
+                style={{
+                  width: "1123px",
+                  height: "794px",
+                  background:
+                    "linear-gradient(135deg, #FDFBF3 0%, #FFFFFF 40%, #F5EFDF 100%)",
+                  color: "#0B1F3A",
+                  position: "relative",
+                  fontFamily: "'Manrope', system-ui, sans-serif",
+                  boxShadow: "0 30px 80px -30px rgba(11,31,58,0.35)",
+                }}
+              >
+                {/* Outer ornate border */}
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 24,
+                    border: "2px solid #0B1F3A",
+                    borderRadius: 4,
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 34,
+                    border: "1px solid #C9A24B",
+                    borderRadius: 2,
+                  }}
+                />
+                {/* Corner ornaments */}
+                {[
+                  { top: 20, left: 20 },
+                  { top: 20, right: 20, transform: "scaleX(-1)" },
+                  { bottom: 20, left: 20, transform: "scaleY(-1)" },
+                  { bottom: 20, right: 20, transform: "scale(-1,-1)" },
+                ].map((pos, i) => (
+                  <svg
+                    key={i}
+                    width="60"
+                    height="60"
+                    viewBox="0 0 60 60"
+                    style={{ position: "absolute", ...pos } as React.CSSProperties}
+                  >
+                    <path
+                      d="M0 0 L60 0 L60 4 L4 4 L4 60 L0 60 Z"
+                      fill="#C9A24B"
+                    />
+                    <circle cx="14" cy="14" r="3" fill="#0B1F3A" />
+                    <circle cx="14" cy="14" r="1.5" fill="#C9A24B" />
+                  </svg>
+                ))}
 
-              <div className="relative p-8 sm:p-12">
-                <div className="flex items-center justify-between gap-4 border-b border-border/60 pb-6">
-                  <div className="flex items-center gap-3">
-                    <span className="grid size-10 place-items-center rounded-xl bg-brand-gradient text-primary-foreground shadow">
-                      <span className="text-base font-black">O</span>
-                    </span>
-                    <div>
-                      <div className="font-bold tracking-tight">OpenDoorsClass</div>
-                      <div className="text-xs text-muted-foreground">Institut de langues, Gabon</div>
-                    </div>
-                  </div>
-                  <div className="text-right text-xs text-muted-foreground">
-                    <div>Attestation N° <span className="font-mono font-semibold text-foreground">ODC-{verifId}</span></div>
-                    <div>Délivrée le {dateStr}</div>
+                {/* Watermark seal, background */}
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    opacity: 0.04,
+                    pointerEvents: "none",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 340,
+                      fontWeight: 900,
+                      color: "#0B1F3A",
+                      letterSpacing: -12,
+                    }}
+                  >
+                    O
                   </div>
                 </div>
 
-                <div className="mt-8 text-center">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-primary">
-                    <ShieldCheck className="size-3.5" /> Attestation officielle de niveau
-                  </div>
-                  <h1 className="mt-6 text-2xl font-bold tracking-tight sm:text-3xl">
-                    Test de niveau d'anglais, référentiel CECRL
-                  </h1>
-                  <p className="mt-4 text-sm text-muted-foreground">
-                    La présente atteste que
-                  </p>
-                  <p className="mt-3 font-serif text-3xl font-bold sm:text-4xl">{fullName}</p>
-                  {r.candidateEmail ? (
-                    <p className="mt-1 text-xs text-muted-foreground">{r.candidateEmail}</p>
-                  ) : null}
-                  <p className="mt-6 text-sm text-muted-foreground">
-                    a passé avec succès le test de positionnement et atteint le niveau
-                  </p>
-
-                  <div className="mx-auto mt-6 inline-flex flex-col items-center rounded-2xl bg-brand-gradient px-10 py-6 text-primary-foreground shadow-lg">
-                    <Award className="size-8 opacity-90" />
-                     <div className="mt-2 text-6xl font-black leading-none tracking-tight">
-                       {r.levelResult ?? "N/A"}
-                     </div>
-                     <div className="mt-2 text-xs uppercase tracking-widest opacity-90">
-                       {r.levelResult ? (LEVEL_TITLE[r.levelResult] ?? "") : ""}
-                     </div>
-                    <div className="mt-3 text-sm font-medium opacity-95">
-                      Score global : {r.score}%
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                  {Object.entries(r.perCategory).map(([cat, s]) => (
-                    <div key={cat} className="rounded-xl border border-border/60 bg-background/60 p-4">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium">{labelCategory(cat)}</span>
-                        <Badge variant="secondary">{s.correct} / {s.total}</Badge>
+                {/* Content */}
+                <div
+                  style={{
+                    position: "relative",
+                    height: "100%",
+                    padding: "56px 72px",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  {/* Header */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                      <div
+                        style={{
+                          width: 54,
+                          height: 54,
+                          borderRadius: 12,
+                          background: "linear-gradient(135deg, #0B1F3A, #143a6b)",
+                          color: "#C9A24B",
+                          display: "grid",
+                          placeItems: "center",
+                          fontWeight: 900,
+                          fontSize: 26,
+                          border: "1.5px solid #C9A24B",
+                        }}
+                      >
+                        O
                       </div>
-                      <Progress className="mt-2" value={s.percent} />
-                      <div className="mt-1 text-right text-xs text-muted-foreground">{s.percent}%</div>
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: 18, letterSpacing: 0.5 }}>
+                          OpenDoorsClass
+                        </div>
+                        <div style={{ fontSize: 10.5, color: "#5a6675", letterSpacing: 2, textTransform: "uppercase" }}>
+                          Institute of Languages, Gabon
+                        </div>
+                      </div>
                     </div>
-                  ))}
-                </div>
-
-                {r.recommendation ? (
-                  <div className="mt-8 rounded-2xl border border-primary/20 bg-primary/5 p-5 text-sm leading-relaxed text-foreground">
-                    <div className="mb-1 text-xs font-semibold uppercase tracking-widest text-primary">
-                      Recommandation pédagogique
+                    <div style={{ textAlign: "right", fontSize: 10.5, color: "#5a6675" }}>
+                      <div>Certificate N°</div>
+                      <div style={{ fontFamily: "monospace", fontWeight: 700, color: "#0B1F3A", fontSize: 13 }}>
+                        {verifId}
+                      </div>
+                      <div style={{ marginTop: 6 }}>Issued on {dateStr}</div>
                     </div>
-                    {r.recommendation}
                   </div>
-                ) : null}
 
-                <div className="mt-10 flex flex-col items-start justify-between gap-6 border-t border-border/60 pt-6 sm:flex-row sm:items-end">
-                  <div className="text-xs text-muted-foreground">
-                    <div>Document généré automatiquement.</div>
+                  {/* Title */}
+                  <div style={{ textAlign: "center", marginTop: 26 }}>
+                    <div style={{ fontSize: 10, letterSpacing: 6, color: "#C9A24B", fontWeight: 700 }}>
+                      OPENDOORSCLASS
+                    </div>
+                    <h1
+                      style={{
+                        fontFamily: "'Cormorant Garamond', serif",
+                        fontSize: 44,
+                        fontWeight: 700,
+                        margin: "6px 0 4px",
+                        letterSpacing: 2,
+                        color: "#0B1F3A",
+                      }}
+                    >
+                      OFFICIAL CERTIFICATE OF ENGLISH LEVEL
+                    </h1>
+                    <div
+                      style={{
+                        width: 120,
+                        height: 3,
+                        background: "#C9A24B",
+                        margin: "8px auto 0",
+                      }}
+                    />
+                    <div style={{ fontSize: 11, color: "#5a6675", marginTop: 6, letterSpacing: 3 }}>
+                      COMMON EUROPEAN FRAMEWORK OF REFERENCE (CEFR)
+                    </div>
+                  </div>
+
+                  {/* Body */}
+                  <div
+                    style={{
+                      marginTop: 22,
+                      display: "grid",
+                      gridTemplateColumns: "1fr 320px",
+                      gap: 28,
+                      alignItems: "center",
+                      flex: 1,
+                    }}
+                  >
+                    {/* Left: identity + skills */}
                     <div>
-                      Vérification : code <span className="font-mono font-semibold text-foreground">ODC-{verifId}</span>
+                      <div style={{ fontSize: 12, color: "#5a6675", letterSpacing: 1 }}>
+                        This is to certify that
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 10 }}>
+                        {r.candidateAvatar ? (
+                          <img
+                            src={r.candidateAvatar}
+                            alt=""
+                            crossOrigin="anonymous"
+                            style={{
+                              width: 66,
+                              height: 66,
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                              border: "2px solid #C9A24B",
+                            }}
+                          />
+                        ) : null}
+                        <div>
+                          <div
+                            style={{
+                              fontFamily: "'Cormorant Garamond', serif",
+                              fontSize: 40,
+                              fontWeight: 700,
+                              lineHeight: 1.05,
+                              color: "#0B1F3A",
+                            }}
+                          >
+                            {fullName}
+                          </div>
+                          {r.candidateEmail ? (
+                            <div style={{ fontSize: 11, color: "#5a6675", marginTop: 4 }}>
+                              {r.candidateEmail}
+                              {r.candidateCountry ? ` · ${r.candidateCountry}` : ""}
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                      <div style={{ marginTop: 14, fontSize: 12.5, lineHeight: 1.55, color: "#333" }}>
+                        has successfully completed the OpenDoorsClass English positioning
+                        assessment aligned with the Common European Framework of Reference
+                        for Languages (CEFR), and has demonstrated the level indicated below.
+                      </div>
+
+                      {/* Skills */}
+                      <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                        {Object.entries(r.perCategory).map(([cat, s]) => (
+                          <div
+                            key={cat}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              padding: "6px 10px",
+                              border: "1px solid #E7DFC9",
+                              borderRadius: 4,
+                              background: "rgba(255,255,255,0.7)",
+                              fontSize: 11.5,
+                            }}
+                          >
+                            <span style={{ fontWeight: 600, color: "#0B1F3A" }}>
+                              {CATEGORY_EN[cat] ?? cat}
+                            </span>
+                            <span style={{ color: "#C9A24B", fontWeight: 700 }}>
+                              {s.percent}%
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div>WhatsApp : +241 74 82 57 25</div>
+
+                    {/* Right: level card */}
+                    <div
+                      style={{
+                        background: "linear-gradient(160deg, #0B1F3A 0%, #143a6b 100%)",
+                        color: "#fff",
+                        borderRadius: 8,
+                        padding: "22px 20px",
+                        textAlign: "center",
+                        border: "1.5px solid #C9A24B",
+                        boxShadow: "0 20px 40px -20px rgba(11,31,58,0.4)",
+                      }}
+                    >
+                      <div style={{ fontSize: 10, letterSpacing: 4, color: "#C9A24B", fontWeight: 700 }}>
+                        CEFR LEVEL AWARDED
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: "'Cormorant Garamond', serif",
+                          fontSize: 96,
+                          fontWeight: 700,
+                          lineHeight: 1,
+                          margin: "10px 0 4px",
+                          color: "#C9A24B",
+                          textShadow: "0 4px 12px rgba(0,0,0,0.25)",
+                        }}
+                      >
+                        {r.levelResult ?? "N/A"}
+                      </div>
+                      <div style={{ fontSize: 12, letterSpacing: 2, textTransform: "uppercase", opacity: 0.9 }}>
+                        {r.levelResult ? LEVEL_TITLE_EN[r.levelResult] ?? "" : ""}
+                      </div>
+                      <div
+                        style={{
+                          margin: "14px auto 0",
+                          height: 1,
+                          background: "rgba(201,162,75,0.5)",
+                          width: "80%",
+                        }}
+                      />
+                      <div style={{ marginTop: 12, fontSize: 12 }}>
+                        Overall Score
+                        <div style={{ fontSize: 26, fontWeight: 800, color: "#fff" }}>
+                          {r.score ?? 0}%
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          marginTop: 8,
+                          display: "inline-block",
+                          padding: "3px 10px",
+                          borderRadius: 999,
+                          background: "#C9A24B",
+                          color: "#0B1F3A",
+                          fontSize: 10,
+                          fontWeight: 800,
+                          letterSpacing: 1,
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {m.en}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-serif text-lg italic text-foreground">Nathan H. Mayukwa</div>
-                    <div className="mt-1 h-px w-40 bg-border" />
-                    <div className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">
-                      Fondateur, OpenDoorsClass
+
+                  {/* Footer: signature + stamp + QR */}
+                  <div
+                    style={{
+                      marginTop: 16,
+                      display: "grid",
+                      gridTemplateColumns: "1fr auto 1fr",
+                      alignItems: "end",
+                      gap: 24,
+                    }}
+                  >
+                    {/* Signature */}
+                    <div>
+                      <div
+                        style={{
+                          fontFamily: "'Great Vibes', cursive",
+                          fontSize: 46,
+                          color: "#0B1F3A",
+                          lineHeight: 1,
+                          marginBottom: 2,
+                        }}
+                      >
+                        OpenDoorsClass
+                      </div>
+                      <div style={{ height: 1, background: "#0B1F3A", width: "70%" }} />
+                      <div style={{ marginTop: 4, fontSize: 11, fontWeight: 700, color: "#0B1F3A" }}>
+                        MAYUKWA Nathan Harysthote
+                      </div>
+                      <div style={{ fontSize: 10, color: "#5a6675", letterSpacing: 1 }}>
+                        Founder & Lead English Coach
+                      </div>
+                    </div>
+
+                    {/* Stamp */}
+                    <div
+                      style={{
+                        width: 108,
+                        height: 108,
+                        borderRadius: "50%",
+                        border: "2.5px solid #C9A24B",
+                        display: "grid",
+                        placeItems: "center",
+                        position: "relative",
+                        transform: "rotate(-8deg)",
+                        color: "#0B1F3A",
+                        background:
+                          "radial-gradient(circle at center, rgba(255,255,255,0.6), rgba(255,255,255,0.2))",
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: "absolute",
+                          inset: 6,
+                          border: "1px dashed #C9A24B",
+                          borderRadius: "50%",
+                        }}
+                      />
+                      <div style={{ textAlign: "center", fontSize: 8, letterSpacing: 1, lineHeight: 1.15 }}>
+                        <div style={{ fontWeight: 800, letterSpacing: 2 }}>OFFICIAL</div>
+                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 14, fontWeight: 700, margin: "2px 0" }}>
+                          OpenDoorsClass
+                        </div>
+                        <div>· CERTIFIED ·</div>
+                        <div style={{ marginTop: 2 }}>GABON</div>
+                      </div>
+                    </div>
+
+                    {/* QR */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                      {qr ? (
+                        <img src={qr} alt="Verification QR" style={{ width: 84, height: 84 }} />
+                      ) : (
+                        <div style={{ width: 84, height: 84, background: "#eee" }} />
+                      )}
+                      <div style={{ fontSize: 9, color: "#5a6675", textAlign: "right", lineHeight: 1.3 }}>
+                        Scan to verify
+                        <br />
+                        wa.me/24174825725
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
+            {/* Recommendation, outside the certificate */}
+            {r.recommendation ? (
+              <div className="mx-auto max-w-3xl rounded-2xl border border-primary/20 bg-primary/5 p-5 text-sm leading-relaxed text-foreground print:hidden">
+                <div className="mb-1 text-xs font-semibold uppercase tracking-widest text-primary">
+                  Recommandation pédagogique · {m.fr}
+                </div>
+                {r.recommendation}
+              </div>
+            ) : null}
+
             <div className="flex flex-wrap items-center justify-center gap-3 print:hidden">
+              <Button
+                onClick={downloadPdf}
+                disabled={downloading}
+                className="bg-brand-gradient text-primary-foreground hover-scale"
+              >
+                {downloading ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <Download className="mr-2 size-4" />
+                )}
+                Télécharger le certificat en PDF
+              </Button>
               <Button variant="outline" onClick={() => window.print()}>
                 <Printer className="mr-2 size-4" />
-                Imprimer ou enregistrer en PDF
+                Imprimer
               </Button>
               <Button asChild variant="outline">
                 <Link to="/tableau-de-bord">Retour à mon espace</Link>
               </Button>
-              <Button asChild className="bg-brand-gradient text-primary-foreground">
+              <Button asChild variant="secondary">
                 <a href="https://wa.me/24174825725" target="_blank" rel="noreferrer">
                   <MessageCircle className="mr-2 size-4" />
                   Discuter avec un conseiller
@@ -204,12 +578,5 @@ function ResultPage() {
   );
 }
 
-function labelCategory(cat: string) {
-  switch (cat) {
-    case "grammar": return "Grammaire";
-    case "vocabulary": return "Vocabulaire";
-    case "reading": return "Compréhension écrite";
-    case "listening": return "Compréhension orale";
-    default: return cat;
-  }
-}
+// exported translations are handled inline (CATEGORY_EN / LEVEL_TITLE / LEVEL_TITLE_EN).
+void LEVEL_TITLE;
