@@ -196,54 +196,81 @@ export type Database = {
       }
       profiles: {
         Row: {
+          about: string | null
           ai_recommendations: string | null
           ai_recommendations_at: string | null
           avatar_url: string | null
           candidate_number: string | null
+          country: string | null
           created_at: string
           credits_remaining: number
           date_of_birth: string | null
           first_name: string | null
           id: string
+          languages_known: string[] | null
+          languages_wanted: string[] | null
           last_name: string | null
           nationality: string | null
+          objective_text: string | null
           objectives: string[]
+          onboarding_completed: boolean
           plan: Database["public"]["Enums"]["subscription_plan"] | null
           plan_activated_at: string | null
+          profession: string | null
+          sex: string | null
+          sex_other: string | null
           updated_at: string
         }
         Insert: {
+          about?: string | null
           ai_recommendations?: string | null
           ai_recommendations_at?: string | null
           avatar_url?: string | null
           candidate_number?: string | null
+          country?: string | null
           created_at?: string
           credits_remaining?: number
           date_of_birth?: string | null
           first_name?: string | null
           id: string
+          languages_known?: string[] | null
+          languages_wanted?: string[] | null
           last_name?: string | null
           nationality?: string | null
+          objective_text?: string | null
           objectives?: string[]
+          onboarding_completed?: boolean
           plan?: Database["public"]["Enums"]["subscription_plan"] | null
           plan_activated_at?: string | null
+          profession?: string | null
+          sex?: string | null
+          sex_other?: string | null
           updated_at?: string
         }
         Update: {
+          about?: string | null
           ai_recommendations?: string | null
           ai_recommendations_at?: string | null
           avatar_url?: string | null
           candidate_number?: string | null
+          country?: string | null
           created_at?: string
           credits_remaining?: number
           date_of_birth?: string | null
           first_name?: string | null
           id?: string
+          languages_known?: string[] | null
+          languages_wanted?: string[] | null
           last_name?: string | null
           nationality?: string | null
+          objective_text?: string | null
           objectives?: string[]
+          onboarding_completed?: boolean
           plan?: Database["public"]["Enums"]["subscription_plan"] | null
           plan_activated_at?: string | null
+          profession?: string | null
+          sex?: string | null
+          sex_other?: string | null
           updated_at?: string
         }
         Relationships: []
