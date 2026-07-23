@@ -118,26 +118,51 @@ function TestPage() {
   if (phase === "intro") {
     return (
       <Shell>
-        <Card className="mx-auto max-w-2xl">
+        <Card className="mx-auto max-w-2xl animate-fade-in border-primary/20 shadow-xl">
           <CardContent className="p-8 space-y-6">
-            <h1 className="text-3xl font-bold tracking-tight">Test de niveau OpenDoorsClass</h1>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>Durée : 30 minutes, chronométrées.</li>
-              <li>Questions à choix multiples, difficulté croissante (A1 à C2).</li>
-              <li>Une section de compréhension orale avec un audio à écouter (5 écoutes maximum par question).</li>
-              <li>Un crédit sera décompté au démarrage du test.</li>
-            </ul>
-            <div className="rounded-lg bg-muted/60 p-4 text-sm">
-              Astuce : installez-vous au calme et gardez vos écouteurs à portée de main pour la partie audio.
+            <div className="text-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-primary">
+                Évaluation officielle
+              </div>
+              <h1 className="mt-4 text-3xl font-bold tracking-tight">Avant de commencer</h1>
             </div>
+            <div className="rounded-2xl border border-border/70 bg-card p-5 text-sm leading-relaxed text-foreground/90">
+              <p className="font-semibold text-foreground">
+                Bienvenue dans l'évaluation officielle OpenDoorsClass.
+              </p>
+              <p className="mt-3">
+                Afin de garantir l'intégrité de votre résultat, un système de
+                détection des tentatives de fraude est actif pendant toute la durée
+                du test. Veuillez rester concentré et éviter de quitter votre
+                navigateur ou de changer d'onglet de manière répétée.
+              </p>
+              <p className="mt-3">
+                Toute activité suspecte pourra entraîner l'annulation automatique
+                de votre session et engendre la perte de votre crédit.
+              </p>
+              <p className="mt-3">
+                Nous vous recommandons de prévoir un environnement calme, une
+                connexion Internet stable et de consacrer toute votre attention à
+                cette évaluation.
+              </p>
+              <p className="mt-3 font-semibold text-primary">
+                Nous vous souhaitons pleine réussite. Bonne chance !
+              </p>
+            </div>
+            <ul className="space-y-2 rounded-xl bg-muted/50 p-4 text-xs text-muted-foreground">
+              <li>· Durée : 30 minutes, chronométrées.</li>
+              <li>· Questions à choix multiples, difficulté croissante (A1 à C2).</li>
+              <li>· Section audio, 5 écoutes maximum par question, écouteurs recommandés.</li>
+              <li>· Un crédit sera décompté au démarrage.</li>
+            </ul>
             <Button
               size="lg"
               onClick={startTest}
               disabled={loading}
-              className="w-full bg-brand-gradient text-primary-foreground"
+              className="w-full bg-brand-gradient text-primary-foreground hover-scale"
             >
               {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-              Démarrer le test
+              Je comprends et je commence mon test
             </Button>
           </CardContent>
         </Card>
