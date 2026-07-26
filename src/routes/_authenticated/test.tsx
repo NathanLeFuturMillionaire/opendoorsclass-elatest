@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, Clock, Headphones, Loader2, Mic, Play, Square } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Headphones, Loader2, Mic, MicOff, Play, Square, CheckCircle2, AlertTriangle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
