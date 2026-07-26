@@ -389,12 +389,14 @@ function SpeakingRecorder({
   const [processing, setProcessing] = useState(false);
   const [level, setLevel] = useState(0);
   const [seconds, setSeconds] = useState(0);
+  const [liveTranscript, setLiveTranscript] = useState("");
   const mediaRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const rafRef = useRef<number | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const recognitionRef = useRef<unknown>(null);
 
   const parsed = (() => {
     if (!existing) return null;
@@ -413,6 +415,11 @@ function SpeakingRecorder({
     streamRef.current = null;
     audioCtxRef.current?.close().catch(() => {});
     audioCtxRef.current = null;
+    try {
+      const r = recognitionRef.current as { stop?: () => void } | null;
+      r?.stop?.();
+    } catch { /* noop */ }
+    recognitionRef.current = null;
   };
 
   const start = async () => {
@@ -484,8 +491,55 @@ function SpeakingRecorder({
       setSeconds(0);
       timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
       setRecording(true);
-    } catch {
-      toast.error("Accès au micro refusé.");
+      setLiveTranscript("");
+      // Live transcription via Web Speech API when available (Chrome/Edge/Safari).
+      try {
+        const w = window as unknown as {
+          SpeechRecognition?: new () => unknown;
+          webkitSpeechRecognition?: new () => unknown;
+        };
+        const SR = w.SpeechRecognition ?? w.webkitSpeechRecognition;
+        if (SR) {
+          const rec = new SR() as {
+            continuous: boolean;
+            interimResults: boolean;
+            lang: string;
+            onresult: (e: { resultIndex: number; results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }> }) => void;
+            onerror: () => void;
+            start: () => void;
+          };
+          rec.continuous = true;
+          rec.interimResults = true;
+          rec.lang = "en-US";
+          let finalText = "";
+          rec.onresult = (e) => {
+            let interim = "";
+            for (let i = e.resultIndex; i < e.results.length; i++) {
+              const r = e.results[i];
+              const txt = r[0]?.transcript ?? "";
+              if (r.isFinal) finalText += txt + " ";
+              else interim += txt;
+            }
+            setLiveTranscript((finalText + interim).trim());
+          };
+          rec.onerror = () => { /* silent, fallback to server STT */ };
+          rec.start();
+          recognitionRef.current = rec;
+        }
+      } catch { /* live transcription optional */ }
+    } catch (err) {
+      const name = (err as { name?: string })?.name ?? "";
+      const msg =
+        name === "NotAllowedError" || name === "SecurityError"
+          ? "Accès au microphone refusé. Cliquez sur l'icône microphone dans la barre d'adresse de votre navigateur pour autoriser l'accès, puis réessayez."
+          : name === "NotFoundError"
+            ? "Aucun microphone détecté sur cet appareil."
+            : name === "NotReadableError"
+              ? "Votre microphone est peut-être utilisé par une autre application. Fermez-la et réessayez."
+              : name === "OverconstrainedError"
+                ? "Aucun microphone compatible n'a été trouvé."
+                : "Impossible d'accéder au microphone.";
+      toast.error(msg);
     }
   };
 
@@ -518,6 +572,11 @@ function SpeakingRecorder({
           <span>{recording ? `Enregistrement... ${seconds}s` : processing ? "Analyse IA en cours..." : "Prêt à enregistrer"}</span>
           <span>Micro requis</span>
         </div>
+        {recording && liveTranscript ? (
+          <div className="mt-3 rounded-md bg-background/70 p-3 text-sm italic text-foreground/80">
+            "{liveTranscript}"
+          </div>
+        ) : null}
         <div className="mt-4 flex justify-center">
           {!recording ? (
             <Button type="button" onClick={start} disabled={processing} className="bg-brand-gradient text-primary-foreground">
