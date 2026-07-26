@@ -1,12 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Award, ClipboardList, UserCircle2 } from "lucide-react";
+import { ArrowRight, Award, ClipboardList, UserCircle2, Lock, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getMyProfile } from "@/lib/payments.functions";
+import { getMyProfile, getTestAccessStatus } from "@/lib/payments.functions";
 import { getTestHistory } from "@/lib/test.functions";
 import { useT, useI18n } from "@/lib/i18n";
 
@@ -19,10 +19,17 @@ function DashboardPage() {
   const { locale } = useI18n();
   const fetchProfile = useServerFn(getMyProfile);
   const fetchHistory = useServerFn(getTestHistory);
+  const fetchAccess = useServerFn(getTestAccessStatus);
   const { data: profile } = useQuery({ queryKey: ["my-profile"], queryFn: () => fetchProfile() });
   const { data: history } = useQuery({ queryKey: ["test-history"], queryFn: () => fetchHistory() });
+  const { data: access } = useQuery({
+    queryKey: ["test-access"],
+    queryFn: () => fetchAccess(),
+    refetchInterval: (q) => (q.state.data?.status === "pending" ? 5000 : false),
+  });
   const credits = profile?.credits_remaining ?? 0;
-  const hasCredits = credits > 0;
+  const status = access?.status ?? (credits > 0 ? "unlocked" : "locked");
+  const hasCredits = status === "unlocked";
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -53,6 +60,8 @@ function DashboardPage() {
             </Button>
           </div>
         </div>
+
+        <AccessStatusCard status={status} />
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           <div className="animate-fade-up rounded-2xl border border-border bg-card p-6">
