@@ -205,32 +205,12 @@ function TestPage() {
   if (phase === "speaking-intro") {
     return (
       <Shell>
-        <Card className="mx-auto max-w-2xl">
-          <CardContent className="p-8 space-y-6 text-center">
-            <div className="mx-auto grid size-16 place-items-center rounded-full bg-primary/10 text-primary">
-              <Mic className="size-8" />
-            </div>
-            <h2 className="text-2xl font-bold">Section expression orale</h2>
-            <p className="text-muted-foreground">
-              Vous allez répondre en anglais à voix haute. Autorisez l'accès au microphone,
-              parlez clairement, puis arrêtez l'enregistrement. Votre réponse sera
-              transcrite et notée automatiquement par l'IA.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Astuce : un environnement calme améliore la précision de la transcription.
-            </p>
-            <Button
-              size="lg"
-              onClick={() => {
-                setSeenSpeakingIntro(true);
-                setPhase("running");
-              }}
-              className="bg-brand-gradient text-primary-foreground"
-            >
-              Je suis prêt
-            </Button>
-          </CardContent>
-        </Card>
+        <MicCheck
+          onReady={() => {
+            setSeenSpeakingIntro(true);
+            setPhase("running");
+          }}
+        />
       </Shell>
     );
   }
