@@ -167,3 +167,56 @@ function bestLevel(history: { level_result: string | null }[] | undefined) {
   }
   return best;
 }
+
+function AccessStatusCard({ status }: { status: "unlocked" | "pending" | "failed" | "locked" }) {
+  const config = {
+    unlocked: {
+      icon: CheckCircle2,
+      label: "Test débloqué",
+      desc: "Votre paiement est confirmé. Vous pouvez démarrer votre Level Test dès maintenant.",
+      cls: "border-emerald-500/40 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400",
+      cta: { to: "/test", label: "Démarrer mon test" },
+    },
+    pending: {
+      icon: Clock,
+      label: "Paiement en cours de confirmation",
+      desc: "Votre paiement est en cours de traitement. Vos crédits seront attribués automatiquement dès la confirmation.",
+      cls: "border-amber-500/40 bg-amber-500/5 text-amber-600 dark:text-amber-400",
+      cta: null,
+    },
+    failed: {
+      icon: XCircle,
+      label: "Paiement non confirmé",
+      desc: "Votre dernier paiement n'a pas été confirmé. Vous pouvez réessayer ou contacter le support.",
+      cls: "border-destructive/40 bg-destructive/5 text-destructive",
+      cta: { to: "/achat-credits", label: "Réessayer" },
+    },
+    locked: {
+      icon: Lock,
+      label: "Test verrouillé",
+      desc: "Effectuez le paiement pour débloquer votre Level Test. L'accès est activé automatiquement dès confirmation.",
+      cls: "border-border bg-muted/40 text-foreground",
+      cta: { to: "/achat-credits", label: "Débloquer mon test" },
+    },
+  }[status];
+  const Icon = config.icon;
+  return (
+    <div className={`mt-6 rounded-3xl border p-5 animate-fade-up ${config.cls}`}>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <Icon className="mt-0.5 size-6 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide">Accès au Level Test</p>
+            <p className="mt-1 text-base font-semibold text-foreground">{config.label}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{config.desc}</p>
+          </div>
+        </div>
+        {config.cta ? (
+          <Button asChild className="bg-brand-gradient text-primary-foreground">
+            <Link to={config.cta.to}>{config.cta.label}</Link>
+          </Button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
