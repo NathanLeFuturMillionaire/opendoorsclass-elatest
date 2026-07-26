@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, Clock, Headphones, Loader2, Mic, Play, Square } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Headphones, Loader2, Mic, MicOff, Play, Square, CheckCircle2, AlertTriangle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
@@ -205,32 +205,12 @@ function TestPage() {
   if (phase === "speaking-intro") {
     return (
       <Shell>
-        <Card className="mx-auto max-w-2xl">
-          <CardContent className="p-8 space-y-6 text-center">
-            <div className="mx-auto grid size-16 place-items-center rounded-full bg-primary/10 text-primary">
-              <Mic className="size-8" />
-            </div>
-            <h2 className="text-2xl font-bold">Section expression orale</h2>
-            <p className="text-muted-foreground">
-              Vous allez répondre en anglais à voix haute. Autorisez l'accès au microphone,
-              parlez clairement, puis arrêtez l'enregistrement. Votre réponse sera
-              transcrite et notée automatiquement par l'IA.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Astuce : un environnement calme améliore la précision de la transcription.
-            </p>
-            <Button
-              size="lg"
-              onClick={() => {
-                setSeenSpeakingIntro(true);
-                setPhase("running");
-              }}
-              className="bg-brand-gradient text-primary-foreground"
-            >
-              Je suis prêt
-            </Button>
-          </CardContent>
-        </Card>
+        <MicCheck
+          onReady={() => {
+            setSeenSpeakingIntro(true);
+            setPhase("running");
+          }}
+        />
       </Shell>
     );
   }
@@ -409,12 +389,14 @@ function SpeakingRecorder({
   const [processing, setProcessing] = useState(false);
   const [level, setLevel] = useState(0);
   const [seconds, setSeconds] = useState(0);
+  const [liveTranscript, setLiveTranscript] = useState("");
   const mediaRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const rafRef = useRef<number | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const recognitionRef = useRef<unknown>(null);
 
   const parsed = (() => {
     if (!existing) return null;
@@ -433,6 +415,11 @@ function SpeakingRecorder({
     streamRef.current = null;
     audioCtxRef.current?.close().catch(() => {});
     audioCtxRef.current = null;
+    try {
+      const r = recognitionRef.current as { stop?: () => void } | null;
+      r?.stop?.();
+    } catch { /* noop */ }
+    recognitionRef.current = null;
   };
 
   const start = async () => {
@@ -504,8 +491,55 @@ function SpeakingRecorder({
       setSeconds(0);
       timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
       setRecording(true);
-    } catch {
-      toast.error("Accès au micro refusé.");
+      setLiveTranscript("");
+      // Live transcription via Web Speech API when available (Chrome/Edge/Safari).
+      try {
+        const w = window as unknown as {
+          SpeechRecognition?: new () => unknown;
+          webkitSpeechRecognition?: new () => unknown;
+        };
+        const SR = w.SpeechRecognition ?? w.webkitSpeechRecognition;
+        if (SR) {
+          const rec = new SR() as {
+            continuous: boolean;
+            interimResults: boolean;
+            lang: string;
+            onresult: (e: { resultIndex: number; results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }> }) => void;
+            onerror: () => void;
+            start: () => void;
+          };
+          rec.continuous = true;
+          rec.interimResults = true;
+          rec.lang = "en-US";
+          let finalText = "";
+          rec.onresult = (e) => {
+            let interim = "";
+            for (let i = e.resultIndex; i < e.results.length; i++) {
+              const r = e.results[i];
+              const txt = r[0]?.transcript ?? "";
+              if (r.isFinal) finalText += txt + " ";
+              else interim += txt;
+            }
+            setLiveTranscript((finalText + interim).trim());
+          };
+          rec.onerror = () => { /* silent, fallback to server STT */ };
+          rec.start();
+          recognitionRef.current = rec;
+        }
+      } catch { /* live transcription optional */ }
+    } catch (err) {
+      const name = (err as { name?: string })?.name ?? "";
+      const msg =
+        name === "NotAllowedError" || name === "SecurityError"
+          ? "Accès au microphone refusé. Cliquez sur l'icône microphone dans la barre d'adresse de votre navigateur pour autoriser l'accès, puis réessayez."
+          : name === "NotFoundError"
+            ? "Aucun microphone détecté sur cet appareil."
+            : name === "NotReadableError"
+              ? "Votre microphone est peut-être utilisé par une autre application. Fermez-la et réessayez."
+              : name === "OverconstrainedError"
+                ? "Aucun microphone compatible n'a été trouvé."
+                : "Impossible d'accéder au microphone.";
+      toast.error(msg);
     }
   };
 
@@ -538,6 +572,11 @@ function SpeakingRecorder({
           <span>{recording ? `Enregistrement... ${seconds}s` : processing ? "Analyse IA en cours..." : "Prêt à enregistrer"}</span>
           <span>Micro requis</span>
         </div>
+        {recording && liveTranscript ? (
+          <div className="mt-3 rounded-md bg-background/70 p-3 text-sm italic text-foreground/80">
+            "{liveTranscript}"
+          </div>
+        ) : null}
         <div className="mt-4 flex justify-center">
           {!recording ? (
             <Button type="button" onClick={start} disabled={processing} className="bg-brand-gradient text-primary-foreground">
@@ -568,5 +607,154 @@ function SpeakingRecorder({
         </div>
       )}
     </div>
+  );
+}
+
+function MicCheck({ onReady }: { onReady: () => void }) {
+  const [step, setStep] = useState<"prompt" | "granted" | "denied">("prompt");
+  const [level, setLevel] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const ctxRef = useRef<AudioContext | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const [peak, setPeak] = useState(0);
+
+  const cleanup = () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    ctxRef.current?.close().catch(() => {});
+    ctxRef.current = null;
+  };
+
+  useEffect(() => () => cleanup(), []);
+
+  const requestMic = async () => {
+    setError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      const ctx = new AudioContext();
+      ctxRef.current = ctx;
+      const src = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 256;
+      src.connect(analyser);
+      const buf = new Uint8Array(analyser.frequencyBinCount);
+      const tick = () => {
+        analyser.getByteTimeDomainData(buf);
+        let sum = 0;
+        for (let i = 0; i < buf.length; i++) {
+          const v = (buf[i] - 128) / 128;
+          sum += v * v;
+        }
+        const rms = Math.min(1, Math.sqrt(sum / buf.length) * 4);
+        setLevel(rms);
+        setPeak((p) => Math.max(p, rms));
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      tick();
+      setStep("granted");
+    } catch (err) {
+      const name = (err as { name?: string })?.name ?? "";
+      const msg =
+        name === "NotAllowedError" || name === "SecurityError"
+          ? "Accès refusé. Cliquez sur l'icône microphone dans la barre d'adresse de votre navigateur, autorisez l'accès, puis réessayez."
+          : name === "NotFoundError"
+            ? "Aucun microphone détecté sur cet appareil."
+            : name === "NotReadableError"
+              ? "Votre microphone est peut-être utilisé par une autre application. Fermez-la et réessayez."
+              : "Impossible d'accéder au microphone.";
+      setError(msg);
+      setStep("denied");
+    }
+  };
+
+  const proceed = () => {
+    cleanup();
+    onReady();
+  };
+
+  return (
+    <Card className="mx-auto max-w-2xl animate-fade-in border-primary/20 shadow-xl">
+      <CardContent className="p-8 space-y-6">
+        <div className="text-center">
+          <div className="mx-auto grid size-16 place-items-center rounded-full bg-primary/10 text-primary">
+            <Mic className="size-8" />
+          </div>
+          <h2 className="mt-4 text-2xl font-bold">Vérification du microphone</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            La section expression orale requiert votre microphone. Effectuons un rapide test.
+          </p>
+        </div>
+
+        {step === "prompt" && (
+          <div className="space-y-4">
+            <div className="rounded-lg border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
+              OpenDoorsClass a besoin d'accéder à votre microphone pour le Speaking Test.
+              Aucun enregistrement ne quittera votre navigateur avant le début de l'épreuve.
+            </div>
+            <Button size="lg" onClick={requestMic} className="w-full bg-brand-gradient text-primary-foreground">
+              <Mic className="mr-2 size-4" /> Autoriser le microphone
+            </Button>
+          </div>
+        )}
+
+        {step === "granted" && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm text-emerald-700 dark:text-emerald-400">
+              <CheckCircle2 className="size-5" />
+              Microphone connecté avec succès.
+            </div>
+            <div className="rounded-lg border border-border bg-muted/40 p-4">
+              <p className="mb-2 text-xs font-medium text-muted-foreground">Niveau audio, parlez pour tester :</p>
+              <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-brand-gradient transition-all duration-75"
+                  style={{ width: `${Math.round(level * 100)}%` }}
+                />
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {peak > 0.08
+                  ? "Votre microphone capte bien le son."
+                  : "Parlez à voix normale pour vérifier la captation."}
+              </p>
+            </div>
+            <Button
+              size="lg"
+              onClick={proceed}
+              disabled={peak < 0.05}
+              className="w-full bg-brand-gradient text-primary-foreground disabled:opacity-60"
+            >
+              {peak < 0.05 ? "En attente d'un son détecté..." : "Démarrer le Speaking Test"}
+            </Button>
+          </div>
+        )}
+
+        {step === "denied" && (
+          <div className="space-y-4">
+            <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+              <MicOff className="mt-0.5 size-5 shrink-0" />
+              <div>
+                <p className="font-semibold">Microphone indisponible</p>
+                <p className="mt-1 text-destructive/90">{error}</p>
+              </div>
+            </div>
+            <div className="rounded-lg border border-border bg-muted/40 p-4 text-xs text-muted-foreground space-y-1">
+              <p className="flex items-center gap-1 font-medium text-foreground">
+                <AlertTriangle className="size-4" /> Guide rapide
+              </p>
+              <p>Chrome / Edge : cliquez sur l'icône cadenas ou microphone à gauche de la barre d'adresse, puis autorisez le microphone.</p>
+              <p>Firefox : cliquez sur l'icône microphone dans la barre d'adresse, puis choisissez « Autoriser ».</p>
+              <p>Safari : Réglages Safari, Sites Web, Microphone, autorisez ce site.</p>
+            </div>
+            <Button size="lg" onClick={requestMic} className="w-full bg-brand-gradient text-primary-foreground">
+              Réessayer
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

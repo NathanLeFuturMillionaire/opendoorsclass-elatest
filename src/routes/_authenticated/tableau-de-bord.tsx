@@ -1,12 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Award, ClipboardList, UserCircle2 } from "lucide-react";
+import { ArrowRight, Award, ClipboardList, UserCircle2, Lock, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getMyProfile } from "@/lib/payments.functions";
+import { getMyProfile, getTestAccessStatus } from "@/lib/payments.functions";
 import { getTestHistory } from "@/lib/test.functions";
 import { useT, useI18n } from "@/lib/i18n";
 
@@ -19,10 +19,17 @@ function DashboardPage() {
   const { locale } = useI18n();
   const fetchProfile = useServerFn(getMyProfile);
   const fetchHistory = useServerFn(getTestHistory);
+  const fetchAccess = useServerFn(getTestAccessStatus);
   const { data: profile } = useQuery({ queryKey: ["my-profile"], queryFn: () => fetchProfile() });
   const { data: history } = useQuery({ queryKey: ["test-history"], queryFn: () => fetchHistory() });
+  const { data: access } = useQuery({
+    queryKey: ["test-access"],
+    queryFn: () => fetchAccess(),
+    refetchInterval: (q) => (q.state.data?.status === "pending" ? 5000 : false),
+  });
   const credits = profile?.credits_remaining ?? 0;
-  const hasCredits = credits > 0;
+  const status = access?.status ?? (credits > 0 ? "unlocked" : "locked");
+  const hasCredits = status === "unlocked";
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -53,6 +60,8 @@ function DashboardPage() {
             </Button>
           </div>
         </div>
+
+        <AccessStatusCard status={status} />
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           <div className="animate-fade-up rounded-2xl border border-border bg-card p-6">
@@ -157,4 +166,57 @@ function bestLevel(history: { level_result: string | null }[] | undefined) {
     }
   }
   return best;
+}
+
+function AccessStatusCard({ status }: { status: "unlocked" | "pending" | "failed" | "locked" }) {
+  const config = {
+    unlocked: {
+      icon: CheckCircle2,
+      label: "Test débloqué",
+      desc: "Votre paiement est confirmé. Vous pouvez démarrer votre Level Test dès maintenant.",
+      cls: "border-emerald-500/40 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400",
+      cta: { to: "/test", label: "Démarrer mon test" },
+    },
+    pending: {
+      icon: Clock,
+      label: "Paiement en cours de confirmation",
+      desc: "Votre paiement est en cours de traitement. Vos crédits seront attribués automatiquement dès la confirmation.",
+      cls: "border-amber-500/40 bg-amber-500/5 text-amber-600 dark:text-amber-400",
+      cta: null,
+    },
+    failed: {
+      icon: XCircle,
+      label: "Paiement non confirmé",
+      desc: "Votre dernier paiement n'a pas été confirmé. Vous pouvez réessayer ou contacter le support.",
+      cls: "border-destructive/40 bg-destructive/5 text-destructive",
+      cta: { to: "/achat-credits", label: "Réessayer" },
+    },
+    locked: {
+      icon: Lock,
+      label: "Test verrouillé",
+      desc: "Effectuez le paiement pour débloquer votre Level Test. L'accès est activé automatiquement dès confirmation.",
+      cls: "border-border bg-muted/40 text-foreground",
+      cta: { to: "/achat-credits", label: "Débloquer mon test" },
+    },
+  }[status];
+  const Icon = config.icon;
+  return (
+    <div className={`mt-6 rounded-3xl border p-5 animate-fade-up ${config.cls}`}>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <Icon className="mt-0.5 size-6 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide">Accès au Level Test</p>
+            <p className="mt-1 text-base font-semibold text-foreground">{config.label}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{config.desc}</p>
+          </div>
+        </div>
+        {config.cta ? (
+          <Button asChild className="bg-brand-gradient text-primary-foreground">
+            <Link to={config.cta.to}>{config.cta.label}</Link>
+          </Button>
+        ) : null}
+      </div>
+    </div>
+  );
 }

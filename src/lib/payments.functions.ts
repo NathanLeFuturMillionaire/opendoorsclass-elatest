@@ -224,3 +224,28 @@ export const getMyProfile = createServerFn({ method: "GET" })
     if (!data) throw new Error("Profil introuvable.");
     return data;
   });
+
+export type TestAccessStatus = "unlocked" | "pending" | "failed" | "locked";
+
+export const getTestAccessStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ status: TestAccessStatus; credits: number }> => {
+    const { data: profile } = await context.supabase
+      .from("profiles")
+      .select("credits_remaining")
+      .eq("id", context.userId)
+      .maybeSingle();
+    const credits = profile?.credits_remaining ?? 0;
+    if (credits > 0) return { status: "unlocked", credits };
+
+    const { data: last } = await context.supabase
+      .from("payments")
+      .select("status")
+      .eq("user_id", context.userId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (last?.status === "pending") return { status: "pending", credits };
+    if (last?.status === "failed" || last?.status === "cancelled") return { status: "failed", credits };
+    return { status: "locked", credits };
+  });
