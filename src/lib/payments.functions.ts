@@ -111,7 +111,7 @@ export const createCheckout = createServerFn({ method: "POST" })
     );
 
     if (!checkout.purchase || !checkout.payment.checkout_url) {
-      await context.supabase
+      await supabaseAdmin
         .from("payments")
         .update({ status: "failed" })
         .eq("id", payment.id);
@@ -121,7 +121,7 @@ export const createCheckout = createServerFn({ method: "POST" })
       );
     }
 
-    await context.supabase
+    await supabaseAdmin
       .from("payments")
       .update({
         chariow_sale_id: checkout.purchase.id,
@@ -203,7 +203,8 @@ export const checkPaymentStatus = createServerFn({ method: "GET" })
     }
 
     if (remoteStatus !== payment.status) {
-      await context.supabase
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
         .from("payments")
         .update({ status: remoteStatus })
         .eq("id", payment.id);
