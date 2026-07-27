@@ -58,11 +58,22 @@ export const Route = createFileRoute("/api/public/chariow-webhook/$secret")({
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        const { data: payment } = await supabaseAdmin
+        let { data: payment } = await supabaseAdmin
           .from("payments")
           .select("id, user_id, status, credits_added, offer_code")
           .eq("id", paymentId)
           .maybeSingle();
+
+        // Repli : Chariow ne renvoie pas toujours `custom_metadata`. On retrouve
+        // alors le paiement local via l'identifiant de vente Chariow.
+        if (!payment) {
+          const { data: bySale } = await supabaseAdmin
+            .from("payments")
+            .select("id, user_id, status, credits_added, offer_code")
+            .eq("chariow_sale_id", saleId)
+            .maybeSingle();
+          payment = bySale ?? null;
+        }
 
         if (!payment) {
           return new Response("ok", { status: 200 });
