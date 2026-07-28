@@ -53,6 +53,12 @@ import {
 import { getMyReview, submitMyReview } from "@/lib/reviews.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Camera } from "lucide-react";
+import { useQuery as useQueryGam } from "@tanstack/react-query";
+import { getMyGamification } from "@/lib/gamification.functions";
+import { LevelProgressCard } from "@/components/gamification/level-progress-card";
+import { BadgeGrid } from "@/components/gamification/badge-grid";
+import { XpBadge } from "@/components/gamification/xp-badge";
+import { Link as RLink } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/profil")({
   component: ProfilePage,
@@ -122,6 +128,8 @@ function ProfilePage() {
     queryKey: ["my-review"],
     queryFn: () => fetchMyReview(),
   });
+  const fetchGam = useServerFn(getMyGamification);
+  const { data: gam } = useQueryGam({ queryKey: ["my-gamification"], queryFn: () => fetchGam() });
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
