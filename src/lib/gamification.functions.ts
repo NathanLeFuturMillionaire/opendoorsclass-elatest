@@ -99,7 +99,7 @@ export const setLeaderboardOptIn = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.rpc("set_leaderboard_opt_in", {
       _opt_in: data.opt_in,
-      _country: data.country ?? null,
+      _country: data.country ?? undefined,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
