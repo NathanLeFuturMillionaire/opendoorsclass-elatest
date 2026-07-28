@@ -50,6 +50,48 @@ export type Database = {
         }
         Relationships: []
       }
+      badges: {
+        Row: {
+          category: string
+          code: string
+          created_at: string
+          description_en: string
+          description_fr: string
+          icon: string
+          name_en: string
+          name_fr: string
+          requirement_json: Json
+          sort_order: number
+          xp_reward: number
+        }
+        Insert: {
+          category: string
+          code: string
+          created_at?: string
+          description_en: string
+          description_fr: string
+          icon?: string
+          name_en: string
+          name_fr: string
+          requirement_json?: Json
+          sort_order?: number
+          xp_reward?: number
+        }
+        Update: {
+          category?: string
+          code?: string
+          created_at?: string
+          description_en?: string
+          description_fr?: string
+          icon?: string
+          name_en?: string
+          name_fr?: string
+          requirement_json?: Json
+          sort_order?: number
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       candidate_status: {
         Row: {
           reason: string | null
@@ -365,6 +407,21 @@ export type Database = {
         }
         Relationships: []
       }
+      streak_days: {
+        Row: {
+          day: string
+          user_id: string
+        }
+        Insert: {
+          day: string
+          user_id: string
+        }
+        Update: {
+          day?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       test_access_plan: {
         Row: {
           chariow_product_id: string | null
@@ -485,6 +542,74 @@ export type Database = {
         }
         Relationships: []
       }
+      user_badges: {
+        Row: {
+          badge_code: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          badge_code: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          badge_code?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_code_fkey"
+            columns: ["badge_code"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      user_gamification: {
+        Row: {
+          created_at: string
+          current_level: number
+          current_streak: number
+          display_country: string | null
+          last_activity_date: string | null
+          leaderboard_opt_in: boolean
+          longest_streak: number
+          total_xp: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_level?: number
+          current_streak?: number
+          display_country?: string | null
+          last_activity_date?: string | null
+          leaderboard_opt_in?: boolean
+          longest_streak?: number
+          total_xp?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_level?: number
+          current_streak?: number
+          display_country?: string | null
+          last_activity_date?: string | null
+          leaderboard_opt_in?: boolean
+          longest_streak?: number
+          total_xp?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -506,12 +631,70 @@ export type Database = {
         }
         Relationships: []
       }
+      xp_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          event_key: string
+          event_type: string
+          id: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          event_key: string
+          event_type: string
+          id?: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          event_key?: string
+          event_type?: string
+          id?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       admin_dashboard_stats: { Args: never; Returns: Json }
+      award_xp: {
+        Args: {
+          _amount: number
+          _event_key: string
+          _event_type: string
+          _reason: string
+          _user_id: string
+        }
+        Returns: Json
+      }
+      check_and_award_badges: { Args: { _user_id: string }; Returns: Json }
+      compute_open_doors_level: { Args: { _xp: number }; Returns: number }
+      get_gamification_admin_overview: {
+        Args: { _limit?: number }
+        Returns: Json
+      }
+      get_gamification_leaderboard: {
+        Args: { _limit?: number; _scope: string }
+        Returns: {
+          cefr_level: string
+          country: string
+          current_level: number
+          display_name: string
+          rank: number
+          total_xp: number
+        }[]
+      }
+      get_gamification_summary: { Args: never; Returns: Json }
       get_profile_stats: {
         Args: { p_user_id: string }
         Returns: {
@@ -534,6 +717,13 @@ export type Database = {
       increment_credits: {
         Args: { p_amount: number; p_user_id: string }
         Returns: undefined
+      }
+      process_profile_update: { Args: { _user_id: string }; Returns: Json }
+      process_test_completion: { Args: { _session_id: string }; Returns: Json }
+      record_streak: { Args: { _user_id: string }; Returns: Json }
+      set_leaderboard_opt_in: {
+        Args: { _country?: string; _opt_in: boolean }
+        Returns: Json
       }
       start_test_session: { Args: never; Returns: string }
     }
