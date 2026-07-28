@@ -16,7 +16,9 @@ import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/t
 import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
 import { Route as AuthenticatedPaiementRetourRouteImport } from './routes/_authenticated/paiement-retour'
+import { Route as AuthenticatedClassementRouteImport } from './routes/_authenticated/classement'
 import { Route as AuthenticatedAchatCreditsRouteImport } from './routes/_authenticated/achat-credits'
+import { Route as AuthenticatedAccomplissementsRouteImport } from './routes/_authenticated/accomplissements'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
@@ -65,10 +67,21 @@ const AuthenticatedPaiementRetourRoute =
     path: '/paiement-retour',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedClassementRoute = AuthenticatedClassementRouteImport.update({
+  id: '/classement',
+  path: '/classement',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAchatCreditsRoute =
   AuthenticatedAchatCreditsRouteImport.update({
     id: '/achat-credits',
     path: '/achat-credits',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAccomplissementsRoute =
+  AuthenticatedAccomplissementsRouteImport.update({
+    id: '/accomplissements',
+    path: '/accomplissements',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
@@ -138,7 +151,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
+  '/classement': typeof AuthenticatedClassementRoute
   '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
@@ -157,7 +172,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
+  '/classement': typeof AuthenticatedClassementRoute
   '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
@@ -179,7 +196,9 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/_authenticated/achat-credits': typeof AuthenticatedAchatCreditsRoute
+  '/_authenticated/classement': typeof AuthenticatedClassementRoute
   '/_authenticated/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
@@ -201,7 +220,9 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
+    | '/accomplissements'
     | '/achat-credits'
+    | '/classement'
     | '/paiement-retour'
     | '/profil'
     | '/tableau-de-bord'
@@ -220,7 +241,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/accomplissements'
     | '/achat-credits'
+    | '/classement'
     | '/paiement-retour'
     | '/profil'
     | '/tableau-de-bord'
@@ -241,7 +264,9 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/admin'
+    | '/_authenticated/accomplissements'
     | '/_authenticated/achat-credits'
+    | '/_authenticated/classement'
     | '/_authenticated/paiement-retour'
     | '/_authenticated/profil'
     | '/_authenticated/tableau-de-bord'
@@ -316,11 +341,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPaiementRetourRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/classement': {
+      id: '/_authenticated/classement'
+      path: '/classement'
+      fullPath: '/classement'
+      preLoaderRoute: typeof AuthenticatedClassementRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/achat-credits': {
       id: '/_authenticated/achat-credits'
       path: '/achat-credits'
       fullPath: '/achat-credits'
       preLoaderRoute: typeof AuthenticatedAchatCreditsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/accomplissements': {
+      id: '/_authenticated/accomplissements'
+      path: '/accomplissements'
+      fullPath: '/accomplissements'
+      preLoaderRoute: typeof AuthenticatedAccomplissementsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin': {
@@ -433,7 +472,9 @@ const AuthenticatedAdminRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedAccomplissementsRoute: typeof AuthenticatedAccomplissementsRoute
   AuthenticatedAchatCreditsRoute: typeof AuthenticatedAchatCreditsRoute
+  AuthenticatedClassementRoute: typeof AuthenticatedClassementRoute
   AuthenticatedPaiementRetourRoute: typeof AuthenticatedPaiementRetourRoute
   AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
   AuthenticatedTableauDeBordRoute: typeof AuthenticatedTableauDeBordRoute
@@ -443,7 +484,9 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedAccomplissementsRoute: AuthenticatedAccomplissementsRoute,
   AuthenticatedAchatCreditsRoute: AuthenticatedAchatCreditsRoute,
+  AuthenticatedClassementRoute: AuthenticatedClassementRoute,
   AuthenticatedPaiementRetourRoute: AuthenticatedPaiementRetourRoute,
   AuthenticatedProfilRoute: AuthenticatedProfilRoute,
   AuthenticatedTableauDeBordRoute: AuthenticatedTableauDeBordRoute,
@@ -463,13 +506,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

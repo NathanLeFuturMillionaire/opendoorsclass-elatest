@@ -53,6 +53,12 @@ import {
 import { getMyReview, submitMyReview } from "@/lib/reviews.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Camera } from "lucide-react";
+import { useQuery as useQueryGam } from "@tanstack/react-query";
+import { getMyGamification } from "@/lib/gamification.functions";
+import { LevelProgressCard } from "@/components/gamification/level-progress-card";
+import { BadgeGrid } from "@/components/gamification/badge-grid";
+import { XpBadge } from "@/components/gamification/xp-badge";
+import { Link as RLink } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/profil")({
   component: ProfilePage,
@@ -122,6 +128,8 @@ function ProfilePage() {
     queryKey: ["my-review"],
     queryFn: () => fetchMyReview(),
   });
+  const fetchGam = useServerFn(getMyGamification);
+  const { data: gam } = useQueryGam({ queryKey: ["my-gamification"], queryFn: () => fetchGam() });
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -395,6 +403,30 @@ function ProfilePage() {
                 sub="par session"
               />
             </motion.div>
+
+            {gam ? (
+              <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.08 }}
+                className="mt-6 space-y-4"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="size-5 text-primary" />
+                    <h2 className="text-lg font-semibold">Accomplissements</h2>
+                    <XpBadge xp={gam.total_xp ?? 0} className="ml-2" />
+                  </div>
+                  <Button asChild size="sm" variant="ghost">
+                    <RLink to="/accomplissements">Tout voir</RLink>
+                  </Button>
+                </div>
+                <LevelProgressCard xp={gam.total_xp ?? 0} />
+                <div className="rounded-2xl border border-border bg-card p-5">
+                  <BadgeGrid badges={(gam.badges ?? []).slice(0, 8)} compact />
+                </div>
+              </motion.section>
+            ) : null}
 
             {/* Skills radar + progression */}
             <div className="mt-6 grid gap-6 lg:grid-cols-2">

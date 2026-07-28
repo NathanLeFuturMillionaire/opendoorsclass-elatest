@@ -1,77 +1,117 @@
-# Plan — Ajout du Centre d'Administration OpenDoorsClass
+# Gamification V1 — OpenDoors XP
 
-Aucune fonctionnalité existante ne sera modifiée. Toutes les additions sont isolées sous `/admin` et dans de nouvelles tables/fonctions serveur.
+Ajout d'une couche gamification par dessus l'existant, sans toucher au test, paiements, auth, admin. Tout le calcul XP côté serveur.
 
-## 1. Base de données (migration unique additive)
+## Architecture données (nouvelles tables)
 
-Nouvelles valeurs et tables, sans toucher aux existantes:
+```text
+badges                  -- catalogue statique (seed)
+  code (PK text)        -- ex: 'first_step', 'grammar_master'
+  name_fr, name_en
+  description_fr, description_en
+  icon (text)           -- nom lucide
+  category (text)       -- test | profile | skill | level | streak
+  xp_reward (int)
+  requirement_json      -- { type, params } pour affichage
+  sort_order
 
-- **Enum `app_role`**: ajout des valeurs `owner` et `moderator` (garde `admin` et `user` déjà présents).
-- **Trigger auto-owner**: fonction + trigger sur `auth.users` qui, pour l'e-mail `misterntkofficiel2.0@gmail.com` avec `email_confirmed_at`, insère automatiquement le rôle `owner` dans `user_roles`. Protection: RLS empêche la suppression/modification des lignes `owner` (sauf via service_role).
-- **Table `admin_activity_log`**: `id`, `user_id`, `action`, `entity_type`, `entity_id`, `metadata jsonb`, `ip_address`, `user_agent`, `created_at`. RLS: lecture pour admin/owner, insert via server functions uniquement.
-- **Table `candidate_status`** (léger): `user_id PK`, `suspended boolean`, `suspended_at`, `suspended_by`. Permet suspendre/réactiver sans toucher `profiles`.
-- **RPC `admin_dashboard_stats()`**: renvoie les compteurs agrégés (candidats, tests, certificats, avis, avis en attente, répartition niveaux, top pays).
-- GRANTs + RLS via `has_role(auth.uid(), 'admin')` ou `'owner'`.
+user_gamification       -- 1 ligne par user
+  user_id (PK, FK auth.users)
+  total_xp, current_level
+  current_streak, longest_streak
+  last_activity_date
+  leaderboard_opt_in (bool default false)
+  display_country (text nullable)
+  timestamps
 
-## 2. Server functions (`src/lib/admin.functions.ts`)
+user_badges
+  (user_id, badge_code) UNIQUE
+  unlocked_at
 
-Toutes protégées par `requireSupabaseAuth` + vérification `has_role` (owner/admin/moderator selon action):
+xp_transactions
+  id, user_id, amount, reason (text), event_type (text)
+  event_key (text UNIQUE avec user_id) -- idempotence
+  created_at
 
-- `getAdminContext()` — retourne rôle courant + permissions.
-- `getDashboardStats()`
-- `listCandidates({ search, page, filter })`, `getCandidateDetail(id)`, `suspendCandidate`, `reactivateCandidate`, `deleteCandidate` (owner uniquement).
-- `listQuestions`, `createQuestion`, `updateQuestion`, `deleteQuestion` (admin+).
-- `listAllReviews({ status })`, `approveReview`, `rejectReview`, `updateReview`, `deleteReview` (moderator+).
-- `listCertificates`, `regenerateCertificate`, `deleteCertificate` (admin+).
-- `listUsersWithRoles`, `grantRole`, `revokeRole` (owner uniquement; owner immuable côté serveur).
-- `listActivityLog({ page, filter })` (admin+).
-- Chaque mutation appelle une util `logAdminAction()` qui insère dans `admin_activity_log`.
-
-## 3. Routes UI (nouvelles, isolées)
-
-Layout admin gated dans `src/routes/_authenticated/admin/`:
-
-```
-_authenticated/admin/route.tsx        (garde: vérifie rôle owner/admin/moderator, sinon redirect /)
-_authenticated/admin/index.tsx        (Dashboard)
-_authenticated/admin/candidats.tsx
-_authenticated/admin/candidats.$id.tsx
-_authenticated/admin/questions.tsx
-_authenticated/admin/avis.tsx
-_authenticated/admin/certificats.tsx
-_authenticated/admin/utilisateurs.tsx (owner only)
-_authenticated/admin/journal.tsx
+streak_days
+  (user_id, day date) PK   -- log activité quotidienne
 ```
 
-Design: **réutilise** le design system existant (Tailwind tokens, shadcn/ui, Manrope, animations Framer Motion déjà en place). Sidebar admin avec navigation. Aucune modification des styles globaux.
+RLS: user lit ses propres lignes; admins lisent tout; INSERT/UPDATE uniquement via RPC SECURITY DEFINER (jamais client direct). GRANTs standard.
 
-## 4. Intégration minimale à l'existant
+## Logique serveur (RPCs SECURITY DEFINER)
 
-Seule addition côté existant:
-- Un lien "Administration" affiché **conditionnellement** dans `site-header.tsx` uniquement si `has_role` renvoie owner/admin/moderator. Pas de modification pour les autres utilisateurs.
-- Le formulaire d'avis existant reste inchangé (les avis passent déjà en `status=pending`); l'approbation se fait désormais via `/admin/avis`.
+- `award_xp(_user, _event_type, _event_key, _amount, _reason)` — insère xp_transactions (ON CONFLICT event_key DO NOTHING), recalcule total_xp + current_level, retourne `{ awarded, new_total, new_level, level_up }`.
+- `check_and_award_badges(_user, _session_id nullable)` — évalue conditions et insère user_badges manquants + award_xp pour chaque badge.
+- `record_streak(_user)` — met à jour streak_days du jour + current_streak/longest_streak.
+- `compute_level(xp int)` — fonction pure retournant 1..9 selon paliers spec.
+- `get_gamification_summary(_user)` — retourne XP, level, next_threshold, streak, badges (obtenus + verrouillés), transactions récentes.
+- `get_leaderboard(_scope text, _limit int)` — top N users opt-in, colonnes: display_name (prénom + initiale), country, cefr_level, xp, level.
 
-## 5. Sécurité
+Hooks d'attribution intégrés aux flux existants:
+- `submitTestAnswers` (test.functions.ts) → à la fin, appelle `award_xp` pour `test_completed` (event_key = session_id), `test_first` (event_key='test_first'), `skill_completed_<cat>` (event_key = `skill_<cat>_<session>` avec %≥90), `cefr_reached_<lvl>` (event_key = `cefr_<lvl>`), `score_improved` si delta ≥ 10 vs meilleur précédent, puis `check_and_award_badges`.
+- `updateProfile` (profile.functions.ts) → si profil devient complet: `profile_completed` (event_key='profile_completed').
+- Trigger `handle_new_user` étendu: insère user_gamification + award_xp `account_created`.
 
-- Toutes les mutations admin passent par `requireSupabaseAuth` + `has_role` vérifié côté serveur.
-- Owner immuable: fonction `revokeRole`/`deleteCandidate` refuse toute cible avec rôle `owner`.
-- Rate/audit: `admin_activity_log` capture IP + user_agent via `getRequest()` du runtime TanStack.
-- Validation Zod sur toutes les entrées.
-- RLS sur `admin_activity_log` et `candidate_status` scopée à admin/owner.
+Idempotence garantie par UNIQUE(user_id, event_key).
 
-## 6. Livraison
+## Server functions (nouveau `src/lib/gamification.functions.ts`)
 
-Étape 1: Migration DB (owner auto-grant, activity log, candidate_status, dashboard RPC, roles enum).
-Étape 2: Server functions admin.
-Étape 3: Routes UI admin + sidebar.
-Étape 4: Lien conditionnel dans le header.
-Étape 5: Vérification build.
+- `getMyGamification()` — auth, appelle RPC summary.
+- `getLeaderboard({ scope })` — public via server publishable client (policies TO anon SELECT sur vue matérialisée `leaderboard_public`) ou authenticated selon simplicité; V1 = authenticated only.
+- `updateLeaderboardOptIn({ opt_in, country })`.
+- `getXpActivity({ limit })`.
 
-## Points à confirmer avant lancement
+## UI (composants + intégrations)
 
-1. **Certificats**: actuellement il n'y a pas de table `certificates` séparée, les attestations sont générées à la volée depuis `test_sessions` (page `/resultat/$id` + `window.print`). Je propose que "Gestion des certificats" liste les sessions terminées avec accès à l'attestation, sans stockage PDF côté serveur. OK?
-2. **Speaking/Writing en Gestion des questions**: le moteur actuel ne supporte que Grammar/Reading/Listening/Vocabulary. Je permets d'ajouter des questions Speaking/Writing en base (préparation), mais elles ne seront pas servies au test tant que le moteur ne les prend pas en charge. OK?
-3. **Import/Export questions**: format CSV suffit, ou JSON aussi?
-4. **Journal d'activité**: je log les actions admin. Voulez-vous aussi logger les connexions candidats (peut devenir volumineux)?
+Nouveaux composants sous `src/components/gamification/`:
+- `XpBadge.tsx` — pill "1,240 XP".
+- `LevelProgressCard.tsx` — barre animée + "X XP to Level N+1".
+- `StreakStrip.tsx` — 7 pastilles MON..SUN.
+- `BadgeGrid.tsx` — grille obtenus/verrouillés, popover condition.
+- `BadgeUnlockModal.tsx` — modal célébration.
+- `XpToast.tsx` — helper `toastXp(+50)` (basé sur sonner existant).
+- `WeeklyChallengesCard.tsx` — 4 cartes statiques V1 (pas de validation auto).
+- `XpActivityList.tsx`.
 
-Feu vert = je lance la migration puis le reste.
+Intégrations:
+- `src/routes/_authenticated/tableau-de-bord.tsx` → section "Your OpenDoorsClass Journey" au-dessus de l'existant.
+- `src/routes/_authenticated/profil.tsx` → section "Achievements".
+- `src/routes/_authenticated/resultat.$id.tsx` → après affichage résultat, déclenche fetch summary; si `level_up` ou nouveaux badges (comparaison retour submitTest), montre `BadgeUnlockModal` + toasts XP.
+- Nouvelle route `/_authenticated/achievements` — vue complète badges + XP activity + leaderboard opt-in.
+- Nouvelle route `/_authenticated/classement` — leaderboard (Global / Afrique / Gabon / France) avec état vide pro.
+- `src/routes/_authenticated/admin/index.tsx` → widget "Top XP" (lecture user_gamification pour admins via policy has_role).
+
+Traductions FR/EN ajoutées à `src/lib/i18n.tsx`.
+
+## Sécurité anti-abus
+
+- Toutes mutations XP via RPC SECURITY DEFINER; aucune INSERT policy client sur xp_transactions / user_badges / user_gamification.
+- event_key unique par user empêche double attribution (`test_first`, `profile_completed`, `cefr_<lvl>`, `skill_<cat>_<session>`, `badge_<code>`).
+- Score improvement: comparé serveur au max historique avant la session courante.
+- Leaderboard opt-in OFF par défaut; nom = prénom + première lettre du nom.
+
+## Design
+
+- Réutilise design tokens brand (bleu profond, vert, jaune highlights doré pour badges).
+- Barre progression: gradient `--brand-gradient`, animation width via CSS transition (600ms).
+- Modal badge: scale-in + fade, icône Trophy Lucide en cercle doré, pas de confetti.
+- Icônes Lucide (Trophy, Flame, Star, Sparkles, Lock, Zap).
+- Respect `prefers-reduced-motion`.
+
+## Phases d'exécution
+
+1. Migration DB (tables + RLS + GRANTs + fonctions RPC + seed badges + extension handle_new_user + backfill user_gamification pour users existants).
+2. `src/lib/gamification.functions.ts` + hook dans `test.functions.ts` et `profile.functions.ts`.
+3. Composants gamification + intégrations dashboard/profil/résultat.
+4. Routes `/achievements` et `/classement`.
+5. Widget admin.
+6. Traductions.
+7. Vérif build + parcours critiques (aucun changement de signature sur les fonctions existantes).
+
+## Hors périmètre V1
+
+- Validation automatique des Weekly Challenges (UI + architecture prêtes, pas de complétion).
+- Récompenses en crédits payants.
+- Notifications push (utilise toasts existants).
+- Streak automatique multi-actions: V1 = record_streak appelé au login (via __root onAuthStateChange SIGNED_IN → server fn) et à chaque test terminé.
