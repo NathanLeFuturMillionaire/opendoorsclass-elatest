@@ -221,6 +221,24 @@ function bestLevel(history: { level_result: string | null }[] | undefined) {
 }
 
 function AccessStatusCard({ status }: { status: "unlocked" | "pending" | "failed" | "locked" }) {
+  return _AccessStatusCard({ status });
+}
+
+function StatMini({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4 flex items-center gap-3">
+      <div className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
+        <Icon className="size-5" />
+      </div>
+      <div>
+        <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className="text-lg font-bold">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function _AccessStatusCard({ status }: { status: "unlocked" | "pending" | "failed" | "locked" }) {
   const config = {
     unlocked: {
       icon: CheckCircle2,
