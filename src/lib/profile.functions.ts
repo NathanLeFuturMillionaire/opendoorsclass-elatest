@@ -159,6 +159,12 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       })
       .eq("id", context.userId);
     if (error) throw new Error(error.message);
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.rpc("process_profile_update", { _user_id: context.userId });
+    } catch {
+      // gamification best-effort
+    }
     return { ok: true };
   });
 
@@ -175,6 +181,12 @@ export const updateMyAvatar = createServerFn({ method: "POST" })
       .update({ avatar_url: data.avatarUrl })
       .eq("id", context.userId);
     if (error) throw new Error(error.message);
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.rpc("process_profile_update", { _user_id: context.userId });
+    } catch {
+      // gamification best-effort
+    }
     return { ok: true };
   });
 
