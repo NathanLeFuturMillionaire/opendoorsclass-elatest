@@ -8,6 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getMyProfile, getTestAccessStatus } from "@/lib/payments.functions";
 import { getTestHistory } from "@/lib/test.functions";
+import { getMyGamification } from "@/lib/gamification.functions";
+import { LevelProgressCard } from "@/components/gamification/level-progress-card";
+import { StreakStrip } from "@/components/gamification/streak-strip";
+import { BadgeGrid } from "@/components/gamification/badge-grid";
+import { WeeklyChallengesCard } from "@/components/gamification/weekly-challenges-card";
+import { Trophy, Flame, Sparkles } from "lucide-react";
 import { useT, useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/tableau-de-bord")({
@@ -20,8 +26,10 @@ function DashboardPage() {
   const fetchProfile = useServerFn(getMyProfile);
   const fetchHistory = useServerFn(getTestHistory);
   const fetchAccess = useServerFn(getTestAccessStatus);
+  const fetchGam = useServerFn(getMyGamification);
   const { data: profile } = useQuery({ queryKey: ["my-profile"], queryFn: () => fetchProfile() });
   const { data: history } = useQuery({ queryKey: ["test-history"], queryFn: () => fetchHistory() });
+  const { data: gam } = useQuery({ queryKey: ["my-gamification"], queryFn: () => fetchGam() });
   const { data: access } = useQuery({
     queryKey: ["test-access"],
     queryFn: () => fetchAccess(),
@@ -30,6 +38,8 @@ function DashboardPage() {
   const credits = profile?.credits_remaining ?? 0;
   const status = access?.status ?? (credits > 0 ? "unlocked" : "locked");
   const hasCredits = status === "unlocked";
+  const unlockedBadges = (gam?.badges ?? []).filter((b) => b.unlocked_at);
+  const previewBadges = (gam?.badges ?? []).slice(0, 8);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -62,6 +72,48 @@ function DashboardPage() {
         </div>
 
         <AccessStatusCard status={status} />
+
+        {gam ? (
+          <section className="mt-8 space-y-4 animate-fade-up">
+            <div className="flex items-center gap-2">
+              <Trophy className="size-5 text-primary" />
+              <h2 className="text-xl font-semibold">
+                {t("gam.journey.title")}
+              </h2>
+            </div>
+            <div className="grid gap-4 lg:grid-cols-3">
+              <div className="lg:col-span-2">
+                <LevelProgressCard xp={gam.total_xp ?? 0} />
+              </div>
+              <StreakStrip
+                current={gam.current_streak ?? 0}
+                longest={gam.longest_streak ?? 0}
+                lastActivity={gam.last_activity_date}
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <StatMini icon={Sparkles} label={t("gam.stat.xp")} value={(gam.total_xp ?? 0).toLocaleString()} />
+              <StatMini icon={Trophy} label={t("gam.stat.badges")} value={`${unlockedBadges.length} / ${gam.badges.length}`} />
+              <StatMini icon={Flame} label={t("gam.stat.streak")} value={String(gam.current_streak ?? 0)} />
+            </div>
+            <div className="rounded-3xl border border-border bg-card p-5">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-sm font-semibold">{t("gam.badges.recent")}</p>
+                <Link to="/accomplissements" className="text-xs font-semibold text-primary hover:underline">
+                  {t("gam.view.all")} <ArrowRight className="ml-1 inline size-3.5" />
+                </Link>
+              </div>
+              <BadgeGrid badges={previewBadges} compact />
+            </div>
+            <div>
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-sm font-semibold">{t("gam.challenges.title")}</p>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">V1</span>
+              </div>
+              <WeeklyChallengesCard />
+            </div>
+          </section>
+        ) : null}
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           <div className="animate-fade-up rounded-2xl border border-border bg-card p-6">
