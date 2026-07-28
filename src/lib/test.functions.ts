@@ -155,6 +155,21 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
       .eq("id", data.sessionId);
     if (uErr) throw new Error(uErr.message);
 
+    // Gamification: award XP + badges for this completed session (idempotent).
+    let gamification: {
+      awarded: Array<{ event: string; amount: number }>;
+      new_badges: string[];
+      total_xp: number;
+      current_level: number;
+      level_up: boolean;
+    } | null = null;
+    try {
+      const { data: g } = await supabaseAdmin.rpc("process_test_completion", { _session_id: data.sessionId });
+      gamification = (g as typeof gamification) ?? null;
+    } catch {
+      gamification = null;
+    }
+
     const result: TestResult = {
       sessionId: data.sessionId,
       score: scorePercent,
@@ -164,7 +179,7 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
       perCategory,
       recommendation: msg?.message_text ?? "",
     };
-    return result;
+    return { ...result, gamification };
   });
 
 export const getSessionResult = createServerFn({ method: "GET" })
