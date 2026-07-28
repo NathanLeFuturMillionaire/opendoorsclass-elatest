@@ -223,6 +223,28 @@ const FR: Dict = {
   "pay.unknown": "Statut indisponible",
   "pay.unknown.desc":
     "Nous n'avons pas retrouvé ce paiement. Contactez-nous sur WhatsApp si des crédits manquent.",
+
+  "gam.journey.title": "Votre parcours OpenDoorsClass",
+  "gam.stat.xp": "XP total",
+  "gam.stat.badges": "Badges",
+  "gam.stat.streak": "Série",
+  "gam.badges.recent": "Vos succès",
+  "gam.view.all": "Tout voir",
+  "gam.challenges.title": "Défis de la semaine",
+  "gam.achievements": "Accomplissements",
+  "gam.leaderboard": "Classement",
+  "gam.activity": "Historique XP",
+  "gam.opt_in.title": "Apparaître dans le classement",
+  "gam.opt_in.desc": "Votre nom sera visible uniquement sous la forme prénom + initiale.",
+  "gam.lb.empty": "Le classement est encore vide. Soyez parmi les premiers à activer votre visibilité.",
+  "gam.lb.rank": "Rang",
+  "gam.lb.name": "Candidat",
+  "gam.lb.country": "Pays",
+  "gam.lb.cefr": "Niveau",
+  "gam.lb.xp": "XP",
+  "gam.lb.level": "Level",
+  "gam.scope.global": "Global",
+  "gam.scope.africa": "Afrique",
 };
 
 const EN: Dict = {
@@ -416,6 +438,28 @@ const EN: Dict = {
   "pay.unknown": "Status unavailable",
   "pay.unknown.desc":
     "We could not find this payment. Contact us on WhatsApp if credits are missing.",
+
+  "gam.journey.title": "Your OpenDoorsClass Journey",
+  "gam.stat.xp": "Total XP",
+  "gam.stat.badges": "Badges",
+  "gam.stat.streak": "Streak",
+  "gam.badges.recent": "Your achievements",
+  "gam.view.all": "View all",
+  "gam.challenges.title": "Weekly Challenges",
+  "gam.achievements": "Achievements",
+  "gam.leaderboard": "Leaderboard",
+  "gam.activity": "XP Activity",
+  "gam.opt_in.title": "Show me in the leaderboard",
+  "gam.opt_in.desc": "Your name is only shown as first name + last initial.",
+  "gam.lb.empty": "The leaderboard is still empty. Be one of the first to make yourself visible.",
+  "gam.lb.rank": "Rank",
+  "gam.lb.name": "Candidate",
+  "gam.lb.country": "Country",
+  "gam.lb.cefr": "Level",
+  "gam.lb.xp": "XP",
+  "gam.lb.level": "Level",
+  "gam.scope.global": "Global",
+  "gam.scope.africa": "Africa",
 };
 
 const DICTS: Record<Locale, Dict> = { fr: FR, en: EN };
