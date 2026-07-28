@@ -16,6 +16,7 @@ import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/t
 import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
 import { Route as AuthenticatedPaiementRetourRouteImport } from './routes/_authenticated/paiement-retour'
+import { Route as AuthenticatedClassementRouteImport } from './routes/_authenticated/classement'
 import { Route as AuthenticatedAchatCreditsRouteImport } from './routes/_authenticated/achat-credits'
 import { Route as AuthenticatedAccomplissementsRouteImport } from './routes/_authenticated/accomplissements'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
@@ -66,6 +67,11 @@ const AuthenticatedPaiementRetourRoute =
     path: '/paiement-retour',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedClassementRoute = AuthenticatedClassementRouteImport.update({
+  id: '/classement',
+  path: '/classement',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAchatCreditsRoute =
   AuthenticatedAchatCreditsRouteImport.update({
     id: '/achat-credits',
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
+  '/classement': typeof AuthenticatedClassementRoute
   '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
+  '/classement': typeof AuthenticatedClassementRoute
   '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/_authenticated/achat-credits': typeof AuthenticatedAchatCreditsRoute
+  '/_authenticated/classement': typeof AuthenticatedClassementRoute
   '/_authenticated/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
@@ -213,6 +222,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/accomplissements'
     | '/achat-credits'
+    | '/classement'
     | '/paiement-retour'
     | '/profil'
     | '/tableau-de-bord'
@@ -233,6 +243,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/accomplissements'
     | '/achat-credits'
+    | '/classement'
     | '/paiement-retour'
     | '/profil'
     | '/tableau-de-bord'
@@ -255,6 +266,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/accomplissements'
     | '/_authenticated/achat-credits'
+    | '/_authenticated/classement'
     | '/_authenticated/paiement-retour'
     | '/_authenticated/profil'
     | '/_authenticated/tableau-de-bord'
@@ -327,6 +339,13 @@ declare module '@tanstack/react-router' {
       path: '/paiement-retour'
       fullPath: '/paiement-retour'
       preLoaderRoute: typeof AuthenticatedPaiementRetourRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/classement': {
+      id: '/_authenticated/classement'
+      path: '/classement'
+      fullPath: '/classement'
+      preLoaderRoute: typeof AuthenticatedClassementRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/achat-credits': {
@@ -455,6 +474,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedAccomplissementsRoute: typeof AuthenticatedAccomplissementsRoute
   AuthenticatedAchatCreditsRoute: typeof AuthenticatedAchatCreditsRoute
+  AuthenticatedClassementRoute: typeof AuthenticatedClassementRoute
   AuthenticatedPaiementRetourRoute: typeof AuthenticatedPaiementRetourRoute
   AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
   AuthenticatedTableauDeBordRoute: typeof AuthenticatedTableauDeBordRoute
@@ -466,6 +486,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedAccomplissementsRoute: AuthenticatedAccomplissementsRoute,
   AuthenticatedAchatCreditsRoute: AuthenticatedAchatCreditsRoute,
+  AuthenticatedClassementRoute: AuthenticatedClassementRoute,
   AuthenticatedPaiementRetourRoute: AuthenticatedPaiementRetourRoute,
   AuthenticatedProfilRoute: AuthenticatedProfilRoute,
   AuthenticatedTableauDeBordRoute: AuthenticatedTableauDeBordRoute,
