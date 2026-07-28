@@ -404,6 +404,30 @@ function ProfilePage() {
               />
             </motion.div>
 
+            {gam ? (
+              <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.08 }}
+                className="mt-6 space-y-4"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="size-5 text-primary" />
+                    <h2 className="text-lg font-semibold">Accomplissements</h2>
+                    <XpBadge xp={gam.total_xp ?? 0} className="ml-2" />
+                  </div>
+                  <Button asChild size="sm" variant="ghost">
+                    <RLink to="/accomplissements">Tout voir</RLink>
+                  </Button>
+                </div>
+                <LevelProgressCard xp={gam.total_xp ?? 0} />
+                <div className="rounded-2xl border border-border bg-card p-5">
+                  <BadgeGrid badges={(gam.badges ?? []).slice(0, 8)} compact />
+                </div>
+              </motion.section>
+            ) : null}
+
             {/* Skills radar + progression */}
             <div className="mt-6 grid gap-6 lg:grid-cols-2">
               <motion.div
