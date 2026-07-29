@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { listPublicReviews } from "@/lib/reviews.functions";
 import { useT } from "@/lib/i18n";
 import { WorldReachSection } from "@/components/world-reach-section";
+import { HomeLeaderboardSection } from "@/components/home-leaderboard-section";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -217,6 +218,8 @@ function HomePage() {
         </section>
 
         <WorldReachSection />
+
+        <HomeLeaderboardSection />
 
         <TestimonialsSection />
 
