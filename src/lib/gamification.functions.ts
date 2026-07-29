@@ -131,3 +131,68 @@ export const getAdminGamificationOverview = createServerFn({ method: "GET" })
       }>;
     };
   });
+
+export type PublicLeaderboardEntry = {
+  rank: number;
+  display_name: string;
+  initials: string;
+  country: string | null;
+  cefr_level: string | null;
+  total_xp: number;
+  current_level: number;
+  avatar_url: string | null;
+};
+
+export const getPublicHomeLeaderboard = createServerFn({ method: "GET" }).handler(
+  async (): Promise<PublicLeaderboardEntry[]> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: gamRows, error: gamErr } = await supabaseAdmin
+      .from("user_gamification")
+      .select("user_id, total_xp, current_level")
+      .gt("total_xp", 0)
+      .order("total_xp", { ascending: false })
+      .limit(10);
+    if (gamErr || !gamRows || gamRows.length === 0) return [];
+
+    const ids = gamRows.map((g) => g.user_id);
+    const { data: profs } = await supabaseAdmin
+      .from("profiles")
+      .select("id, first_name, last_name, avatar_url, country, nationality")
+      .in("id", ids);
+    const profMap = new Map((profs ?? []).map((p) => [p.id, p]));
+
+    const { data: sessions } = await supabaseAdmin
+      .from("test_sessions")
+      .select("user_id, level_result, score, completed_at")
+      .in("user_id", ids)
+      .not("completed_at", "is", null)
+      .not("level_result", "is", null)
+      .order("score", { ascending: false });
+    const cefrMap = new Map<string, string>();
+    for (const s of sessions ?? []) {
+      if (s.user_id && s.level_result && !cefrMap.has(s.user_id)) {
+        cefrMap.set(s.user_id, s.level_result as unknown as string);
+      }
+    }
+
+    return gamRows.map((g, idx) => {
+      const p = profMap.get(g.user_id);
+      const first = (p?.first_name ?? "").trim();
+      const last = (p?.last_name ?? "").trim();
+      const initial = last ? `${last[0].toUpperCase()}.` : "";
+      const display = first ? (initial ? `${first} ${initial}` : first) : "Candidate";
+      const initials =
+        `${(first[0] ?? "?").toUpperCase()}${(last[0] ?? "").toUpperCase()}` || "?";
+      return {
+        rank: idx + 1,
+        display_name: display,
+        initials,
+        country: p?.country ?? p?.nationality ?? null,
+        cefr_level: cefrMap.get(g.user_id) ?? null,
+        total_xp: g.total_xp ?? 0,
+        current_level: g.current_level ?? 1,
+        avatar_url: p?.avatar_url ?? null,
+      };
+    });
+  },
+);
