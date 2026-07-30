@@ -143,6 +143,19 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
 
     const scorePercent = total ? Math.round((totalCorrect / total) * 100) : 0;
 
+    // Previous best score, read before this session is marked completed.
+    const { data: previousSessions } = await supabaseAdmin
+      .from("test_sessions")
+      .select("score, level_result")
+      .eq("user_id", context.userId)
+      .not("completed_at", "is", null)
+      .neq("id", data.sessionId);
+    const previousBest = (previousSessions ?? []).reduce(
+      (max, s) => Math.max(max, s.score ?? 0),
+      -1,
+    );
+    const previousLevels = new Set((previousSessions ?? []).map((s) => s.level_result));
+
     const { error: uErr } = await supabaseAdmin
       .from("test_sessions")
       .update({
@@ -168,6 +181,23 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
       gamification = (g as typeof gamification) ?? null;
     } catch {
       gamification = null;
+    }
+
+    // Notifications (never block the result).
+    try {
+      const { pushNotification, NotificationTemplates } = await import("@/lib/notifications.server");
+      await pushNotification(NotificationTemplates.testCompleted(context.userId, data.sessionId));
+      await pushNotification(
+        NotificationTemplates.certificateAvailable(context.userId, data.sessionId),
+      );
+      if (previousBest >= 0 && scorePercent > previousBest) {
+        await pushNotification(NotificationTemplates.personalBest(context.userId, data.sessionId));
+      }
+      if (!previousLevels.has(levelResult)) {
+        await pushNotification(NotificationTemplates.levelUp(context.userId, levelResult));
+      }
+    } catch {
+      // ignore
     }
 
     const result: TestResult = {
