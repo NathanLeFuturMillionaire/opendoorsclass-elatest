@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { LanguageProvider } from "@/lib/i18n";
+import { notifySignIn } from "@/lib/notifications.functions";
 
 function NotFoundComponent() {
   return (
@@ -144,9 +145,7 @@ function RootComponent() {
       router.invalidate();
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
       if (event === "SIGNED_IN") {
-        void import("@/lib/notifications.functions")
-          .then(({ notifySignIn }) => notifySignIn({}))
-          .catch(() => {});
+        void notifySignIn({}).catch(() => {});
       }
     });
     return () => {
