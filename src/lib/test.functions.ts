@@ -38,6 +38,12 @@ export const startTestSession = createServerFn({ method: "POST" })
       }
       throw new Error(error.message);
     }
+    try {
+      const { pushNotification, NotificationTemplates } = await import("@/lib/notifications.server");
+      await pushNotification(NotificationTemplates.testStarted(context.userId));
+    } catch {
+      // ignore
+    }
     return { sessionId: data as string };
   });
 
