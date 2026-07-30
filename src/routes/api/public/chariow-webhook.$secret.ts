@@ -138,6 +138,24 @@ export const Route = createFileRoute("/api/public/chariow-webhook/$secret")({
             .eq("id", payment.id);
         }
 
+        try {
+          const { pushNotification, NotificationTemplates } = await import(
+            "@/lib/notifications.server"
+          );
+          if (normalized === "success") {
+            await pushNotification(
+              NotificationTemplates.paymentSuccess(payment.user_id, payment.id),
+            );
+            await pushNotification(
+              NotificationTemplates.creditsReceived(payment.user_id, payment.credits_added),
+            );
+          } else if (normalized === "failed" || normalized === "cancelled") {
+            await pushNotification(NotificationTemplates.paymentFailed(payment.user_id));
+          }
+        } catch (err) {
+          console.error("chariow-webhook: notification failed", err);
+        }
+
         return new Response("ok", { status: 200 });
       },
     },
