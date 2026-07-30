@@ -183,8 +183,37 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
       level_up: boolean;
     } | null = null;
     try {
+      const { data: beforeXp } = await supabaseAdmin
+        .from("user_gamification")
+        .select("total_xp")
+        .eq("user_id", context.userId)
+        .maybeSingle();
       const { data: g } = await supabaseAdmin.rpc("process_test_completion", { _session_id: data.sessionId });
       gamification = (g as typeof gamification) ?? null;
+      // Motivating leaderboard nudge for learners who were just overtaken.
+      const from = beforeXp?.total_xp ?? 0;
+      const to = gamification?.total_xp ?? from;
+      if (to > from) {
+        const { data: overtaken } = await supabaseAdmin
+          .from("user_gamification")
+          .select("user_id")
+          .eq("leaderboard_opt_in", true)
+          .neq("user_id", context.userId)
+          .gte("total_xp", from)
+          .lt("total_xp", to)
+          .limit(20);
+        if (overtaken?.length) {
+          const { pushNotification, NotificationTemplates } = await import(
+            "@/lib/notifications.server"
+          );
+          for (const row of overtaken) {
+            await pushNotification({
+              ...NotificationTemplates.leaderboardOvertaken(row.user_id),
+              dedupeKey: "leaderboard-overtaken",
+            });
+          }
+        }
+      }
     } catch {
       gamification = null;
     }
