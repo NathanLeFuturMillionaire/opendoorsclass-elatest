@@ -192,7 +192,7 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
       gamification = (g as typeof gamification) ?? null;
       // Motivating leaderboard nudge for learners who were just overtaken.
       const from = beforeXp?.total_xp ?? 0;
-      const to = gamification?.total_xp ?? from;
+      const to = (gamification as { total_xp?: number } | null)?.total_xp ?? from;
       if (to > from) {
         const { data: overtaken } = await supabaseAdmin
           .from("user_gamification")
