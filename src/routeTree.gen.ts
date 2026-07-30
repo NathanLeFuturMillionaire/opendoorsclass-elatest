@@ -16,6 +16,7 @@ import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/t
 import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
 import { Route as AuthenticatedPaiementRetourRouteImport } from './routes/_authenticated/paiement-retour'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedClassementRouteImport } from './routes/_authenticated/classement'
 import { Route as AuthenticatedAchatCreditsRouteImport } from './routes/_authenticated/achat-credits'
 import { Route as AuthenticatedAccomplissementsRouteImport } from './routes/_authenticated/accomplissements'
@@ -65,6 +66,12 @@ const AuthenticatedPaiementRetourRoute =
   AuthenticatedPaiementRetourRouteImport.update({
     id: '/paiement-retour',
     path: '/paiement-retour',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedClassementRoute = AuthenticatedClassementRouteImport.update({
@@ -154,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
   '/classement': typeof AuthenticatedClassementRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
@@ -175,6 +183,7 @@ export interface FileRoutesByTo {
   '/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
   '/classement': typeof AuthenticatedClassementRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
@@ -199,6 +208,7 @@ export interface FileRoutesById {
   '/_authenticated/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/_authenticated/achat-credits': typeof AuthenticatedAchatCreditsRoute
   '/_authenticated/classement': typeof AuthenticatedClassementRoute
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
@@ -223,6 +233,7 @@ export interface FileRouteTypes {
     | '/accomplissements'
     | '/achat-credits'
     | '/classement'
+    | '/notifications'
     | '/paiement-retour'
     | '/profil'
     | '/tableau-de-bord'
@@ -244,6 +255,7 @@ export interface FileRouteTypes {
     | '/accomplissements'
     | '/achat-credits'
     | '/classement'
+    | '/notifications'
     | '/paiement-retour'
     | '/profil'
     | '/tableau-de-bord'
@@ -267,6 +279,7 @@ export interface FileRouteTypes {
     | '/_authenticated/accomplissements'
     | '/_authenticated/achat-credits'
     | '/_authenticated/classement'
+    | '/_authenticated/notifications'
     | '/_authenticated/paiement-retour'
     | '/_authenticated/profil'
     | '/_authenticated/tableau-de-bord'
@@ -339,6 +352,13 @@ declare module '@tanstack/react-router' {
       path: '/paiement-retour'
       fullPath: '/paiement-retour'
       preLoaderRoute: typeof AuthenticatedPaiementRetourRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/classement': {
@@ -475,6 +495,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccomplissementsRoute: typeof AuthenticatedAccomplissementsRoute
   AuthenticatedAchatCreditsRoute: typeof AuthenticatedAchatCreditsRoute
   AuthenticatedClassementRoute: typeof AuthenticatedClassementRoute
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedPaiementRetourRoute: typeof AuthenticatedPaiementRetourRoute
   AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
   AuthenticatedTableauDeBordRoute: typeof AuthenticatedTableauDeBordRoute
@@ -487,6 +508,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccomplissementsRoute: AuthenticatedAccomplissementsRoute,
   AuthenticatedAchatCreditsRoute: AuthenticatedAchatCreditsRoute,
   AuthenticatedClassementRoute: AuthenticatedClassementRoute,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedPaiementRetourRoute: AuthenticatedPaiementRetourRoute,
   AuthenticatedProfilRoute: AuthenticatedProfilRoute,
   AuthenticatedTableauDeBordRoute: AuthenticatedTableauDeBordRoute,

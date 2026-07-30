@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.push_notification(UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.notify_badge_unlocked() FROM PUBLIC, anon, authenticated;

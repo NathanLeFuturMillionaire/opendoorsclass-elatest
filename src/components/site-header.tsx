@@ -7,6 +7,7 @@ import { useSession, signOutAndRedirect } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
 import { useT } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 export function SiteHeader() {
   const { user, loading } = useSession();
@@ -64,6 +65,7 @@ export function SiteHeader() {
           <LanguageSwitcher />
           {loading ? null : user ? (
             <>
+              <NotificationBell />
               {isStaff && (
                 <Button asChild variant="ghost" size="sm">
                   <Link to="/admin"><Shield className="mr-1 size-4" /> {t("nav.admin")}</Link>
@@ -88,12 +90,14 @@ export function SiteHeader() {
           )}
         </div>
 
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon" aria-label={t("nav.menu")}>
-              <Menu className="size-5" />
-            </Button>
-          </SheetTrigger>
+        <div className="flex items-center gap-1 md:hidden">
+          {user && <NotificationBell />}
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label={t("nav.menu")}>
+                <Menu className="size-5" />
+              </Button>
+            </SheetTrigger>
           <SheetContent side="right" className="w-72">
             <SheetHeader>
               <SheetTitle>{t("nav.menu")}</SheetTitle>
@@ -115,6 +119,9 @@ export function SiteHeader() {
                 </div>
                 {user ? (
                   <>
+                    <Button asChild variant="outline" onClick={() => setOpen(false)}>
+                      <Link to="/notifications">{t("notif.title")}</Link>
+                    </Button>
                     <Button asChild variant="outline" onClick={() => setOpen(false)}>
                       <Link to="/tableau-de-bord">{t("nav.space")}</Link>
                     </Button>
@@ -144,7 +151,8 @@ export function SiteHeader() {
               </div>
             </div>
           </SheetContent>
-        </Sheet>
+          </Sheet>
+        </div>
       </div>
     </header>
   );
