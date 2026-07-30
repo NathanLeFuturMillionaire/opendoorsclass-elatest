@@ -38,6 +38,12 @@ export const startTestSession = createServerFn({ method: "POST" })
       }
       throw new Error(error.message);
     }
+    try {
+      const { pushNotification, NotificationTemplates } = await import("@/lib/notifications.server");
+      await pushNotification(NotificationTemplates.testStarted(context.userId));
+    } catch {
+      // ignore
+    }
     return { sessionId: data as string };
   });
 
@@ -143,6 +149,19 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
 
     const scorePercent = total ? Math.round((totalCorrect / total) * 100) : 0;
 
+    // Previous best score, read before this session is marked completed.
+    const { data: previousSessions } = await supabaseAdmin
+      .from("test_sessions")
+      .select("score, level_result")
+      .eq("user_id", context.userId)
+      .not("completed_at", "is", null)
+      .neq("id", data.sessionId);
+    const previousBest = (previousSessions ?? []).reduce(
+      (max, s) => Math.max(max, s.score ?? 0),
+      -1,
+    );
+    const previousLevels = new Set((previousSessions ?? []).map((s) => s.level_result));
+
     const { error: uErr } = await supabaseAdmin
       .from("test_sessions")
       .update({
@@ -164,10 +183,56 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
       level_up: boolean;
     } | null = null;
     try {
+      const { data: beforeXp } = await supabaseAdmin
+        .from("user_gamification")
+        .select("total_xp")
+        .eq("user_id", context.userId)
+        .maybeSingle();
       const { data: g } = await supabaseAdmin.rpc("process_test_completion", { _session_id: data.sessionId });
       gamification = (g as typeof gamification) ?? null;
+      // Motivating leaderboard nudge for learners who were just overtaken.
+      const from = beforeXp?.total_xp ?? 0;
+      const to = (gamification as { total_xp?: number } | null)?.total_xp ?? from;
+      if (to > from) {
+        const { data: overtaken } = await supabaseAdmin
+          .from("user_gamification")
+          .select("user_id")
+          .eq("leaderboard_opt_in", true)
+          .neq("user_id", context.userId)
+          .gte("total_xp", from)
+          .lt("total_xp", to)
+          .limit(20);
+        if (overtaken?.length) {
+          const { pushNotification, NotificationTemplates } = await import(
+            "@/lib/notifications.server"
+          );
+          for (const row of overtaken) {
+            await pushNotification({
+              ...NotificationTemplates.leaderboardOvertaken(row.user_id),
+              dedupeKey: "leaderboard-overtaken",
+            });
+          }
+        }
+      }
     } catch {
       gamification = null;
+    }
+
+    // Notifications (never block the result).
+    try {
+      const { pushNotification, NotificationTemplates } = await import("@/lib/notifications.server");
+      await pushNotification(NotificationTemplates.testCompleted(context.userId, data.sessionId));
+      await pushNotification(
+        NotificationTemplates.certificateAvailable(context.userId, data.sessionId),
+      );
+      if (previousBest >= 0 && scorePercent > previousBest) {
+        await pushNotification(NotificationTemplates.personalBest(context.userId, data.sessionId));
+      }
+      if (!previousLevels.has(levelResult)) {
+        await pushNotification(NotificationTemplates.levelUp(context.userId, levelResult));
+      }
+    } catch {
+      // ignore
     }
 
     const result: TestResult = {

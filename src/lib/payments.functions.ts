@@ -199,6 +199,17 @@ export const checkPaymentStatus = createServerFn({ method: "GET" })
         .from("payments")
         .update({ status: "success", confirmed_at: new Date().toISOString() })
         .eq("id", payment.id);
+      try {
+        const { pushNotification, NotificationTemplates } = await import(
+          "@/lib/notifications.server"
+        );
+        await pushNotification(NotificationTemplates.paymentSuccess(context.userId, payment.id));
+        await pushNotification(
+          NotificationTemplates.creditsReceived(context.userId, payment.credits_added),
+        );
+      } catch {
+        // ignore
+      }
       return { status: "success", credits: payment.credits_added, offerCode: payment.offer_code };
     }
 
@@ -208,6 +219,16 @@ export const checkPaymentStatus = createServerFn({ method: "GET" })
         .from("payments")
         .update({ status: remoteStatus })
         .eq("id", payment.id);
+      if (remoteStatus === "failed") {
+        try {
+          const { pushNotification, NotificationTemplates } = await import(
+            "@/lib/notifications.server"
+          );
+          await pushNotification(NotificationTemplates.paymentFailed(context.userId));
+        } catch {
+          // ignore
+        }
+      }
     }
 
     return { status: remoteStatus, credits: 0, offerCode: payment.offer_code };

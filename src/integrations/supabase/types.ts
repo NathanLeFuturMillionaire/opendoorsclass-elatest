@@ -140,6 +140,48 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          action_label: string | null
+          action_url: string | null
+          category: string
+          created_at: string
+          icon: string
+          id: string
+          is_read: boolean
+          message: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_label?: string | null
+          action_url?: string | null
+          category?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_label?: string | null
+          action_url?: string | null
+          category?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -720,6 +762,18 @@ export type Database = {
       }
       process_profile_update: { Args: { _user_id: string }; Returns: Json }
       process_test_completion: { Args: { _session_id: string }; Returns: Json }
+      push_notification: {
+        Args: {
+          _action_label?: string
+          _action_url?: string
+          _category?: string
+          _icon?: string
+          _message: string
+          _title: string
+          _user_id: string
+        }
+        Returns: string
+      }
       record_streak: { Args: { _user_id: string }; Returns: Json }
       set_leaderboard_opt_in: {
         Args: { _country?: string; _opt_in: boolean }
