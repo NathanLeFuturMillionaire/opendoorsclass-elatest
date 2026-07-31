@@ -99,9 +99,6 @@ function AuthPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="mb-4 rounded-lg border border-brand-green/30 bg-brand-green-soft px-3 py-2 text-center text-xs font-semibold text-brand-green">
-              🎁 {t("auth.gift")}
-            </div>
             <Button
               type="button"
               variant="outline"
