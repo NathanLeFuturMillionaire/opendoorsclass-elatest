@@ -119,6 +119,13 @@ const FR: Dict = {
   "footer.location": "Libreville, Gabon",
   "footer.rights": "Tous droits réservés.",
 
+  // Certified learners
+  "cert.card.title": "Candidats certifiés",
+  "cert.card.desc": "Des professionnels ayant réussi leur test de niveau d'anglais.",
+  "cert.badge": "Certifications vérifiées OpenDoorsClass",
+  "cert.page.title": "Candidats certifiés",
+  "cert.page.soon": "L'annuaire public des candidats certifiés arrive très bientôt.",
+
   // Auth
   "auth.signin": "Se connecter",
   "auth.signup": "Créer un compte",
