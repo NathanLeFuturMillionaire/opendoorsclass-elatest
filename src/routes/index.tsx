@@ -25,6 +25,7 @@ import { listPublicReviews } from "@/lib/reviews.functions";
 import { useT } from "@/lib/i18n";
 import { WorldReachSection } from "@/components/world-reach-section";
 import { HomeLeaderboardSection } from "@/components/home-leaderboard-section";
+import { CertifiedLearnersCard } from "@/components/certified-learners-card";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -89,26 +90,52 @@ function HomePage() {
             <div className="absolute right-0 top-40 h-64 w-64 rounded-full bg-brand-green-soft blur-3xl" />
             <div className="absolute -bottom-24 left-10 h-56 w-56 rounded-full bg-brand-yellow-soft blur-3xl" />
           </div>
-          <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-20 md:grid-cols-2 md:items-center md:py-24">
-            <div>
-              <Badge variant="secondary" className="mb-4">
-                {t("hero.badge")}
-              </Badge>
-              <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
+          <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 sm:py-24 md:grid-cols-2 md:items-center md:gap-16 md:py-28">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <div className="mb-5 flex flex-wrap items-center gap-2">
+                <Badge variant="secondary" className="rounded-full px-3 py-1">
+                  {t("hero.badge")}
+                </Badge>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/70 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+                  <span className="flex items-center gap-0.5" aria-hidden="true">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className="size-3 fill-brand-yellow-foreground text-brand-yellow-foreground"
+                      />
+                    ))}
+                  </span>
+                  {t("cert.badge")}
+                </span>
+              </div>
+              <h1 className="max-w-xl text-[2.35rem] font-extrabold leading-[1.08] tracking-tight text-balance sm:text-[2.9rem] md:text-[3.15rem]">
                 {t("hero.title.a")} <span className="text-brand-gradient">{t("hero.title.b")}</span>{t("hero.title.c")}
               </h1>
-              <p className="mt-5 max-w-xl text-lg text-muted-foreground">
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
                 {t("hero.desc")}
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Button asChild size="lg" className="bg-brand-gradient text-primary-foreground shadow-md">
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Button
+                  asChild
+                  size="lg"
+                  className="rounded-xl bg-brand-gradient px-7 py-6 text-base font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
+                >
                   <Link to="/auth">{t("hero.cta.start")}</Link>
                 </Button>
-                <Button asChild size="lg" variant="outline">
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="rounded-xl border-border/70 px-7 py-6 text-base font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:bg-muted/60"
+                >
                   <a href="#comment">{t("hero.cta.how")}</a>
                 </Button>
               </div>
-              <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              <ul className="mt-9 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="size-4 text-brand-green" /> {t("hero.tag.instant")}
                 </li>
@@ -119,9 +146,17 @@ function HomePage() {
                   <CheckCircle2 className="size-4 text-brand-green" /> {t("hero.tag.mobile")}
                 </li>
               </ul>
-            </div>
+              <div className="mt-9 max-w-md">
+                <CertifiedLearnersCard />
+              </div>
+            </motion.div>
 
-            <div className="relative mx-auto w-full max-w-md">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.12, ease: "easeOut" }}
+              className="relative mx-auto w-full max-w-md"
+            >
               <div className="absolute -inset-4 rounded-3xl bg-brand-gradient opacity-20 blur-2xl" />
               <Card className="relative overflow-hidden border-border/60 shadow-xl">
                 <CardContent className="p-6">
@@ -161,7 +196,7 @@ function HomePage() {
                   </div>
                 </CardContent>
               </Card>
-            </div>
+            </motion.div>
           </div>
         </section>
 

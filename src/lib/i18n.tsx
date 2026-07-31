@@ -119,11 +119,17 @@ const FR: Dict = {
   "footer.location": "Libreville, Gabon",
   "footer.rights": "Tous droits réservés.",
 
+  // Certified learners
+  "cert.card.title": "Candidats certifiés",
+  "cert.card.desc": "Des professionnels ayant réussi leur test de niveau d'anglais.",
+  "cert.badge": "Certifications vérifiées OpenDoorsClass",
+  "cert.page.title": "Candidats certifiés",
+  "cert.page.soon": "L'annuaire public des candidats certifiés arrive très bientôt.",
+
   // Auth
   "auth.signin": "Se connecter",
   "auth.signup": "Créer un compte",
   "auth.desc": "Accédez au test de niveau d'anglais OpenDoorsClass.",
-  "auth.gift": "Offert à l'inscription : 1 crédit gratuit pour un premier test.",
   "auth.google": "Continuer avec Google",
   "auth.or": "ou",
   "auth.tab.signin": "Connexion",
@@ -367,10 +373,15 @@ const EN: Dict = {
   "footer.location": "Libreville, Gabon",
   "footer.rights": "All rights reserved.",
 
+  "cert.card.title": "Certified Learners",
+  "cert.card.desc": "Professionals who successfully completed their English Level Test.",
+  "cert.badge": "Verified English Learners",
+  "cert.page.title": "Certified Learners",
+  "cert.page.soon": "The public directory of certified learners is coming soon.",
+
   "auth.signin": "Sign in",
   "auth.signup": "Create an account",
   "auth.desc": "Access the OpenDoorsClass English proficiency test.",
-  "auth.gift": "Free on signup: 1 credit to take a first test.",
   "auth.google": "Continue with Google",
   "auth.or": "or",
   "auth.tab.signin": "Sign in",
