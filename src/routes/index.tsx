@@ -112,7 +112,7 @@ function HomePage() {
                   {t("cert.badge")}
                 </span>
               </div>
-              <h1 className="text-[2.6rem] font-extrabold leading-[1.05] tracking-tight sm:text-5xl md:text-[3.6rem]">
+              <h1 className="max-w-xl text-[2.35rem] font-extrabold leading-[1.08] tracking-tight text-balance sm:text-[2.9rem] md:text-[3.15rem]">
                 {t("hero.title.a")} <span className="text-brand-gradient">{t("hero.title.b")}</span>{t("hero.title.c")}
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
