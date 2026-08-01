@@ -200,6 +200,8 @@ function HomePage() {
           </div>
         </section>
 
+        <CommunityLeaderboardSection />
+
         {/* Comment ça marche */}
         <section id="comment" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">

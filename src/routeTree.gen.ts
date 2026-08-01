@@ -14,6 +14,7 @@ import { Route as CertifiesRouteImport } from './routes/certifies'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProfileIdRouteImport } from './routes/profile.$id'
 import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/test'
 import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
@@ -56,6 +57,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileIdRoute = ProfileIdRouteImport.update({
+  id: '/profile/$id',
+  path: '/profile/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedTestRoute = AuthenticatedTestRouteImport.update({
@@ -180,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
+  '/profile/$id': typeof ProfileIdRoute
   '/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
+  '/profile/$id': typeof ProfileIdRoute
   '/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
@@ -231,6 +239,7 @@ export interface FileRoutesById {
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/_authenticated/test': typeof AuthenticatedTestRoute
+  '/profile/$id': typeof ProfileIdRoute
   '/_authenticated/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/_authenticated/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/_authenticated/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/profil'
     | '/tableau-de-bord'
     | '/test'
+    | '/profile/$id'
     | '/admin/avis'
     | '/admin/candidats'
     | '/admin/certificats'
@@ -282,6 +292,7 @@ export interface FileRouteTypes {
     | '/profil'
     | '/tableau-de-bord'
     | '/test'
+    | '/profile/$id'
     | '/admin/avis'
     | '/admin/candidats'
     | '/admin/certificats'
@@ -308,6 +319,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profil'
     | '/_authenticated/tableau-de-bord'
     | '/_authenticated/test'
+    | '/profile/$id'
     | '/_authenticated/admin/avis'
     | '/_authenticated/admin/candidats'
     | '/_authenticated/admin/certificats'
@@ -326,6 +338,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CertifiesRoute: typeof CertifiesRoute
   LeaderboardsRoute: typeof LeaderboardsRoute
+  ProfileIdRoute: typeof ProfileIdRoute
   ApiPublicChariowWebhookSecretRoute: typeof ApiPublicChariowWebhookSecretRoute
 }
 
@@ -364,6 +377,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile/$id': {
+      id: '/profile/$id'
+      path: '/profile/$id'
+      fullPath: '/profile/$id'
+      preLoaderRoute: typeof ProfileIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/test': {
@@ -565,6 +585,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CertifiesRoute: CertifiesRoute,
   LeaderboardsRoute: LeaderboardsRoute,
+  ProfileIdRoute: ProfileIdRoute,
   ApiPublicChariowWebhookSecretRoute: ApiPublicChariowWebhookSecretRoute,
 }
 export const routeTree = rootRouteImport
