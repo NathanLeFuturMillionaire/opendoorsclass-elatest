@@ -3,7 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 export type CertifiedLearner = {
   display_name: string;
   initials: string;
-  avatar_url: string | null;
+  avatar_url: string;
   cefr_level: string | null;
   country: string | null;
 };
@@ -16,7 +16,8 @@ export type CertifiedLearnersPayload = {
 
 /**
  * Public, privacy safe social proof for the homepage hero.
- * Only the first 6 certified learners are hydrated with profile data.
+ * Only certified learners who have a real profile photo are shown,
+ * sorted from the most recent certification to the oldest.
  */
 export const getCertifiedLearners = createServerFn({ method: "GET" }).handler(
   async (): Promise<CertifiedLearnersPayload> => {
@@ -37,18 +38,25 @@ export const getCertifiedLearners = createServerFn({ method: "GET" }).handler(
         bestByUser.set(r.user_id, r.level_result as unknown as string);
       }
     }
-    const total = bestByUser.size;
-    const ids = Array.from(bestByUser.keys()).slice(0, 6);
-    if (ids.length === 0) return { learners: [], total: 0, remaining: 0 };
+    const orderedIds = Array.from(bestByUser.keys());
+    if (orderedIds.length === 0) return { learners: [], total: 0, remaining: 0 };
 
     const { data: profs } = await supabaseAdmin
       .from("profiles")
       .select("id, first_name, last_name, avatar_url, country, nationality")
-      .in("id", ids);
+      .in("id", orderedIds)
+      .not("avatar_url", "is", null);
     const profMap = new Map((profs ?? []).map((p) => [p.id, p]));
 
-    const learners: CertifiedLearner[] = ids.map((id) => {
-      const p = profMap.get(id);
+    // Keep certification order (most recent first) and only real photos.
+    const withPhoto = orderedIds.filter((id) => {
+      const url = profMap.get(id)?.avatar_url;
+      return typeof url === "string" && url.trim().length > 0;
+    });
+    const total = withPhoto.length;
+
+    const learners: CertifiedLearner[] = withPhoto.slice(0, 6).map((id) => {
+      const p = profMap.get(id)!;
       const first = (p?.first_name ?? "").trim();
       const last = (p?.last_name ?? "").trim();
       const display = first ? (last ? first + " " + last[0].toUpperCase() + "." : first) : "Candidate";
@@ -56,7 +64,7 @@ export const getCertifiedLearners = createServerFn({ method: "GET" }).handler(
       return {
         display_name: display,
         initials,
-        avatar_url: p?.avatar_url ?? null,
+        avatar_url: p.avatar_url as string,
         cefr_level: bestByUser.get(id) ?? null,
         country: p?.country ?? p?.nationality ?? null,
       };
