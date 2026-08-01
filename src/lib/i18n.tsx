@@ -15,6 +15,7 @@ const FR: Dict = {
   // Header / nav
   "nav.home": "Accueil",
   "nav.how": "Comment ça marche",
+  "nav.leaderboards": "Classements",
   "nav.testimonials": "Témoignages",
   "nav.founder": "Le fondateur",
   "nav.worldwide": "Accessible partout",
@@ -282,6 +283,7 @@ const FR: Dict = {
 const EN: Dict = {
   "nav.home": "Home",
   "nav.how": "How it works",
+  "nav.leaderboards": "Leaderboards",
   "nav.testimonials": "Testimonials",
   "nav.founder": "The founder",
   "nav.worldwide": "Worldwide access",
