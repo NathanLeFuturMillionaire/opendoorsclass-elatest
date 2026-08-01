@@ -18,10 +18,8 @@ export function SiteHeader() {
 
   const NAV = [
     { to: "/", label: t("nav.home") },
-    { to: "/#comment", label: t("nav.how") },
+    { to: "/leaderboards", label: t("nav.leaderboards") },
     { to: "/#monde", label: t("nav.worldwide") },
-    { to: "/#temoignages", label: t("nav.testimonials") },
-    { to: "/#fondateur", label: t("nav.founder") },
   ];
 
   useEffect(() => {

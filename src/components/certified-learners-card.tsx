@@ -39,30 +39,24 @@ export function CertifiedLearnersCard() {
 
       {learners.length > 0 ? (
         <div className="mt-4 flex items-center gap-3">
-          <div className="flex -space-x-2.5 sm:-space-x-3">
+          <div className="flex items-center -space-x-2.5 sm:-space-x-3">
             {learners.map((l, i) => (
               <motion.div
                 key={`${l.display_name}-${i}`}
                 initial={{ opacity: 0, scale: 0.8, y: 6 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ delay: i * 0.07, duration: 0.35, ease: "easeOut" }}
-                whileHover={{ y: -3, scale: 1.08 }}
+                whileHover={{ y: -4, scale: 1.1, zIndex: 10 }}
                 title={l.cefr_level ? `${l.display_name} · ${l.cefr_level}` : l.display_name}
-                className="relative"
+                className="relative transition-shadow duration-300 motion-reduce:transform-none"
               >
-                {l.avatar_url ? (
-                  <img
-                    src={l.avatar_url}
-                    alt={l.display_name}
-                    loading="lazy"
-                    decoding="async"
-                    className="size-9 rounded-full object-cover ring-2 ring-background transition-shadow hover:shadow-md sm:size-10"
-                  />
-                ) : (
-                  <span className="grid size-9 place-items-center rounded-full bg-brand-blue-soft text-[11px] font-bold text-brand-blue ring-2 ring-background transition-shadow hover:shadow-md sm:size-10">
-                    {l.initials}
-                  </span>
-                )}
+                <img
+                  src={l.avatar_url}
+                  alt={l.display_name}
+                  loading="lazy"
+                  decoding="async"
+                  className="size-9 rounded-full object-cover ring-2 ring-background transition-shadow duration-300 hover:shadow-lg sm:size-10"
+                />
               </motion.div>
             ))}
             {remaining > 0 ? (

@@ -9,10 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LeaderboardsRouteImport } from './routes/leaderboards'
 import { Route as CertifiesRouteImport } from './routes/certifies'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProfileIdRouteImport } from './routes/profile.$id'
 import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/test'
 import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
@@ -33,6 +35,11 @@ import { Route as AuthenticatedAdminCandidatsRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminAvisRouteImport } from './routes/_authenticated/admin/avis'
 import { Route as ApiPublicChariowWebhookSecretRouteImport } from './routes/api/public/chariow-webhook.$secret'
 
+const LeaderboardsRoute = LeaderboardsRouteImport.update({
+  id: '/leaderboards',
+  path: '/leaderboards',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CertifiesRoute = CertifiesRouteImport.update({
   id: '/certifies',
   path: '/certifies',
@@ -50,6 +57,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileIdRoute = ProfileIdRouteImport.update({
+  id: '/profile/$id',
+  path: '/profile/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedTestRoute = AuthenticatedTestRouteImport.update({
@@ -164,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/certifies': typeof CertifiesRoute
+  '/leaderboards': typeof LeaderboardsRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
@@ -173,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
+  '/profile/$id': typeof ProfileIdRoute
   '/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
@@ -188,6 +202,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/certifies': typeof CertifiesRoute
+  '/leaderboards': typeof LeaderboardsRoute
   '/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
   '/classement': typeof AuthenticatedClassementRoute
@@ -196,6 +211,7 @@ export interface FileRoutesByTo {
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
+  '/profile/$id': typeof ProfileIdRoute
   '/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
@@ -213,6 +229,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/certifies': typeof CertifiesRoute
+  '/leaderboards': typeof LeaderboardsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/_authenticated/achat-credits': typeof AuthenticatedAchatCreditsRoute
@@ -222,6 +239,7 @@ export interface FileRoutesById {
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/_authenticated/test': typeof AuthenticatedTestRoute
+  '/profile/$id': typeof ProfileIdRoute
   '/_authenticated/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/_authenticated/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/_authenticated/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
@@ -239,6 +257,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/certifies'
+    | '/leaderboards'
     | '/admin'
     | '/accomplissements'
     | '/achat-credits'
@@ -248,6 +267,7 @@ export interface FileRouteTypes {
     | '/profil'
     | '/tableau-de-bord'
     | '/test'
+    | '/profile/$id'
     | '/admin/avis'
     | '/admin/candidats'
     | '/admin/certificats'
@@ -263,6 +283,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/certifies'
+    | '/leaderboards'
     | '/accomplissements'
     | '/achat-credits'
     | '/classement'
@@ -271,6 +292,7 @@ export interface FileRouteTypes {
     | '/profil'
     | '/tableau-de-bord'
     | '/test'
+    | '/profile/$id'
     | '/admin/avis'
     | '/admin/candidats'
     | '/admin/certificats'
@@ -287,6 +309,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/certifies'
+    | '/leaderboards'
     | '/_authenticated/admin'
     | '/_authenticated/accomplissements'
     | '/_authenticated/achat-credits'
@@ -296,6 +319,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profil'
     | '/_authenticated/tableau-de-bord'
     | '/_authenticated/test'
+    | '/profile/$id'
     | '/_authenticated/admin/avis'
     | '/_authenticated/admin/candidats'
     | '/_authenticated/admin/certificats'
@@ -313,11 +337,20 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   CertifiesRoute: typeof CertifiesRoute
+  LeaderboardsRoute: typeof LeaderboardsRoute
+  ProfileIdRoute: typeof ProfileIdRoute
   ApiPublicChariowWebhookSecretRoute: typeof ApiPublicChariowWebhookSecretRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/leaderboards': {
+      id: '/leaderboards'
+      path: '/leaderboards'
+      fullPath: '/leaderboards'
+      preLoaderRoute: typeof LeaderboardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/certifies': {
       id: '/certifies'
       path: '/certifies'
@@ -344,6 +377,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile/$id': {
+      id: '/profile/$id'
+      path: '/profile/$id'
+      fullPath: '/profile/$id'
+      preLoaderRoute: typeof ProfileIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/test': {
@@ -544,6 +584,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   CertifiesRoute: CertifiesRoute,
+  LeaderboardsRoute: LeaderboardsRoute,
+  ProfileIdRoute: ProfileIdRoute,
   ApiPublicChariowWebhookSecretRoute: ApiPublicChariowWebhookSecretRoute,
 }
 export const routeTree = rootRouteImport
