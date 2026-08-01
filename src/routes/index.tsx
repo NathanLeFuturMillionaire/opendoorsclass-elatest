@@ -24,7 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { listPublicReviews } from "@/lib/reviews.functions";
 import { useT } from "@/lib/i18n";
 import { WorldReachSection } from "@/components/world-reach-section";
-import { HomeLeaderboardSection } from "@/components/home-leaderboard-section";
+import { CommunityLeaderboardSection } from "@/components/community-leaderboard-section";
 import { CertifiedLearnersCard } from "@/components/certified-learners-card";
 
 export const Route = createFileRoute("/")({
@@ -253,8 +253,6 @@ function HomePage() {
         </section>
 
         <WorldReachSection />
-
-        <HomeLeaderboardSection />
 
         <TestimonialsSection />
 
