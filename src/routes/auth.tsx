@@ -21,7 +21,7 @@ import { SiteHeader } from "@/components/site-header";
 import { AuthSidePanel } from "@/components/auth/auth-side-panel";
 import { COUNTRIES } from "@/lib/countries";
 import { detectRegion } from "@/lib/geo-price";
-import { useT, useLocale } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -94,8 +94,7 @@ function Rule({ ok, label }: { ok: boolean; label: string }) {
 }
 
 function AuthPage() {
-  const t = useT();
-  const { locale } = useLocale();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
