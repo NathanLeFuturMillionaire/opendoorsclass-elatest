@@ -145,12 +145,12 @@ function BuyCreditsPage() {
                 <>
                   <Crown className="size-3.5 text-brand-yellow-foreground" />
                   <span className="font-semibold">
-                    {isFr ? "Offre actuelle : Premium" : "Current plan: Premium"}
+                    {isFr ? "Offre actuelle : Diamond" : "Current plan: Diamond"}
                   </span>
                 </>
               ) : (
                 <span className="font-semibold">
-                  {isFr ? "Offre actuelle : Standard" : "Current plan: Standard"}
+                  {isFr ? "Offre actuelle : Starter" : "Current plan: Starter"}
                 </span>
               )}
             </div>
