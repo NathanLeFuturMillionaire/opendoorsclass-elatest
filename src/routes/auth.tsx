@@ -271,7 +271,7 @@ function AuthPage() {
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">{t("auth.desc")}</p>
 
-            <div className="mt-6 grid gap-2.5 sm:grid-cols-2">
+            <div className="mt-6">
               <Button
                 type="button"
                 variant="outline"
@@ -280,17 +280,7 @@ function AuthPage() {
                 disabled={loading}
               >
                 <GoogleIcon />
-                Google
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="h-11 w-full justify-center gap-2 rounded-xl font-semibold"
-                onClick={handleFacebook}
-                disabled={loading}
-              >
-                <FacebookIcon />
-                Facebook
+                {locale === "fr" ? "Continuer avec Google" : "Continue with Google"}
               </Button>
             </div>
 
