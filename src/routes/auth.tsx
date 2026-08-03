@@ -451,6 +451,10 @@ function AuthPage() {
                 ) : null}
               </div>
 
+              {mode === "signup" && touched['password'] && !password ? (
+                <p className="-mt-2 text-xs text-destructive">{req.password}</p>
+              ) : null}
+
               {mode === "signup" ? (
                 <div className="space-y-1.5">
                   <Label htmlFor="confirm">{t("authx.confirm")}</Label>
@@ -459,6 +463,7 @@ function AuthPage() {
                     type={showPw ? "text" : "password"}
                     value={confirm}
                     onChange={(e) => setConfirm(e.target.value)}
+                    onBlur={() => markTouched("confirm")}
                     required
                     autoComplete="new-password"
                     aria-invalid={confirm.length > 0 && !passwordsMatch}
@@ -479,7 +484,7 @@ function AuthPage() {
                       ? ""
                       : passwordsMatch
                         ? `✓ ${t("authx.confirm.match")}`
-                        : t("authx.confirm.nomatch")}
+                        : req.nomatch}
                   </p>
                 </div>
               ) : (
