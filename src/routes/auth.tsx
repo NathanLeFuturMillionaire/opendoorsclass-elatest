@@ -387,14 +387,19 @@ function AuthPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onBlur={() => markTouched("email")}
                   placeholder="vous@exemple.com"
                   required
                   autoComplete="email"
-                  aria-invalid={!emailValid}
+                  aria-invalid={!emailValid || (touched['email'] && !email.trim())}
                   aria-describedby="email-error"
                 />
                 <p id="email-error" className="min-h-4 text-xs text-destructive">
-                  {emailValid ? "" : t("authx.email.invalid")}
+                  {touched['email'] && !email.trim()
+                    ? req.email
+                    : emailValid
+                      ? ""
+                      : t("authx.email.invalid")}
                 </p>
               </div>
 
@@ -406,6 +411,7 @@ function AuthPage() {
                     type={showPw ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onBlur={() => markTouched("password")}
                     minLength={mode === "signup" ? 8 : 6}
                     required
                     className="pr-11"
