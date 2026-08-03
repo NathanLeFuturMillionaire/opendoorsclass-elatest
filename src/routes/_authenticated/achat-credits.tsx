@@ -21,6 +21,9 @@ import { useT, useI18n } from "@/lib/i18n";
 import { computeLocalPrice } from "@/lib/geo-price";
 
 export const Route = createFileRoute("/_authenticated/achat-credits")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    offer: search['offer'] === "premium" ? ("premium" as const) : search['offer'] === "standard" ? ("standard" as const) : undefined,
+  }),
   component: BuyCreditsPage,
 });
 
@@ -227,7 +230,7 @@ function BuyCreditsPage() {
               <div className="grid gap-6 md:grid-cols-2">
                 <OfferCard
                   variant="standard"
-                  label="Standard"
+                  label={standard.label ?? "Starter"}
                   price={standard.price}
                   credits={standard.credits_included}
                   locale={locale}
@@ -239,7 +242,7 @@ function BuyCreditsPage() {
                 />
                 <OfferCard
                   variant="premium"
-                  label="Premium"
+                  label={premium.label ?? "Diamond"}
                   price={premium.price}
                   credits={premium.credits_included}
                   locale={locale}
