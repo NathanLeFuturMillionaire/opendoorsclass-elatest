@@ -25,6 +25,9 @@ import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: typeof search['redirect'] === "string" ? (search['redirect'] as string) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Connexion et inscription, OpenDoorsClass" },
@@ -69,17 +72,6 @@ function GoogleIcon() {
   );
 }
 
-function FacebookIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-4" aria-hidden focusable="false">
-      <path
-        fill="#1877F2"
-        d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.09 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.96h-1.51c-1.49 0-1.95.93-1.95 1.89v2.26h3.32l-.53 3.49h-2.79V24C19.61 23.09 24 18.1 24 12.07z"
-      />
-    </svg>
-  );
-}
-
 function Rule({ ok, label }: { ok: boolean; label: string }) {
   return (
     <li className="flex items-center gap-1.5 text-xs">
@@ -96,6 +88,18 @@ function Rule({ ok, label }: { ok: boolean; label: string }) {
 function AuthPage() {
   const { t, locale } = useI18n();
   const navigate = useNavigate();
+  const { redirect: redirectParam } = Route.useSearch();
+  const safeRedirect =
+    redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")
+      ? redirectParam
+      : null;
+  const goAfterAuth = () => {
+    if (safeRedirect) {
+      window.location.assign(safeRedirect);
+      return;
+    }
+    navigate({ to: "/tableau-de-bord", replace: true });
+  };
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -108,12 +112,15 @@ function AuthPage() {
   const [country, setCountry] = useState("");
   const [remember, setRemember] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const markTouched = (k: string) => setTouched((s) => ({ ...s, [k]: true }));
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/tableau-de-bord", replace: true });
+      if (data.session) goAfterAuth();
     });
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const detected = detectRegion();
@@ -141,6 +148,17 @@ function AuthPage() {
 
   const emailValid = email.length === 0 || EMAIL_RE.test(email);
   const passwordsMatch = confirm.length > 0 && confirm === password;
+  const isFr = locale === "fr";
+  const req = {
+    firstName: isFr ? "Le prénom est requis." : "First name is required.",
+    lastName: isFr ? "Le nom est requis." : "Last name is required.",
+    email: isFr ? "L'adresse e-mail est requise." : "Email is required.",
+    password: isFr ? "Le mot de passe est requis." : "Password is required.",
+    nomatch: isFr ? "Les mots de passe ne correspondent pas." : "Passwords do not match.",
+    duplicate: isFr
+      ? "Un compte existe déjà avec cette adresse e-mail. Connectez-vous ou réinitialisez votre mot de passe."
+      : "An account already exists with this email address. Please sign in or reset your password.",
+  };
   const canSignup =
     firstName.trim().length > 0 &&
     lastName.trim().length > 0 &&
@@ -153,6 +171,8 @@ function AuthPage() {
 
   async function handleEmailAuth(e: React.FormEvent) {
     e.preventDefault();
+    setTouched({ firstName: true, lastName: true, email: true, password: true, confirm: true });
+    if (mode === "signup" && !canSignup) return;
     setLoading(true);
     try {
       if (mode === "signup") {
@@ -171,7 +191,13 @@ function AuthPage() {
             emailRedirectTo: `${window.location.origin}/tableau-de-bord`,
           },
         });
-        if (error) throw error;
+        if (error) {
+          if (/already|exists|registered/i.test(error.message)) throw new Error(req.duplicate);
+          throw error;
+        }
+        if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          throw new Error(req.duplicate);
+        }
         if (data.session) {
           await supabase
             .from("profiles")
@@ -189,7 +215,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success(t("auth.welcome"));
-        navigate({ to: "/tableau-de-bord", replace: true });
+        goAfterAuth();
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Une erreur est survenue.";
@@ -207,24 +233,10 @@ function AuthPage() {
       });
       if (result.error) throw result.error instanceof Error ? result.error : new Error(String(result.error));
       if (result.redirected) return;
-      navigate({ to: "/tableau-de-bord", replace: true });
+      goAfterAuth();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Connexion Google indisponible.";
       toast.error(message);
-      setLoading(false);
-    }
-  }
-
-  async function handleFacebook() {
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "facebook",
-        options: { redirectTo: `${window.location.origin}/tableau-de-bord` },
-      });
-      if (error) throw error;
-    } catch {
-      toast.error(t("authx.facebook.unavailable"));
       setLoading(false);
     }
   }
