@@ -2,7 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
-import { Check, Crown, Loader2, Sparkles } from "lucide-react";
+import { Check, Crown, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -82,13 +82,10 @@ export function HomePricingSection() {
   async function go(code: "standard" | "premium") {
     const { data } = await supabase.auth.getSession();
     if (data.session) {
-      navigate({ to: "/achat-credits", search: { offer: code } as never });
+      navigate({ to: "/achat-credits", search: { offer: code } });
       return;
     }
-    navigate({
-      to: "/auth",
-      search: { redirect: `/achat-credits?offer=${code}` } as never,
-    });
+    navigate({ to: "/auth", search: { redirect: `/achat-credits?offer=${code}` } });
   }
 
   return (
@@ -236,5 +233,3 @@ function PricingCard(props: {
     </motion.div>
   );
 }
-
-export const PricingLoader = Loader2;
