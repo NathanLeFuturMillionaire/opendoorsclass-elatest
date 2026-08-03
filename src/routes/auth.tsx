@@ -307,10 +307,15 @@ function AuthPage() {
                         id="firstName"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
+                        onBlur={() => markTouched("firstName")}
+                        aria-invalid={touched['firstName'] && !firstName.trim()}
                         required
                         autoComplete="given-name"
                         maxLength={60}
                       />
+                      <p className="min-h-4 text-xs text-destructive">
+                        {touched['firstName'] && !firstName.trim() ? req.firstName : ""}
+                      </p>
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="lastName">{t("authx.lastName")}</Label>
@@ -318,10 +323,15 @@ function AuthPage() {
                         id="lastName"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
+                        onBlur={() => markTouched("lastName")}
+                        aria-invalid={touched['lastName'] && !lastName.trim()}
                         required
                         autoComplete="family-name"
                         maxLength={60}
                       />
+                      <p className="min-h-4 text-xs text-destructive">
+                        {touched['lastName'] && !lastName.trim() ? req.lastName : ""}
+                      </p>
                     </div>
                   </div>
 
