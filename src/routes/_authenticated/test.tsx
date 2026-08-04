@@ -27,6 +27,7 @@ import {
   type Skill,
 } from "@/lib/test-engine";
 import { Textarea } from "@/components/ui/textarea";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/test")({
   component: TestPage,
@@ -38,6 +39,7 @@ type Phase = "intro" | "listening-intro" | "speaking-intro" | "running" | "submi
 
 function TestPage() {
   const navigate = useNavigate();
+  const { locale } = useI18n();
   const fetchQuestions = useServerFn(getTestQuestions);
   const startSession = useServerFn(startTestSession);
   const submit = useServerFn(submitTestAnswers);
@@ -53,7 +55,8 @@ function TestPage() {
   const [seenSpeakingIntro, setSeenSpeakingIntro] = useState(false);
   const [sectionMessage, setSectionMessage] = useState<string | null>(null);
   const [fadeKey, setFadeKey] = useState(0);
-  const introText = useMemo(() => pickRandom(TEST_INTROS).fr, []);
+  const introVariant = useMemo(() => pickRandom(TEST_INTROS), []);
+  const introText = locale === "en" ? introVariant.en : introVariant.fr;
 
   const startTest = async () => {
     setLoading(true);
