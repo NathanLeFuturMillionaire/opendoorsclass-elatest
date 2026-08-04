@@ -128,7 +128,8 @@ function TestPage() {
     if (phase !== "running" || !q) return;
     setFadeKey((k) => k + 1);
     if (prevSkillRef.current && prevSkillRef.current !== q.category) {
-      setSectionMessage(pickRandom(SECTION_ENCOURAGEMENTS).fr);
+      const enc = pickRandom(SECTION_ENCOURAGEMENTS);
+      setSectionMessage(locale === "en" ? enc.en : enc.fr);
       const t = setTimeout(() => setSectionMessage(null), 2600);
       prevSkillRef.current = q.category;
       return () => clearTimeout(t);
