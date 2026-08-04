@@ -270,7 +270,10 @@ function TestPage() {
 
   const answeredCount = Object.keys(answers).length;
   const progress = ((current + 1) / questions.length) * 100;
-  const skillLabel = SKILL_LABELS[q.category as Skill]?.fr ?? q.category;
+  const skillLabel =
+    (locale === "en"
+      ? SKILL_LABELS[q.category as Skill]?.en
+      : SKILL_LABELS[q.category as Skill]?.fr) ?? q.category;
 
   return (
     <Shell>
