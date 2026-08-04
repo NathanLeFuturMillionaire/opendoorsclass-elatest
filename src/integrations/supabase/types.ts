@@ -361,46 +361,64 @@ export type Database = {
       }
       questions: {
         Row: {
+          accent: string | null
           audio_url: string | null
           category: Database["public"]["Enums"]["question_category"]
           correct_answer: string
           created_at: string
           id: string
+          image_alt: string | null
+          image_url: string | null
           is_active: boolean
           level: Database["public"]["Enums"]["cecrl_level"]
           max_plays: number
           options: Json
           order_hint: number
           question_text: string
+          question_type: string
+          speech_rate: string | null
           updated_at: string
+          voice_gender: string | null
         }
         Insert: {
+          accent?: string | null
           audio_url?: string | null
           category: Database["public"]["Enums"]["question_category"]
           correct_answer: string
           created_at?: string
           id?: string
+          image_alt?: string | null
+          image_url?: string | null
           is_active?: boolean
           level: Database["public"]["Enums"]["cecrl_level"]
           max_plays?: number
           options: Json
           order_hint?: number
           question_text: string
+          question_type?: string
+          speech_rate?: string | null
           updated_at?: string
+          voice_gender?: string | null
         }
         Update: {
+          accent?: string | null
           audio_url?: string | null
           category?: Database["public"]["Enums"]["question_category"]
           correct_answer?: string
           created_at?: string
           id?: string
+          image_alt?: string | null
+          image_url?: string | null
           is_active?: boolean
           level?: Database["public"]["Enums"]["cecrl_level"]
           max_plays?: number
           options?: Json
           order_hint?: number
           question_text?: string
+          question_type?: string
+          speech_rate?: string | null
           updated_at?: string
+          voice_gender?: string | null
         }
         Relationships: []
       }
@@ -512,6 +530,7 @@ export type Database = {
           id: string
           level_result: Database["public"]["Enums"]["cecrl_level"] | null
           per_category_scores: Json
+          question_ids: string[]
           score: number | null
           skill_scores: Json | null
           started_at: string
@@ -525,6 +544,7 @@ export type Database = {
           id?: string
           level_result?: Database["public"]["Enums"]["cecrl_level"] | null
           per_category_scores?: Json
+          question_ids?: string[]
           score?: number | null
           skill_scores?: Json | null
           started_at?: string
@@ -538,6 +558,7 @@ export type Database = {
           id?: string
           level_result?: Database["public"]["Enums"]["cecrl_level"] | null
           per_category_scores?: Json
+          question_ids?: string[]
           score?: number | null
           skill_scores?: Json | null
           started_at?: string
@@ -792,6 +813,8 @@ export type Database = {
         | "reading"
         | "listening"
         | "speaking"
+        | "writing"
+        | "orthography"
       subscription_plan: "standard" | "premium"
     }
     CompositeTypes: {
@@ -930,6 +953,8 @@ export const Constants = {
         "reading",
         "listening",
         "speaking",
+        "writing",
+        "orthography",
       ],
       subscription_plan: ["standard", "premium"],
     },

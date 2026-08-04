@@ -1,30 +1,102 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { TEST_BLUEPRINT, SKILL_ORDER, LEVEL_ORDER as ENGINE_LEVELS, shuffle } from "@/lib/test-engine";
 
 export type ClientQuestion = {
   id: string;
   level: "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
-  category: "grammar" | "vocabulary" | "reading" | "listening" | "speaking";
+  category:
+    | "grammar"
+    | "vocabulary"
+    | "reading"
+    | "listening"
+    | "speaking"
+    | "writing"
+    | "orthography";
   question_text: string;
   options: string[];
+  question_type: string;
+  image_url: string | null;
+  image_alt: string | null;
   audio_url: string | null;
   max_plays: number;
   order_hint: number;
 };
 
-// Fetch all active questions ordered. Correct answers are stripped.
+// Draw a unique, randomised question set for one attempt.
+// Correct answers are never sent to the client and option order is shuffled
+// for display only, the stored options and correct_answer are untouched.
 export const getTestQuestions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .inputValidator((input: unknown) => z.object({ sessionId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
+    const { data: pool, error } = await supabaseAdmin
       .from("questions")
-      .select("id, level, category, question_text, options, audio_url, max_plays, order_hint")
-      .eq("is_active", true)
-      .order("order_hint", { ascending: true });
+      .select(
+        "id, level, category, question_text, options, question_type, image_url, image_alt, audio_url, max_plays, order_hint",
+      )
+      .eq("is_active", true);
     if (error) throw new Error(error.message);
-    return (data ?? []) as ClientQuestion[];
+
+    // Questions already served to this candidate in previous attempts.
+    const { data: previous } = await supabaseAdmin
+      .from("test_sessions")
+      .select("question_ids")
+      .eq("user_id", context.userId)
+      .neq("id", data.sessionId);
+    const seen = new Set<string>();
+    for (const row of previous ?? []) {
+      for (const id of (row.question_ids as string[] | null) ?? []) seen.add(id);
+    }
+
+    type Row = (typeof pool extends (infer R)[] | null ? R : never);
+    const byCell = new Map<string, Row[]>();
+    for (const q of (pool ?? []) as Row[]) {
+      const key = `${q.level}:${q.category}`;
+      const bucket = byCell.get(key) ?? [];
+      bucket.push(q);
+      byCell.set(key, bucket);
+    }
+
+    const picked: Row[] = [];
+    for (const cell of TEST_BLUEPRINT) {
+      const bucket = byCell.get(`${cell.level}:${cell.skill}`) ?? [];
+      if (!bucket.length) continue;
+      const fresh = shuffle(bucket.filter((q) => !seen.has(q.id)));
+      const reused = shuffle(bucket.filter((q) => seen.has(q.id)));
+      picked.push(...[...fresh, ...reused].slice(0, cell.count));
+    }
+
+    // Order the attempt by rising CEFR level, then by a stable skill order.
+    picked.sort((a, b) => {
+      const l =
+        ENGINE_LEVELS.indexOf(a.level as never) - ENGINE_LEVELS.indexOf(b.level as never);
+      if (l !== 0) return l;
+      return (
+        SKILL_ORDER.indexOf(a.category as never) - SKILL_ORDER.indexOf(b.category as never)
+      );
+    });
+
+    await supabaseAdmin
+      .from("test_sessions")
+      .update({ question_ids: picked.map((q) => q.id) })
+      .eq("id", data.sessionId);
+
+    return picked.map((q) => ({
+      id: q.id,
+      level: q.level,
+      category: q.category,
+      question_text: q.question_text,
+      options: shuffle((q.options as string[]) ?? []),
+      question_type: q.question_type ?? "mcq",
+      image_url: q.image_url ?? null,
+      image_alt: q.image_alt ?? null,
+      audio_url: q.audio_url ?? null,
+      max_plays: q.max_plays,
+      order_hint: q.order_hint,
+    })) as ClientQuestion[];
   });
 
 // Start a new test session (decrements 1 credit atomically).
@@ -73,17 +145,18 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
     // Verify session belongs to user and not already completed.
     const { data: session, error: sErr } = await context.supabase
       .from("test_sessions")
-      .select("id, user_id, completed_at")
+      .select("id, user_id, completed_at, question_ids")
       .eq("id", data.sessionId)
       .maybeSingle();
     if (sErr) throw new Error(sErr.message);
     if (!session) throw new Error("Session introuvable");
     if (session.completed_at) throw new Error("Session déjà terminée");
 
-    const { data: questions, error: qErr } = await supabaseAdmin
-      .from("questions")
-      .select("id, level, category, correct_answer")
-      .eq("is_active", true);
+    // Grade only the questions that were actually served for this attempt.
+    const servedIds = ((session.question_ids as string[] | null) ?? []).filter(Boolean);
+    let query = supabaseAdmin.from("questions").select("id, level, category, correct_answer");
+    query = servedIds.length ? query.in("id", servedIds) : query.eq("is_active", true);
+    const { data: questions, error: qErr } = await query;
     if (qErr) throw new Error(qErr.message);
 
     const perLevel: Record<string, { correct: number; total: number; percent: number }> = {};
@@ -94,8 +167,8 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
     for (const q of questions ?? []) {
       const userAns = data.answers[q.id];
       let isCorrect = false;
-      if (q.category === "speaking") {
-        // Speaking answers are stored as JSON {transcript, score} produced by transcribeAndScoreSpeaking.
+      if (q.category === "speaking" || q.category === "writing") {
+        // Production answers are stored as JSON {transcript|text, score} produced by the AI graders.
         try {
           const parsed = userAns ? JSON.parse(userAns) : null;
           if (parsed && typeof parsed.score === "number" && parsed.score >= 60) isCorrect = true;
@@ -426,4 +499,76 @@ export const transcribeAndScoreSpeaking = createServerFn({ method: "POST" })
       .eq("id", data.sessionId);
 
     return { transcript, score, feedback };
+  });
+const WritingInput = z.object({
+  sessionId: z.string().uuid(),
+  questionId: z.string().uuid(),
+  text: z.string().min(1).max(4000),
+});
+
+// Grade a free written production with AI and store it in the session answers.
+export const scoreWritingAnswer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => WritingInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("Lovable AI non configuré.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: session } = await context.supabase
+      .from("test_sessions")
+      .select("id, completed_at, answers")
+      .eq("id", data.sessionId)
+      .maybeSingle();
+    if (!session) throw new Error("Session introuvable.");
+    if (session.completed_at) throw new Error("Session déjà terminée.");
+
+    const { data: question } = await supabaseAdmin
+      .from("questions")
+      .select("id, question_text, level, category")
+      .eq("id", data.questionId)
+      .maybeSingle();
+    if (!question || question.category !== "writing") throw new Error("Question invalide.");
+
+    let score = 0;
+    let feedback = "";
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "openai/gpt-5.5",
+        reasoning_effort: "none",
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an English CEFR examiner grading a short written production. Return strict JSON with keys: score (integer 0 to 100 based on task fulfilment, grammar, vocabulary range, spelling and coherence), feedback (one short sentence in French, no dashes). Be strict but fair.",
+          },
+          {
+            role: "user",
+            content: `CEFR target level: ${question.level}. Task prompt: ${question.question_text}\n\nCandidate answer:\n"""${data.text}"""`,
+          },
+        ],
+      }),
+    });
+    if (res.ok) {
+      const gj = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+      try {
+        const parsed = JSON.parse(gj.choices?.[0]?.message?.content ?? "{}");
+        score = Math.max(0, Math.min(100, Math.round(Number(parsed.score) || 0)));
+        feedback = typeof parsed.feedback === "string" ? parsed.feedback : "";
+      } catch {
+        score = 0;
+      }
+    }
+
+    const nextAnswers = { ...((session.answers as Record<string, string>) ?? {}) };
+    nextAnswers[data.questionId] = JSON.stringify({ text: data.text, score, feedback });
+    await supabaseAdmin
+      .from("test_sessions")
+      .update({ answers: nextAnswers })
+      .eq("id", data.sessionId);
+
+    return { score, feedback };
   });
