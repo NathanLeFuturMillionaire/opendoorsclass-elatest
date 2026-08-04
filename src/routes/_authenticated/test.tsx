@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Clock, Headphones, Loader2, Mic, MicOff, Play, Square, CheckCircle2, AlertTriangle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
@@ -16,8 +16,17 @@ import {
   startTestSession,
   submitTestAnswers,
   transcribeAndScoreSpeaking,
+  scoreWritingAnswer,
   type ClientQuestion,
 } from "@/lib/test.functions";
+import {
+  TEST_INTROS,
+  SECTION_ENCOURAGEMENTS,
+  SKILL_LABELS,
+  pickRandom,
+  type Skill,
+} from "@/lib/test-engine";
+import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/_authenticated/test")({
   component: TestPage,
@@ -42,11 +51,15 @@ function TestPage() {
   const [loading, setLoading] = useState(false);
   const [seenListeningIntro, setSeenListeningIntro] = useState(false);
   const [seenSpeakingIntro, setSeenSpeakingIntro] = useState(false);
+  const [sectionMessage, setSectionMessage] = useState<string | null>(null);
+  const [fadeKey, setFadeKey] = useState(0);
+  const introText = useMemo(() => pickRandom(TEST_INTROS).fr, []);
 
   const startTest = async () => {
     setLoading(true);
     try {
-      const [qs, session] = await Promise.all([fetchQuestions(), startSession()]);
+      const session = await startSession();
+      const qs = await fetchQuestions({ data: { sessionId: session.sessionId } });
       if (!qs.length) throw new Error("Aucune question disponible pour le moment.");
       setQuestions(qs);
       setSessionId(session.sessionId);
@@ -106,6 +119,30 @@ function TestPage() {
     }
   }, [phase, q, seenListeningIntro, seenSpeakingIntro]);
 
+  // Encouragement between two skills, plus a soft transition on each question.
+  const prevSkillRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (phase !== "running" || !q) return;
+    setFadeKey((k) => k + 1);
+    if (prevSkillRef.current && prevSkillRef.current !== q.category) {
+      setSectionMessage(pickRandom(SECTION_ENCOURAGEMENTS).fr);
+      const t = setTimeout(() => setSectionMessage(null), 2600);
+      prevSkillRef.current = q.category;
+      return () => clearTimeout(t);
+    }
+    prevSkillRef.current = q.category;
+  }, [phase, q?.id]);
+
+  // Preload only the next question resources.
+  useEffect(() => {
+    const next = questions[current + 1];
+    if (!next) return;
+    if (next.image_url) {
+      const img = new Image();
+      img.src = next.image_url;
+    }
+  }, [current, questions]);
+
   const goto = (delta: number) => {
     setCurrent((c) => Math.min(Math.max(0, c + delta), questions.length - 1));
   };
@@ -130,6 +167,7 @@ function TestPage() {
               <p className="font-semibold text-foreground">
                 Bienvenue dans l'évaluation officielle OpenDoorsClass.
               </p>
+              <p className="mt-3 italic text-foreground/80">{introText}</p>
               <p className="mt-3">
                 Afin de garantir l'intégrité de votre résultat, un système de
                 détection des tentatives de fraude est actif pendant toute la durée
@@ -228,6 +266,7 @@ function TestPage() {
 
   const answeredCount = Object.keys(answers).length;
   const progress = ((current + 1) / questions.length) * 100;
+  const skillLabel = SKILL_LABELS[q.category as Skill]?.fr ?? q.category;
 
   return (
     <Shell>
@@ -236,21 +275,55 @@ function TestPage() {
           <div className="flex items-center gap-2">
             <Badge variant="outline">Question {current + 1} / {questions.length}</Badge>
             <Badge className="bg-primary/10 text-primary" variant="secondary">{q.level}</Badge>
-            <Badge variant="secondary" className="capitalize">{q.category}</Badge>
+            <Badge variant="secondary">{skillLabel}</Badge>
           </div>
           <div className="flex items-center gap-2 text-sm font-medium text-foreground">
             <Clock className="size-4" />
             <span>{formatTime(remaining)}</span>
           </div>
         </div>
-        <Progress value={progress} />
+        <div className="space-y-1.5">
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-brand-gradient transition-all duration-500 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="flex justify-between text-[11px] text-muted-foreground">
+            <span>{Math.round(progress)} % du parcours</span>
+            <span>{answeredCount} / {questions.length} répondues</span>
+          </div>
+        </div>
 
-        <Card>
+        {sectionMessage ? (
+          <div className="animate-fade-in rounded-xl border border-primary/25 bg-primary/5 px-4 py-2.5 text-center text-sm font-medium text-primary">
+            {sectionMessage}
+          </div>
+        ) : null}
+
+        <Card key={fadeKey} className="animate-fade-in">
           <CardContent className="p-6 space-y-5">
             {q.audio_url ? <AudioPlayer key={q.id} url={q.audio_url} maxPlays={q.max_plays} /> : null}
+            {q.image_url ? (
+              <img
+                src={q.image_url}
+                alt={q.image_alt ?? "Illustration de la question"}
+                loading="lazy"
+                decoding="async"
+                className="mx-auto max-h-64 w-full rounded-xl border border-border object-contain sm:max-h-80"
+              />
+            ) : null}
             <h2 className="text-lg font-semibold leading-relaxed">{q.question_text}</h2>
             {q.category === "speaking" ? (
               <SpeakingRecorder
+                key={q.id}
+                sessionId={sessionId!}
+                questionId={q.id}
+                existing={answers[q.id]}
+                onScored={(value) => setAnswers((a) => ({ ...a, [q.id]: value }))}
+              />
+            ) : q.category === "writing" ? (
+              <WritingAnswer
                 key={q.id}
                 sessionId={sessionId!}
                 questionId={q.id}
@@ -269,7 +342,7 @@ function TestPage() {
                   <Label
                     key={id}
                     htmlFor={id}
-                    className="flex cursor-pointer items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-muted has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5"
+                    className="flex cursor-pointer items-center gap-3 rounded-lg border border-border p-3 transition-all duration-200 hover:bg-muted active:scale-[0.99] has-[[data-state=checked]]:scale-[1.01] has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5 has-[[data-state=checked]]:shadow-sm"
                   >
                     <RadioGroupItem id={id} value={opt} />
                     <span className="text-sm">{opt}</span>
@@ -285,9 +358,7 @@ function TestPage() {
           <Button variant="outline" onClick={() => goto(-1)} disabled={current === 0}>
             <ArrowLeft className="mr-2 size-4" /> Précédent
           </Button>
-          <span className="text-xs text-muted-foreground">
-            {answeredCount} / {questions.length} répondues
-          </span>
+          <span className="hidden text-xs text-muted-foreground sm:inline">{skillLabel}</span>
           {current < questions.length - 1 ? (
             <Button onClick={() => goto(1)} className="bg-brand-gradient text-primary-foreground">
               Suivant <ArrowRight className="ml-2 size-4" />
@@ -756,5 +827,79 @@ function MicCheck({ onReady }: { onReady: () => void }) {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function WritingAnswer({
+  sessionId,
+  questionId,
+  existing,
+  onScored,
+}: {
+  sessionId: string;
+  questionId: string;
+  existing?: string;
+  onScored: (value: string) => void;
+}) {
+  const scoreFn = useServerFn(scoreWritingAnswer);
+  const parsed = (() => {
+    if (!existing) return null;
+    try {
+      return JSON.parse(existing) as { text: string; score: number; feedback?: string };
+    } catch {
+      return null;
+    }
+  })();
+  const [text, setText] = useState(parsed?.text ?? "");
+  const [saving, setSaving] = useState(false);
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+
+  const submitText = async () => {
+    if (words < 5) {
+      toast.error("Votre réponse est trop courte.");
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await scoreFn({ data: { sessionId, questionId, text } });
+      onScored(JSON.stringify({ text, ...res }));
+      toast.success(`Réponse notée : ${res.score}/100`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur lors de la correction.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <Textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={7}
+        placeholder="Write your answer in English..."
+        className="resize-y"
+      />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span className="text-xs text-muted-foreground">{words} mots</span>
+        <Button type="button" onClick={submitText} disabled={saving} className="bg-brand-gradient text-primary-foreground">
+          {saving ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+          {parsed ? "Corriger à nouveau" : "Valider ma réponse"}
+        </Button>
+      </div>
+      {parsed && !saving ? (
+        <div className="rounded-lg border border-border bg-card p-4 text-sm">
+          <div className="flex items-center justify-between">
+            <span className="font-medium">Note IA : {parsed.score}/100</span>
+            <Badge variant={parsed.score >= 60 ? "secondary" : "outline"}>
+              {parsed.score >= 60 ? "Validé" : "À améliorer"}
+            </Badge>
+          </div>
+          {parsed.feedback ? (
+            <p className="mt-2 text-xs text-muted-foreground">{parsed.feedback}</p>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
   );
 }
