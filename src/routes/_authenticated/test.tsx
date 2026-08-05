@@ -209,6 +209,7 @@ function TestPage() {
             </Button>
           </CardContent>
         </Card>
+        <InsufficientCreditsDialog open={noCreditsOpen} onOpenChange={setNoCreditsOpen} />
       </Shell>
     );
   }
@@ -250,6 +251,10 @@ function TestPage() {
       <Shell>
         <MicCheck
           onReady={() => {
+            setSeenSpeakingIntro(true);
+            setPhase("running");
+          }}
+          onSkip={() => {
             setSeenSpeakingIntro(true);
             setPhase("running");
           }}
@@ -329,6 +334,18 @@ function TestPage() {
                 questionId={q.id}
                 existing={answers[q.id]}
                 onScored={(value) => setAnswers((a) => ({ ...a, [q.id]: value }))}
+                onSkip={() => {
+                  setAnswers((a) => ({
+                    ...a,
+                    [q.id]: JSON.stringify({
+                      transcript: "",
+                      score: 0,
+                      feedback: "Passage ignoré par le candidat.",
+                      skipped: true,
+                    }),
+                  }));
+                  if (current < questions.length - 1) goto(1);
+                }}
               />
             ) : q.category === "writing" ? (
               <WritingAnswer
