@@ -687,6 +687,16 @@ function SpeakingRecorder({
             </Button>
           )}
         </div>
+        {!recording && !processing ? (
+          <div className="mt-3 text-center">
+            <Button type="button" variant="ghost" size="sm" onClick={onSkip}>
+              Ignorer ce passage
+            </Button>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Si vous n'avez pas de microphone, vous pouvez continuer sans cette question.
+            </p>
+          </div>
+        ) : null}
       </div>
 
       {parsed && !recording && !processing && (
