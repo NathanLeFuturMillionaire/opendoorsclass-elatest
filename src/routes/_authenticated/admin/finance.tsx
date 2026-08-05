@@ -506,6 +506,9 @@ function FinancePage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-xs">{r.level ?? "—"}</TableCell>
+                      <TableCell className="max-w-[160px] truncate text-xs text-muted-foreground" title={r.transaction_id ?? ""}>
+                        {r.transaction_id ?? "—"}
+                      </TableCell>
                       <TableCell className="max-w-[160px] truncate text-xs text-muted-foreground" title={r.reference ?? ""}>
                         {r.reference ?? "—"}
                       </TableCell>
