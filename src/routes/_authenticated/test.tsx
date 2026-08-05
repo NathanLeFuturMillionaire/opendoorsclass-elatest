@@ -474,11 +474,13 @@ function SpeakingRecorder({
   questionId,
   existing,
   onScored,
+  onSkip,
 }: {
   sessionId: string;
   questionId: string;
   existing?: string;
   onScored: (value: string) => void;
+  onSkip: () => void;
 }) {
   const scoreFn = useServerFn(transcribeAndScoreSpeaking);
   const [recording, setRecording] = useState(false);
