@@ -862,6 +862,15 @@ function MicCheck({ onReady, onSkip }: { onReady: () => void; onSkip: () => void
             </Button>
           </div>
         )}
+
+        <div className="mt-6 border-t border-border pt-4 text-center">
+          <Button variant="ghost" size="sm" onClick={onSkip}>
+            Ignorer ce passage
+          </Button>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Sans microphone, vous pouvez poursuivre le test sans la section expression orale.
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
