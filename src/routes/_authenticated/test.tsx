@@ -28,6 +28,7 @@ import {
 } from "@/lib/test-engine";
 import { Textarea } from "@/components/ui/textarea";
 import { useI18n } from "@/lib/i18n";
+import { InsufficientCreditsDialog } from "@/components/insufficient-credits-dialog";
 
 export const Route = createFileRoute("/_authenticated/test")({
   component: TestPage,
@@ -55,6 +56,7 @@ function TestPage() {
   const [seenSpeakingIntro, setSeenSpeakingIntro] = useState(false);
   const [sectionMessage, setSectionMessage] = useState<string | null>(null);
   const [fadeKey, setFadeKey] = useState(0);
+  const [noCreditsOpen, setNoCreditsOpen] = useState(false);
   const introVariant = useMemo(() => pickRandom(TEST_INTROS), []);
   const introText = locale === "en" ? introVariant.en : introVariant.fr;
 
@@ -71,8 +73,7 @@ function TestPage() {
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       if (msg.includes("INSUFFICIENT_CREDITS")) {
-        toast.error("Vous n'avez plus de crédits. Redirection vers l'achat.");
-        navigate({ to: "/achat-credits" });
+        setNoCreditsOpen(true);
       } else {
         toast.error(msg);
       }
