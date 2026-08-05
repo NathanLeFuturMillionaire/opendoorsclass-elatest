@@ -463,16 +463,18 @@ function FinancePage() {
                   <TableHead>Email</TableHead>
                   <TableHead>Pays</TableHead>
                   <TableHead className="text-right">Montant</TableHead>
+                  <TableHead className="text-right">Crédits</TableHead>
                   <TableHead>Moyen</TableHead>
                   <TableHead>Statut</TableHead>
                   <TableHead>Niveau</TableHead>
+                  <TableHead>Transaction ID</TableHead>
                   <TableHead>Référence</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredRows.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="py-8 text-center text-sm text-muted-foreground">
+                    <TableCell colSpan={11} className="py-8 text-center text-sm text-muted-foreground">
                       Aucune transaction correspondante.
                     </TableCell>
                   </TableRow>
@@ -491,6 +493,9 @@ function FinancePage() {
                       <TableCell className="text-right tabular-nums">
                         {new Intl.NumberFormat("fr-FR").format(r.amount)} {r.currency}
                       </TableCell>
+                      <TableCell className="text-right tabular-nums text-xs">
+                        +{r.credits_added}
+                      </TableCell>
                       <TableCell className="text-xs capitalize">{r.method}</TableCell>
                       <TableCell>
                         <Badge
@@ -501,6 +506,9 @@ function FinancePage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-xs">{r.level ?? "—"}</TableCell>
+                      <TableCell className="max-w-[160px] truncate text-xs text-muted-foreground" title={r.transaction_id ?? ""}>
+                        {r.transaction_id ?? "—"}
+                      </TableCell>
                       <TableCell className="max-w-[160px] truncate text-xs text-muted-foreground" title={r.reference ?? ""}>
                         {r.reference ?? "—"}
                       </TableCell>

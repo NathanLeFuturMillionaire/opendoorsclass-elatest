@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getSessionResult } from "@/lib/test.functions";
+import { LevelGuidanceCard } from "@/components/level-guidance-card";
 
 export const Route = createFileRoute("/_authenticated/resultat/$id")({
   component: ResultPage,
@@ -532,6 +533,8 @@ function ResultPage() {
             </div>
 
             {/* Recommendation, outside the certificate */}
+            <LevelGuidanceCard level={r.levelResult} />
+
             {r.recommendation ? (
               <div className="mx-auto max-w-3xl rounded-2xl border border-primary/20 bg-primary/5 p-5 text-sm leading-relaxed text-foreground print:hidden">
                 <div className="mb-1 text-xs font-semibold uppercase tracking-widest text-primary">
@@ -560,6 +563,9 @@ function ResultPage() {
               </Button>
               <Button asChild variant="outline">
                 <Link to="/tableau-de-bord">Retour à mon espace</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/achat-credits">Acheter un nouveau crédit</Link>
               </Button>
               <Button asChild variant="secondary">
                 <a href="https://wa.me/24174825725" target="_blank" rel="noreferrer">

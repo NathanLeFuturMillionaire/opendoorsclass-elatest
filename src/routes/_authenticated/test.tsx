@@ -28,6 +28,7 @@ import {
 } from "@/lib/test-engine";
 import { Textarea } from "@/components/ui/textarea";
 import { useI18n } from "@/lib/i18n";
+import { InsufficientCreditsDialog } from "@/components/insufficient-credits-dialog";
 
 export const Route = createFileRoute("/_authenticated/test")({
   component: TestPage,
@@ -55,6 +56,7 @@ function TestPage() {
   const [seenSpeakingIntro, setSeenSpeakingIntro] = useState(false);
   const [sectionMessage, setSectionMessage] = useState<string | null>(null);
   const [fadeKey, setFadeKey] = useState(0);
+  const [noCreditsOpen, setNoCreditsOpen] = useState(false);
   const introVariant = useMemo(() => pickRandom(TEST_INTROS), []);
   const introText = locale === "en" ? introVariant.en : introVariant.fr;
 
@@ -71,8 +73,7 @@ function TestPage() {
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       if (msg.includes("INSUFFICIENT_CREDITS")) {
-        toast.error("Vous n'avez plus de crédits. Redirection vers l'achat.");
-        navigate({ to: "/achat-credits" });
+        setNoCreditsOpen(true);
       } else {
         toast.error(msg);
       }
@@ -208,6 +209,7 @@ function TestPage() {
             </Button>
           </CardContent>
         </Card>
+        <InsufficientCreditsDialog open={noCreditsOpen} onOpenChange={setNoCreditsOpen} />
       </Shell>
     );
   }
@@ -249,6 +251,10 @@ function TestPage() {
       <Shell>
         <MicCheck
           onReady={() => {
+            setSeenSpeakingIntro(true);
+            setPhase("running");
+          }}
+          onSkip={() => {
             setSeenSpeakingIntro(true);
             setPhase("running");
           }}
@@ -328,6 +334,18 @@ function TestPage() {
                 questionId={q.id}
                 existing={answers[q.id]}
                 onScored={(value) => setAnswers((a) => ({ ...a, [q.id]: value }))}
+                onSkip={() => {
+                  setAnswers((a) => ({
+                    ...a,
+                    [q.id]: JSON.stringify({
+                      transcript: "",
+                      score: 0,
+                      feedback: "Passage ignoré par le candidat.",
+                      skipped: true,
+                    }),
+                  }));
+                  if (current < questions.length - 1) goto(1);
+                }}
               />
             ) : q.category === "writing" ? (
               <WritingAnswer
@@ -456,11 +474,13 @@ function SpeakingRecorder({
   questionId,
   existing,
   onScored,
+  onSkip,
 }: {
   sessionId: string;
   questionId: string;
   existing?: string;
   onScored: (value: string) => void;
+  onSkip: () => void;
 }) {
   const scoreFn = useServerFn(transcribeAndScoreSpeaking);
   const [recording, setRecording] = useState(false);
@@ -667,6 +687,16 @@ function SpeakingRecorder({
             </Button>
           )}
         </div>
+        {!recording && !processing ? (
+          <div className="mt-3 text-center">
+            <Button type="button" variant="ghost" size="sm" onClick={onSkip}>
+              Ignorer ce passage
+            </Button>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Si vous n'avez pas de microphone, vous pouvez continuer sans cette question.
+            </p>
+          </div>
+        ) : null}
       </div>
 
       {parsed && !recording && !processing && (
@@ -688,7 +718,7 @@ function SpeakingRecorder({
   );
 }
 
-function MicCheck({ onReady }: { onReady: () => void }) {
+function MicCheck({ onReady, onSkip }: { onReady: () => void; onSkip: () => void }) {
   const [step, setStep] = useState<"prompt" | "granted" | "denied">("prompt");
   const [level, setLevel] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -832,6 +862,15 @@ function MicCheck({ onReady }: { onReady: () => void }) {
             </Button>
           </div>
         )}
+
+        <div className="mt-6 border-t border-border pt-4 text-center">
+          <Button variant="ghost" size="sm" onClick={onSkip}>
+            Ignorer ce passage
+          </Button>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Sans microphone, vous pouvez poursuivre le test sans la section expression orale.
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

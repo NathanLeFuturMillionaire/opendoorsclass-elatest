@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { z } from "zod";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -25,6 +27,7 @@ function PaymentReturnPage() {
   const search = Route.useSearch();
   const paymentId = search.payment_id ?? search.paymentId;
   const check = useServerFn(checkPaymentStatus);
+  const queryClient = useQueryClient();
   const [status, setStatus] = useState<Status>("checking");
   const [credits, setCredits] = useState(0);
 
@@ -45,6 +48,13 @@ function PaymentReturnPage() {
         if (result.status === "success") {
           setStatus("success");
           setCredits(result.credits);
+          toast.success("Paiement confirmé", {
+            description:
+              "Votre paiement a bien été confirmé. 1 crédit a été ajouté à votre compte. Vous pouvez désormais commencer votre test de niveau.",
+            duration: 8000,
+          });
+          void queryClient.invalidateQueries({ queryKey: ["my-profile"] });
+          void queryClient.invalidateQueries({ queryKey: ["test-access"] });
           return;
         }
         if (result.status === "failed" || result.status === "cancelled") {
@@ -65,7 +75,7 @@ function PaymentReturnPage() {
     return () => {
       cancelled = true;
     };
-  }, [paymentId, check]);
+  }, [paymentId, check, queryClient]);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

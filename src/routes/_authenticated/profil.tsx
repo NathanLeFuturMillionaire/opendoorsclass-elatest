@@ -331,13 +331,9 @@ function ProfilePage() {
                       <Wallet className="size-3" /> {profile.credits_remaining}{" "}
                       crédits
                     </Badge>
-                    {profile.plan === "premium" ? (
+                    {profile.plan ? (
                       <Badge className="gap-1 bg-brand-gradient text-primary-foreground">
-                        <Crown className="size-3" /> Offre Premium
-                      </Badge>
-                    ) : profile.plan === "standard" ? (
-                      <Badge variant="secondary" className="gap-1">
-                        Offre Standard
+                        <Crown className="size-3" /> OpenDoorsClass Level Test
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="gap-1 text-muted-foreground">
@@ -359,7 +355,7 @@ function ProfilePage() {
                     <Link to="/test">Passer un test</Link>
                   </Button>
                   <Button asChild variant="outline">
-                    <Link to="/achat-credits">Recharger</Link>
+                    <Link to="/achat-credits">Acheter un nouveau crédit</Link>
                   </Button>
                 </div>
               </div>
