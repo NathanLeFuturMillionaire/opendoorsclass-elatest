@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Check, Crown, Loader2, Sparkles } from "lucide-react";
+import { Check, Loader2, Sparkles } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
@@ -18,12 +18,20 @@ import {
 } from "@/components/ui/select";
 import { listTestOffers, createCheckout, getMyProfile } from "@/lib/payments.functions";
 import { useT, useI18n } from "@/lib/i18n";
-import { computeLocalPrice } from "@/lib/geo-price";
+import {
+  OFFER_CREDITS,
+  OFFER_CTA_EN,
+  OFFER_CTA_FR,
+  OFFER_DESCRIPTION_EN,
+  OFFER_DESCRIPTION_FR,
+  OFFER_FEATURES_EN,
+  OFFER_FEATURES_FR,
+  OFFER_NAME,
+  OFFER_PRICE_USD,
+  OFFER_PRICE_XAF,
+} from "@/lib/offer";
 
 export const Route = createFileRoute("/_authenticated/achat-credits")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    offer: search['offer'] === "premium" ? ("premium" as const) : search['offer'] === "standard" ? ("standard" as const) : undefined,
-  }),
   component: BuyCreditsPage,
 });
 
@@ -33,7 +41,7 @@ function BuyCreditsPage() {
   const fetchOffers = useServerFn(listTestOffers);
   const fetchProfile = useServerFn(getMyProfile);
   const startCheckout = useServerFn(createCheckout);
-  const [loadingCode, setLoadingCode] = useState<"standard" | "premium" | null>(null);
+  const [loading, setLoading] = useState(false);
   const [phone, setPhone] = useState("");
   const [countryCode, setCountryCode] = useState("GA");
   const [firstName, setFirstName] = useState("");
@@ -51,8 +59,13 @@ function BuyCreditsPage() {
   }, [profileData]);
 
   const isFr = locale === "fr";
+  const offer = (offersQuery.data ?? [])[0];
+  const price = offer?.price ?? OFFER_PRICE_XAF;
+  const credits = offer?.credits_included ?? OFFER_CREDITS;
+  const nf = new Intl.NumberFormat(isFr ? "fr-FR" : "en-US");
+  const features = isFr ? OFFER_FEATURES_FR : OFFER_FEATURES_EN;
 
-  const handleBuy = async (offerCode: "standard" | "premium") => {
+  const handleBuy = async () => {
     if (!firstName.trim() || !lastName.trim()) {
       toast.error(t("buy.err.name"));
       return;
@@ -66,12 +79,12 @@ function BuyCreditsPage() {
       );
       return;
     }
-    setLoadingCode(offerCode);
+    setLoading(true);
     try {
       const { checkoutUrl } = await startCheckout({
         data: {
           origin: window.location.origin,
-          offerCode,
+          offerCode: "standard",
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           phone: digits,
@@ -81,49 +94,11 @@ function BuyCreditsPage() {
       window.location.href = checkoutUrl;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t("buy.err.default"));
-      setLoadingCode(null);
+      setLoading(false);
     }
   };
 
-  const credits = profileQuery.data?.credits_remaining ?? 0;
-  const currentPlan = profileQuery.data?.plan ?? null;
-  const offers = offersQuery.data ?? [];
-  const standard = offers.find((o) => o.code === "standard");
-  const premium = offers.find((o) => o.code === "premium");
-
-  const STANDARD_FEATURES = isFr
-    ? [
-        "Accès au test officiel complet (Grammar, Reading, Listening, Speaking, Writing)",
-        "Calcul du score et niveau CECRL (A1 à C2)",
-        "Rapport détaillé avec corrections",
-        "Certificat officiel PDF téléchargeable",
-        "Historique de vos résultats",
-      ]
-    : [
-        "Full official test (Grammar, Reading, Listening, Speaking, Writing)",
-        "Automatic scoring and CEFR level (A1 to C2)",
-        "Detailed report with corrections",
-        "Downloadable official PDF certificate",
-        "Full results history",
-      ];
-
-  const PREMIUM_FEATURES = isFr
-    ? [
-        "Tout le contenu de l'offre Standard",
-        "Analyse approfondie du Speaking et du Writing",
-        "Rapport Premium enrichi avec graphiques détaillés",
-        "Conseils pédagogiques personnalisés par IA",
-        "Plan de progression sur mesure",
-        "Certificat Premium et traitement prioritaire",
-      ]
-    : [
-        "Everything in Standard",
-        "In-depth Speaking and Writing analysis",
-        "Enriched Premium report with detailed charts",
-        "AI-powered personalised guidance",
-        "Tailored progression plan",
-        "Premium certificate and priority processing",
-      ];
+  const myCredits = profileQuery.data?.credits_remaining ?? 0;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -132,29 +107,11 @@ function BuyCreditsPage() {
         <div className="animate-fade-up">
           <p className="text-sm font-medium text-brand-green">{t("buy.badge")}</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-            {isFr ? "Choisissez votre offre" : "Choose your offer"}
+            {offer?.label ?? OFFER_NAME}
           </h1>
           <p className="mt-3 max-w-2xl text-muted-foreground">
-            {isFr
-              ? "Deux formules pour évaluer votre niveau d'anglais et débloquer vos rapports. Vos crédits sont ajoutés automatiquement dès la validation du paiement."
-              : "Two plans to assess your English and unlock your reports. Credits are added automatically once payment is confirmed."}
+            {isFr ? OFFER_DESCRIPTION_FR : OFFER_DESCRIPTION_EN}
           </p>
-          {currentPlan ? (
-            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs">
-              {currentPlan === "premium" ? (
-                <>
-                  <Crown className="size-3.5 text-brand-yellow-foreground" />
-                  <span className="font-semibold">
-                    {isFr ? "Offre actuelle : Diamond" : "Current plan: Diamond"}
-                  </span>
-                </>
-              ) : (
-                <span className="font-semibold">
-                  {isFr ? "Offre actuelle : Starter" : "Current plan: Starter"}
-                </span>
-              )}
-            </div>
-          ) : null}
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
@@ -224,48 +181,65 @@ function BuyCreditsPage() {
               </div>
             </div>
 
-            {offersQuery.isLoading || !standard || !premium ? (
+            {offersQuery.isLoading ? (
               <div className="h-64 animate-shimmer rounded-3xl bg-muted" />
             ) : (
-              <div className="grid gap-6 md:grid-cols-2">
-                <OfferCard
-                  variant="standard"
-                  label={standard.label ?? "Starter"}
-                  price={standard.price}
-                  credits={standard.credits_included}
-                  locale={locale}
-                  features={STANDARD_FEATURES}
-                  loading={loadingCode === "standard"}
-                  disabled={loadingCode !== null}
-                  onBuy={() => handleBuy("standard")}
-                  isFr={isFr}
-                />
-                <OfferCard
-                  variant="premium"
-                  label={premium.label ?? "Diamond"}
-                  price={premium.price}
-                  credits={premium.credits_included}
-                  locale={locale}
-                  features={PREMIUM_FEATURES}
-                  loading={loadingCode === "premium"}
-                  disabled={loadingCode !== null}
-                  onBuy={() => handleBuy("premium")}
-                  isFr={isFr}
-                  recommended
-                />
+              <div className="relative flex flex-col rounded-3xl border border-brand-blue/40 bg-card p-6 shadow-sm ring-2 ring-brand-blue/20 sm:p-8">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="size-5 text-brand-blue" />
+                  <h2 className="text-xl font-bold">{offer?.label ?? OFFER_NAME}</h2>
+                </div>
+                <div className="mt-4">
+                  <div className="text-4xl font-extrabold text-brand-gradient">
+                    {nf.format(price)} FCFA
+                  </div>
+                  <div className="mt-1 text-sm font-semibold text-muted-foreground">
+                    ≈ {OFFER_PRICE_USD} USD
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {isFr
+                      ? `${credits} crédit ajouté à votre compte, soit un test complet`
+                      : `${credits} credit added to your account, one full test`}
+                  </p>
+                </div>
+                <ul className="mt-6 grid gap-2 text-sm sm:grid-cols-2">
+                  {features.map((f) => (
+                    <li key={f} className="flex items-start gap-2">
+                      <Check className="mt-0.5 size-4 shrink-0 text-brand-green" />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  size="lg"
+                  disabled={loading}
+                  onClick={handleBuy}
+                  className="mt-6 w-full bg-brand-gradient text-primary-foreground"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 size-4 animate-spin" />
+                      {isFr ? "Redirection..." : "Redirecting..."}
+                    </>
+                  ) : isFr ? (
+                    OFFER_CTA_FR
+                  ) : (
+                    OFFER_CTA_EN
+                  )}
+                </Button>
               </div>
             )}
           </div>
 
           <aside className="animate-fade-up rounded-3xl border border-dashed border-border bg-card p-6">
             <p className="text-sm text-muted-foreground">{t("buy.credits.avail")}</p>
-            <p className="mt-2 text-4xl font-bold">{credits}</p>
+            <p className="mt-2 text-4xl font-bold">{myCredits}</p>
             <p className="mt-1 text-xs text-muted-foreground">{t("buy.credits.rule")}</p>
             <div className="mt-6 space-y-2 text-sm">
               <Link to="/tableau-de-bord" className="block text-brand-blue underline-offset-4 hover:underline">
                 {t("buy.back.dash")}
               </Link>
-              {credits > 0 && (
+              {myCredits > 0 && (
                 <Link to="/test" className="block text-brand-green underline-offset-4 hover:underline">
                   {t("buy.take.now")}
                 </Link>
@@ -280,93 +254,6 @@ function BuyCreditsPage() {
         </div>
       </main>
       <SiteFooter />
-    </div>
-  );
-}
-
-function OfferCard(props: {
-  variant: "standard" | "premium";
-  label: string;
-  price: number;
-  credits: number;
-  locale: "fr" | "en";
-  features: string[];
-  loading: boolean;
-  disabled: boolean;
-  onBuy: () => void;
-  isFr: boolean;
-  recommended?: boolean;
-}) {
-  const local = computeLocalPrice(props.price, props.locale);
-  const nf = new Intl.NumberFormat(props.locale === "fr" ? "fr-FR" : "en-US");
-  const isPremium = props.variant === "premium";
-  return (
-    <div
-      className={`relative flex flex-col rounded-3xl border p-6 shadow-sm transition-transform hover:-translate-y-0.5 ${
-        isPremium
-          ? "border-transparent bg-brand-gradient text-primary-foreground"
-          : "border-border bg-card"
-      }`}
-    >
-      {props.recommended ? (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-yellow px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-yellow-foreground shadow">
-          {props.isFr ? "Recommandé" : "Recommended"}
-        </div>
-      ) : null}
-      <div className="flex items-center gap-2">
-        {isPremium ? <Crown className="size-5" /> : <Sparkles className="size-5 text-brand-blue" />}
-        <h3 className="text-xl font-bold">{props.label}</h3>
-      </div>
-      <div className="mt-4">
-        <div className={`text-4xl font-extrabold ${isPremium ? "" : "text-brand-gradient"}`}>
-          {nf.format(props.price)} FCFA
-        </div>
-        {local && local.currency !== "XAF" ? (
-          <div className={`mt-1 text-sm font-semibold ${isPremium ? "opacity-90" : "text-muted-foreground"}`}>
-            ≈{" "}
-            {new Intl.NumberFormat(props.locale === "fr" ? "fr-FR" : "en-US", {
-              style: "currency",
-              currency: local.currency,
-              maximumFractionDigits:
-                local.currency === "JPY" || local.currency === "NGN" ? 0 : 2,
-            }).format(local.amount)}
-          </div>
-        ) : null}
-        <p className={`mt-2 text-xs ${isPremium ? "opacity-90" : "text-muted-foreground"}`}>
-          {props.isFr
-            ? `${props.credits} crédits ajoutés à votre compte`
-            : `${props.credits} credits added to your account`}
-        </p>
-      </div>
-      <ul className="mt-6 space-y-2 text-sm">
-        {props.features.map((f) => (
-          <li key={f} className="flex items-start gap-2">
-            <Check className={`mt-0.5 size-4 shrink-0 ${isPremium ? "opacity-90" : "text-brand-green"}`} />
-            <span>{f}</span>
-          </li>
-        ))}
-      </ul>
-      <Button
-        size="lg"
-        disabled={props.disabled}
-        onClick={props.onBuy}
-        className={`mt-6 w-full ${
-          isPremium
-            ? "bg-background text-foreground hover:bg-background/90"
-            : "bg-brand-gradient text-primary-foreground"
-        }`}
-      >
-        {props.loading ? (
-          <>
-            <Loader2 className="mr-2 size-4 animate-spin" />
-            {props.isFr ? "Redirection..." : "Redirecting..."}
-          </>
-        ) : props.isFr ? (
-          `Choisir ${props.label}`
-        ) : (
-          `Choose ${props.label}`
-        )}
-      </Button>
     </div>
   );
 }
