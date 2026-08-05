@@ -708,7 +708,7 @@ function SpeakingRecorder({
   );
 }
 
-function MicCheck({ onReady }: { onReady: () => void }) {
+function MicCheck({ onReady, onSkip }: { onReady: () => void; onSkip: () => void }) {
   const [step, setStep] = useState<"prompt" | "granted" | "denied">("prompt");
   const [level, setLevel] = useState(0);
   const [error, setError] = useState<string | null>(null);
