@@ -58,6 +58,7 @@ import { getMyGamification } from "@/lib/gamification.functions";
 import { LevelProgressCard } from "@/components/gamification/level-progress-card";
 import { BadgeGrid } from "@/components/gamification/badge-grid";
 import { XpBadge } from "@/components/gamification/xp-badge";
+import { MyClubCard } from "@/components/my-club-card";
 import { Link as RLink } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/profil")({
@@ -519,6 +520,12 @@ function ProfilePage() {
               transition={{ duration: 0.4, delay: 0.2 }}
               className="mt-6"
             >
+              <div className="mb-6">
+                <MyClubCard
+                  level={profile.bestLevel}
+                  lastTestDate={fmtDate(profile.recentSessions?.[0]?.completed_at)}
+                />
+              </div>
               <Card>
                 <CardContent className="p-6">
                   <div className="mb-4 flex items-center gap-2">
