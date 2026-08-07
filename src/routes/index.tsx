@@ -26,6 +26,7 @@ import { useT } from "@/lib/i18n";
 import { WorldReachSection } from "@/components/world-reach-section";
 import { CommunityLeaderboardSection } from "@/components/community-leaderboard-section";
 import { HomePricingSection } from "@/components/home-pricing-section";
+import { ClubsSection } from "@/components/clubs-section";
 import { CertifiedLearnersCard } from "@/components/certified-learners-card";
 
 export const Route = createFileRoute("/")({
@@ -204,6 +205,8 @@ function HomePage() {
         <CommunityLeaderboardSection />
 
         <HomePricingSection />
+
+        <ClubsSection />
 
         {/* Comment ça marche */}
         <section id="comment" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
