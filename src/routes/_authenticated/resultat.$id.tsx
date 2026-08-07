@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getSessionResult } from "@/lib/test.functions";
 import { LevelGuidanceCard } from "@/components/level-guidance-card";
+import { ClubRecommendationCard } from "@/components/club-recommendation-card";
 
 export const Route = createFileRoute("/_authenticated/resultat/$id")({
   component: ResultPage,
@@ -533,6 +534,8 @@ function ResultPage() {
             </div>
 
             {/* Recommendation, outside the certificate */}
+            <ClubRecommendationCard level={r.levelResult} />
+
             <LevelGuidanceCard level={r.levelResult} />
 
             {r.recommendation ? (
