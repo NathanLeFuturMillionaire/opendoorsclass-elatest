@@ -408,7 +408,7 @@ export const getFinanceOverview = createServerFn({ method: "GET" })
 
     const { data: payments, error } = await supabaseAdmin
       .from("payments")
-      .select("id, user_id, amount, currency, credits_added, status, payment_method, provider, moneroo_reference, moneroo_transaction_id, chariow_sale_id, created_at, confirmed_at")
+      .select("id, user_id, amount, currency, credits_added, offer_code, status, payment_method, provider, moneroo_reference, moneroo_transaction_id, chariow_sale_id, phone, phone_country, created_at, confirmed_at")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
 
@@ -418,7 +418,7 @@ export const getFinanceOverview = createServerFn({ method: "GET" })
     const userIds = Array.from(new Set(list.map((p: any) => p.user_id)));
     const { data: profs } = await supabaseAdmin
       .from("profiles")
-      .select("id, first_name, last_name, nationality, candidate_number")
+      .select("id, first_name, last_name, nationality, country, candidate_number, phone, phone_country")
       .in("id", userIds.length ? userIds : ["00000000-0000-0000-0000-000000000000"]);
     const { data: users } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
     const emailMap = new Map((users?.users ?? []).map((u: any) => [u.id, u.email]));
@@ -517,10 +517,13 @@ export const getFinanceOverview = createServerFn({ method: "GET" })
         last_name: prof?.last_name ?? null,
         email: emailMap.get(p.user_id) ?? null,
         candidate_number: prof?.candidate_number ?? null,
-        country: prof?.nationality ?? null,
+        country: prof?.nationality ?? prof?.country ?? null,
+        phone: p.phone ?? prof?.phone ?? null,
+        phone_country: p.phone_country ?? prof?.phone_country ?? null,
         amount: p.amount,
         currency: p.currency,
         credits_added: p.credits_added,
+        offer_code: p.offer_code ?? null,
         method: p.payment_method ?? p.provider ?? "chariow",
         status: p.status,
         reference: p.moneroo_reference,
