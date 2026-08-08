@@ -21,7 +21,14 @@ import {
 import {
   Wallet, TrendingUp, CalendarDays, CalendarRange, CalendarCheck2, Trophy,
   Users, Percent, Download, Search, ShieldAlert, ArrowUpRight,
+  MessageCircle,
 } from "lucide-react";
+import {
+  PaymentFollowUpDialog,
+  productLabel,
+  type FollowUpPayment,
+} from "@/components/admin/payment-followup-dialog";
+import { toInternational } from "@/lib/phone-countries";
 
 export const Route = createFileRoute("/_authenticated/admin/finance")({
   component: FinancePage,
@@ -69,6 +76,8 @@ type PaymentRow = {
   email: string | null;
   candidate_number: string | null;
   country: string | null;
+  phone: string | null;
+  phone_country: string | null;
   amount: number;
   currency: string;
   credits_added: number;
@@ -77,7 +86,18 @@ type PaymentRow = {
   reference: string | null;
   transaction_id: string | null;
   level: string | null;
+  offer_code: string | null;
 };
+
+const UNPAID_STATUSES = new Set([
+  "failed",
+  "cancelled",
+  "canceled",
+  "expired",
+  "abandoned",
+  "payment_failed",
+  "pending",
+]);
 
 function FinancePage() {
   const ctxFn = useServerFn(getAdminContext);
@@ -94,6 +114,7 @@ function FinancePage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [datePreset, setDatePreset] = useState<string>("all");
+  const [followUp, setFollowUp] = useState<FollowUpPayment | null>(null);
 
   const d = q.data;
   const chartData = useMemo(() => {
@@ -150,11 +171,12 @@ function FinancePage() {
   if (q.isLoading || !d) return <div className="text-muted-foreground">Chargement des données financières...</div>;
 
   const exportCSV = () => {
-    const headers = ["Date", "Nom", "Prénom", "Email", "Pays", "Montant", "Devise", "Moyen", "Statut", "Référence", "Transaction", "Niveau"];
+    const headers = ["Date", "Nom", "Prénom", "Email", "Téléphone", "Pays", "Montant", "Devise", "Moyen", "Statut", "Référence", "Transaction", "Niveau"];
     const lines = [headers.join(",")];
     for (const r of filteredRows) {
       const vals = [
-        r.created_at, r.last_name ?? "", r.first_name ?? "", r.email ?? "", r.country ?? "",
+        r.created_at, r.last_name ?? "", r.first_name ?? "", r.email ?? "",
+        r.phone ? toInternational(r.phone_country ?? "", r.phone) : "", r.country ?? "",
         r.amount, r.currency, r.method, r.status, r.reference ?? "", r.transaction_id ?? "", r.level ?? "",
       ].map((v) => `"${String(v).replace(/"/g, '""')}"`);
       lines.push(vals.join(","));
