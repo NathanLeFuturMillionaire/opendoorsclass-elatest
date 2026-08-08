@@ -69,7 +69,12 @@ export const createCheckout = createServerFn({ method: "POST" })
 
     await context.supabase
       .from("profiles")
-      .update({ first_name: data.firstName, last_name: data.lastName })
+      .update({
+        first_name: data.firstName,
+        last_name: data.lastName,
+        phone: data.phone,
+        phone_country: data.countryCode,
+      })
       .eq("id", context.userId);
 
     const reference = `odc-${context.userId.slice(0, 8)}-${Date.now()}`;
@@ -83,6 +88,8 @@ export const createCheckout = createServerFn({ method: "POST" })
         credits_added: offer.credits_included,
         offer_code: offer.code,
         moneroo_reference: reference,
+        phone: data.phone,
+        phone_country: data.countryCode,
         status: "pending",
       })
       .select("id")
@@ -239,7 +246,9 @@ export const getMyProfile = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("profiles")
-      .select("id, first_name, last_name, credits_remaining, avatar_url, plan, plan_activated_at")
+      .select(
+        "id, first_name, last_name, credits_remaining, avatar_url, plan, plan_activated_at, phone, phone_country",
+      )
       .eq("id", context.userId)
       .maybeSingle();
     if (error) throw new Error(error.message);
