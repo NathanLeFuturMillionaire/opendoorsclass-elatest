@@ -195,6 +195,8 @@ export type Database = {
           moneroo_transaction_id: string | null
           offer_code: string | null
           payment_method: string | null
+          phone: string | null
+          phone_country: string | null
           provider: string
           raw_payload: Json | null
           status: Database["public"]["Enums"]["payment_status"]
@@ -212,6 +214,8 @@ export type Database = {
           moneroo_transaction_id?: string | null
           offer_code?: string | null
           payment_method?: string | null
+          phone?: string | null
+          phone_country?: string | null
           provider?: string
           raw_payload?: Json | null
           status?: Database["public"]["Enums"]["payment_status"]
@@ -229,6 +233,8 @@ export type Database = {
           moneroo_transaction_id?: string | null
           offer_code?: string | null
           payment_method?: string | null
+          phone?: string | null
+          phone_country?: string | null
           provider?: string
           raw_payload?: Json | null
           status?: Database["public"]["Enums"]["payment_status"]
@@ -298,6 +304,8 @@ export type Database = {
           objective_text: string | null
           objectives: string[]
           onboarding_completed: boolean
+          phone: string | null
+          phone_country: string | null
           plan: Database["public"]["Enums"]["subscription_plan"] | null
           plan_activated_at: string | null
           profession: string | null
@@ -324,6 +332,8 @@ export type Database = {
           objective_text?: string | null
           objectives?: string[]
           onboarding_completed?: boolean
+          phone?: string | null
+          phone_country?: string | null
           plan?: Database["public"]["Enums"]["subscription_plan"] | null
           plan_activated_at?: string | null
           profession?: string | null
@@ -350,6 +360,8 @@ export type Database = {
           objective_text?: string | null
           objectives?: string[]
           onboarding_completed?: boolean
+          phone?: string | null
+          phone_country?: string | null
           plan?: Database["public"]["Enums"]["subscription_plan"] | null
           plan_activated_at?: string | null
           profession?: string | null
