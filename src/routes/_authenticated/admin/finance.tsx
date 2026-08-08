@@ -21,7 +21,14 @@ import {
 import {
   Wallet, TrendingUp, CalendarDays, CalendarRange, CalendarCheck2, Trophy,
   Users, Percent, Download, Search, ShieldAlert, ArrowUpRight,
+  MessageCircle,
 } from "lucide-react";
+import {
+  PaymentFollowUpDialog,
+  productLabel,
+  type FollowUpPayment,
+} from "@/components/admin/payment-followup-dialog";
+import { toInternational } from "@/lib/phone-countries";
 
 export const Route = createFileRoute("/_authenticated/admin/finance")({
   component: FinancePage,
@@ -69,6 +76,8 @@ type PaymentRow = {
   email: string | null;
   candidate_number: string | null;
   country: string | null;
+  phone: string | null;
+  phone_country: string | null;
   amount: number;
   currency: string;
   credits_added: number;
@@ -77,7 +86,18 @@ type PaymentRow = {
   reference: string | null;
   transaction_id: string | null;
   level: string | null;
+  offer_code: string | null;
 };
+
+const UNPAID_STATUSES = new Set([
+  "failed",
+  "cancelled",
+  "canceled",
+  "expired",
+  "abandoned",
+  "payment_failed",
+  "pending",
+]);
 
 function FinancePage() {
   const ctxFn = useServerFn(getAdminContext);
@@ -94,6 +114,7 @@ function FinancePage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [datePreset, setDatePreset] = useState<string>("all");
+  const [followUp, setFollowUp] = useState<FollowUpPayment | null>(null);
 
   const d = q.data;
   const chartData = useMemo(() => {
@@ -150,11 +171,12 @@ function FinancePage() {
   if (q.isLoading || !d) return <div className="text-muted-foreground">Chargement des données financières...</div>;
 
   const exportCSV = () => {
-    const headers = ["Date", "Nom", "Prénom", "Email", "Pays", "Montant", "Devise", "Moyen", "Statut", "Référence", "Transaction", "Niveau"];
+    const headers = ["Date", "Nom", "Prénom", "Email", "Téléphone", "Pays", "Montant", "Devise", "Moyen", "Statut", "Référence", "Transaction", "Niveau"];
     const lines = [headers.join(",")];
     for (const r of filteredRows) {
       const vals = [
-        r.created_at, r.last_name ?? "", r.first_name ?? "", r.email ?? "", r.country ?? "",
+        r.created_at, r.last_name ?? "", r.first_name ?? "", r.email ?? "",
+        r.phone ? toInternational(r.phone_country ?? "", r.phone) : "", r.country ?? "",
         r.amount, r.currency, r.method, r.status, r.reference ?? "", r.transaction_id ?? "", r.level ?? "",
       ].map((v) => `"${String(v).replace(/"/g, '""')}"`);
       lines.push(vals.join(","));
@@ -461,20 +483,23 @@ function FinancePage() {
                   <TableHead>Date</TableHead>
                   <TableHead>Candidat</TableHead>
                   <TableHead>Email</TableHead>
+                  <TableHead>Téléphone</TableHead>
                   <TableHead>Pays</TableHead>
                   <TableHead className="text-right">Montant</TableHead>
                   <TableHead className="text-right">Crédits</TableHead>
+                  <TableHead>Produit</TableHead>
                   <TableHead>Moyen</TableHead>
                   <TableHead>Statut</TableHead>
                   <TableHead>Niveau</TableHead>
                   <TableHead>Transaction ID</TableHead>
                   <TableHead>Référence</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredRows.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={11} className="py-8 text-center text-sm text-muted-foreground">
+                    <TableCell colSpan={14} className="py-8 text-center text-sm text-muted-foreground">
                       Aucune transaction correspondante.
                     </TableCell>
                   </TableRow>
@@ -489,12 +514,18 @@ function FinancePage() {
                         )}
                       </TableCell>
                       <TableCell className="text-xs">{r.email ?? "—"}</TableCell>
+                      <TableCell className="whitespace-nowrap text-xs tabular-nums">
+                        {r.phone ? toInternational(r.phone_country ?? "", r.phone) : "—"}
+                      </TableCell>
                       <TableCell className="text-xs">{r.country ?? "—"}</TableCell>
                       <TableCell className="text-right tabular-nums">
                         {new Intl.NumberFormat("fr-FR").format(r.amount)} {r.currency}
                       </TableCell>
                       <TableCell className="text-right tabular-nums text-xs">
                         +{r.credits_added}
+                      </TableCell>
+                      <TableCell className="max-w-[180px] truncate text-xs">
+                        {productLabel(r.offer_code, r.credits_added)}
                       </TableCell>
                       <TableCell className="text-xs capitalize">{r.method}</TableCell>
                       <TableCell>
@@ -511,6 +542,35 @@ function FinancePage() {
                       </TableCell>
                       <TableCell className="max-w-[160px] truncate text-xs text-muted-foreground" title={r.reference ?? ""}>
                         {r.reference ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {UNPAID_STATUSES.has(r.status) ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="whitespace-nowrap"
+                            onClick={() =>
+                              setFollowUp({
+                                id: r.id,
+                                first_name: r.first_name,
+                                last_name: r.last_name,
+                                phone: r.phone,
+                                phone_country: r.phone_country,
+                                amount: r.amount,
+                                currency: r.currency,
+                                credits_added: r.credits_added,
+                                status: r.status,
+                                offer_code: r.offer_code,
+                                created_at: r.created_at,
+                              })
+                            }
+                          >
+                            <MessageCircle className="mr-1.5 size-3.5" />
+                            Relancer
+                          </Button>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))
@@ -530,6 +590,14 @@ function FinancePage() {
         <ArrowUpRight className="size-3" />
         Données actualisées automatiquement toutes les 30 secondes.
       </div>
+
+      <PaymentFollowUpDialog
+        payment={followUp}
+        open={followUp !== null}
+        onOpenChange={(v) => {
+          if (!v) setFollowUp(null);
+        }}
+      />
     </div>
   );
 }

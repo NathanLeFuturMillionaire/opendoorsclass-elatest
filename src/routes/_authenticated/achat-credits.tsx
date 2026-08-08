@@ -9,13 +9,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { PhoneCountrySelect } from "@/components/phone-country-select";
+import { phoneCountryByCode, toInternational } from "@/lib/phone-countries";
 import { listTestOffers, createCheckout, getMyProfile } from "@/lib/payments.functions";
 import { useT, useI18n } from "@/lib/i18n";
 import {
@@ -55,6 +50,9 @@ function BuyCreditsPage() {
     if (profileData) {
       if (profileData.first_name) setFirstName((v) => v || profileData.first_name!);
       if (profileData.last_name) setLastName((v) => v || profileData.last_name!);
+      const p = profileData as { phone?: string | null; phone_country?: string | null };
+      if (p.phone) setPhone((v) => v || p.phone!);
+      if (p.phone_country) setCountryCode(p.phone_country!);
     }
   }, [profileData]);
 
@@ -144,27 +142,24 @@ function BuyCreditsPage() {
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-[140px_1fr] gap-3">
+                <div className="grid gap-3 sm:grid-cols-[200px_1fr]">
                   <div>
                     <Label htmlFor="country" className="text-xs">{t("buy.country")}</Label>
-                    <Select value={countryCode} onValueChange={setCountryCode}>
-                      <SelectTrigger id="country" className="mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="GA">Gabon (+241)</SelectItem>
-                        <SelectItem value="CM">Cameroun (+237)</SelectItem>
-                        <SelectItem value="CI">Côte d'Ivoire (+225)</SelectItem>
-                        <SelectItem value="SN">Sénégal (+221)</SelectItem>
-                        <SelectItem value="CD">RD Congo (+243)</SelectItem>
-                        <SelectItem value="CG">Congo (+242)</SelectItem>
-                        <SelectItem value="BJ">Bénin (+229)</SelectItem>
-                        <SelectItem value="TG">Togo (+228)</SelectItem>
-                        <SelectItem value="BF">Burkina Faso (+226)</SelectItem>
-                        <SelectItem value="ML">Mali (+223)</SelectItem>
-                        <SelectItem value="FR">France (+33)</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <PhoneCountrySelect
+                      id="country"
+                      className="mt-1"
+                      value={countryCode}
+                      onChange={setCountryCode}
+                      locale={isFr ? "fr" : "en"}
+                    />
+                    {phoneCountryByCode(countryCode) ? (
+                      <p className="mt-1 truncate text-[11px] text-muted-foreground">
+                        {phoneCountryByCode(countryCode)!.flag}{" "}
+                        {isFr
+                          ? phoneCountryByCode(countryCode)!.fr
+                          : phoneCountryByCode(countryCode)!.en}
+                      </p>
+                    ) : null}
                   </div>
                   <div>
                     <Label htmlFor="phone" className="text-xs">{t("buy.phone")}</Label>
@@ -176,6 +171,12 @@ function BuyCreditsPage() {
                       onChange={(e) => setPhone(e.target.value)}
                       className="mt-1"
                     />
+                    {phone.replace(/\D/g, "") ? (
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        {isFr ? "Format international" : "International format"} :{" "}
+                        <span className="font-medium">{toInternational(countryCode, phone)}</span>
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               </div>

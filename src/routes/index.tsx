@@ -28,6 +28,7 @@ import { CommunityLeaderboardSection } from "@/components/community-leaderboard-
 import { HomePricingSection } from "@/components/home-pricing-section";
 import { ClubsSection } from "@/components/clubs-section";
 import { CertifiedLearnersCard } from "@/components/certified-learners-card";
+import { VideoTestimonial } from "@/components/video-testimonial";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -381,6 +382,7 @@ function TestimonialsSection() {
         <h2 className="text-3xl font-bold sm:text-4xl">{t("tm.title")}</h2>
         <p className="mt-3 text-muted-foreground">{t("tm.desc")}</p>
       </div>
+      <VideoTestimonial />
       <div
         ref={scrollerRef}
         className="mt-10 flex gap-5 overflow-x-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]"
