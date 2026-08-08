@@ -483,20 +483,23 @@ function FinancePage() {
                   <TableHead>Date</TableHead>
                   <TableHead>Candidat</TableHead>
                   <TableHead>Email</TableHead>
+                  <TableHead>Téléphone</TableHead>
                   <TableHead>Pays</TableHead>
                   <TableHead className="text-right">Montant</TableHead>
                   <TableHead className="text-right">Crédits</TableHead>
+                  <TableHead>Produit</TableHead>
                   <TableHead>Moyen</TableHead>
                   <TableHead>Statut</TableHead>
                   <TableHead>Niveau</TableHead>
                   <TableHead>Transaction ID</TableHead>
                   <TableHead>Référence</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredRows.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={11} className="py-8 text-center text-sm text-muted-foreground">
+                    <TableCell colSpan={14} className="py-8 text-center text-sm text-muted-foreground">
                       Aucune transaction correspondante.
                     </TableCell>
                   </TableRow>
@@ -511,12 +514,18 @@ function FinancePage() {
                         )}
                       </TableCell>
                       <TableCell className="text-xs">{r.email ?? "—"}</TableCell>
+                      <TableCell className="whitespace-nowrap text-xs tabular-nums">
+                        {r.phone ? toInternational(r.phone_country ?? "", r.phone) : "—"}
+                      </TableCell>
                       <TableCell className="text-xs">{r.country ?? "—"}</TableCell>
                       <TableCell className="text-right tabular-nums">
                         {new Intl.NumberFormat("fr-FR").format(r.amount)} {r.currency}
                       </TableCell>
                       <TableCell className="text-right tabular-nums text-xs">
                         +{r.credits_added}
+                      </TableCell>
+                      <TableCell className="max-w-[180px] truncate text-xs">
+                        {productLabel(r.offer_code, r.credits_added)}
                       </TableCell>
                       <TableCell className="text-xs capitalize">{r.method}</TableCell>
                       <TableCell>
@@ -533,6 +542,35 @@ function FinancePage() {
                       </TableCell>
                       <TableCell className="max-w-[160px] truncate text-xs text-muted-foreground" title={r.reference ?? ""}>
                         {r.reference ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {UNPAID_STATUSES.has(r.status) ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="whitespace-nowrap"
+                            onClick={() =>
+                              setFollowUp({
+                                id: r.id,
+                                first_name: r.first_name,
+                                last_name: r.last_name,
+                                phone: r.phone,
+                                phone_country: r.phone_country,
+                                amount: r.amount,
+                                currency: r.currency,
+                                credits_added: r.credits_added,
+                                status: r.status,
+                                offer_code: r.offer_code,
+                                created_at: r.created_at,
+                              })
+                            }
+                          >
+                            <MessageCircle className="mr-1.5 size-3.5" />
+                            Relancer
+                          </Button>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))
@@ -552,6 +590,14 @@ function FinancePage() {
         <ArrowUpRight className="size-3" />
         Données actualisées automatiquement toutes les 30 secondes.
       </div>
+
+      <PaymentFollowUpDialog
+        payment={followUp}
+        open={followUp !== null}
+        onOpenChange={(v) => {
+          if (!v) setFollowUp(null);
+        }}
+      />
     </div>
   );
 }
