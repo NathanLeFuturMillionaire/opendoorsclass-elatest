@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LeaderboardsRouteImport } from './routes/leaderboards'
 import { Route as CertifiesRouteImport } from './routes/certifies'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -35,6 +36,11 @@ import { Route as AuthenticatedAdminCandidatsRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminAvisRouteImport } from './routes/_authenticated/admin/avis'
 import { Route as ApiPublicChariowWebhookSecretRouteImport } from './routes/api/public/chariow-webhook.$secret'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeaderboardsRoute = LeaderboardsRouteImport.update({
   id: '/leaderboards',
   path: '/leaderboards',
@@ -177,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/certifies': typeof CertifiesRoute
   '/leaderboards': typeof LeaderboardsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
@@ -203,6 +210,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/certifies': typeof CertifiesRoute
   '/leaderboards': typeof LeaderboardsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
   '/classement': typeof AuthenticatedClassementRoute
@@ -230,6 +238,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/certifies': typeof CertifiesRoute
   '/leaderboards': typeof LeaderboardsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/_authenticated/achat-credits': typeof AuthenticatedAchatCreditsRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/certifies'
     | '/leaderboards'
+    | '/reset-password'
     | '/admin'
     | '/accomplissements'
     | '/achat-credits'
@@ -284,6 +294,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/certifies'
     | '/leaderboards'
+    | '/reset-password'
     | '/accomplissements'
     | '/achat-credits'
     | '/classement'
@@ -310,6 +321,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/certifies'
     | '/leaderboards'
+    | '/reset-password'
     | '/_authenticated/admin'
     | '/_authenticated/accomplissements'
     | '/_authenticated/achat-credits'
@@ -338,12 +350,20 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CertifiesRoute: typeof CertifiesRoute
   LeaderboardsRoute: typeof LeaderboardsRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ProfileIdRoute: typeof ProfileIdRoute
   ApiPublicChariowWebhookSecretRoute: typeof ApiPublicChariowWebhookSecretRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/leaderboards': {
       id: '/leaderboards'
       path: '/leaderboards'
@@ -585,6 +605,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CertifiesRoute: CertifiesRoute,
   LeaderboardsRoute: LeaderboardsRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ProfileIdRoute: ProfileIdRoute,
   ApiPublicChariowWebhookSecretRoute: ApiPublicChariowWebhookSecretRoute,
 }
