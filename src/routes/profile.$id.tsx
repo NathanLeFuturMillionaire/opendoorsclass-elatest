@@ -100,7 +100,7 @@ function Stat({
 }
 
 function PublicProfilePage() {
-  const profile = Route.useLoaderData();
+  const profile = Route.useLoaderData() as PublicProfile | null;
   const { locale } = useI18n();
   const en = locale === "en";
 

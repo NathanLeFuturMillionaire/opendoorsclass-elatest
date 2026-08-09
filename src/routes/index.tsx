@@ -29,6 +29,10 @@ import { HomePricingSection } from "@/components/home-pricing-section";
 import { ClubsSection } from "@/components/clubs-section";
 import { CertifiedLearnersCard } from "@/components/certified-learners-card";
 import { VideoTestimonial } from "@/components/video-testimonial";
+import raichaVideo from "@/assets/testimonial-raicha.mp4.asset.json";
+import raichaPoster from "@/assets/testimonial-raicha-poster.jpg.asset.json";
+import oumarVideo from "@/assets/testimonial-oumar.mp4.asset.json";
+import oumarPoster from "@/assets/testimonial-oumar-poster.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
