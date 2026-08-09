@@ -3,14 +3,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Check, Loader2, Sparkles } from "lucide-react";
+import { Check, Loader2, MessageCircle, Sparkles } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PhoneCountrySelect } from "@/components/phone-country-select";
-import { phoneCountryByCode, toInternational } from "@/lib/phone-countries";
+import { phoneCountryByCode, toE164 } from "@/lib/phone-countries";
 import { listTestOffers, createCheckout, getMyProfile } from "@/lib/payments.functions";
 import { useT, useI18n } from "@/lib/i18n";
 import {
@@ -63,20 +63,22 @@ function BuyCreditsPage() {
   const nf = new Intl.NumberFormat(isFr ? "fr-FR" : "en-US");
   const features = isFr ? OFFER_FEATURES_FR : OFFER_FEATURES_EN;
 
+  const e164 = toE164(countryCode, phone);
+
   const handleBuy = async () => {
     if (!firstName.trim() || !lastName.trim()) {
       toast.error(t("buy.err.name"));
       return;
     }
-    const digits = phone.replace(/\D/g, "").replace(/^0+/, "");
-    if (digits.length < 6) {
+    if (!e164) {
       toast.error(
         isFr
-          ? "Veuillez saisir un numéro de téléphone valide."
-          : "Please enter a valid phone number."
+          ? "Numéro WhatsApp invalide pour le pays sélectionné. Vérifiez l'indicatif et le numéro."
+          : "Invalid WhatsApp number for the selected country. Check the dial code and the number.",
       );
       return;
     }
+    const digits = e164.replace("+", "");
     setLoading(true);
     try {
       const { checkoutUrl } = await startCheckout({
@@ -172,11 +174,32 @@ function BuyCreditsPage() {
                       className="mt-1"
                     />
                     {phone.replace(/\D/g, "") ? (
-                      <p className="mt-1 text-[11px] text-muted-foreground">
-                        {isFr ? "Format international" : "International format"} :{" "}
-                        <span className="font-medium">{toInternational(countryCode, phone)}</span>
-                      </p>
+                      e164 ? (
+                        <p className="mt-1 text-[11px] text-brand-green">
+                          {isFr ? "Format international" : "International format"} :{" "}
+                          <span className="font-semibold">{e164}</span>
+                        </p>
+                      ) : (
+                        <p className="mt-1 text-[11px] text-destructive">
+                          {isFr
+                            ? "Numéro invalide pour le pays sélectionné."
+                            : "Invalid number for the selected country."}
+                        </p>
+                      )
                     ) : null}
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 rounded-2xl border border-brand-green/30 bg-brand-green/5 p-3">
+                  <MessageCircle className="mt-0.5 size-4 shrink-0 text-brand-green" aria-hidden />
+                  <div className="text-xs">
+                    <p className="font-semibold">
+                      {isFr ? "Un numéro WhatsApp valide est requis" : "A valid WhatsApp number is required"}
+                    </p>
+                    <p className="mt-0.5 text-muted-foreground">
+                      {isFr
+                        ? "Ce numéro doit être actif sur WhatsApp. Il pourra être utilisé par OpenDoorsClass pour vous contacter en cas de besoin concernant votre paiement ou votre compte."
+                        : "This number must be active on WhatsApp. OpenDoorsClass may use it to contact you if needed about your payment or your account."}
+                    </p>
                   </div>
                 </div>
               </div>

@@ -29,6 +29,10 @@ import { HomePricingSection } from "@/components/home-pricing-section";
 import { ClubsSection } from "@/components/clubs-section";
 import { CertifiedLearnersCard } from "@/components/certified-learners-card";
 import { VideoTestimonial } from "@/components/video-testimonial";
+import raichaVideo from "@/assets/testimonial-raicha.mp4.asset.json";
+import raichaPoster from "@/assets/testimonial-raicha-poster.jpg.asset.json";
+import oumarVideo from "@/assets/testimonial-oumar.mp4.asset.json";
+import oumarPoster from "@/assets/testimonial-oumar-poster.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -382,7 +386,18 @@ function TestimonialsSection() {
         <h2 className="text-3xl font-bold sm:text-4xl">{t("tm.title")}</h2>
         <p className="mt-3 text-muted-foreground">{t("tm.desc")}</p>
       </div>
-      <VideoTestimonial />
+      <div className="space-y-8">
+        <VideoTestimonial
+          candidateNumber="ODC-2026-62E98E"
+          videoUrl={raichaVideo.url}
+          posterUrl={raichaPoster.url}
+        />
+        <VideoTestimonial
+          candidateNumber="ODC-2026-DA455D"
+          videoUrl={oumarVideo.url}
+          posterUrl={oumarPoster.url}
+        />
+      </div>
       <div
         ref={scrollerRef}
         className="mt-10 flex gap-5 overflow-x-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]"

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
@@ -6,10 +7,12 @@ import { BadgeCheck, Play, Quote } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getPublicCandidateByNumber } from "@/lib/testimonial.functions";
 import { useI18n } from "@/lib/i18n";
-import videoAsset from "@/assets/testimonial-raicha.mp4.asset.json";
-import posterAsset from "@/assets/testimonial-raicha-poster.jpg.asset.json";
 
-const CANDIDATE_NUMBER = "ODC-2026-62E98E";
+type Props = {
+  candidateNumber: string;
+  videoUrl: string;
+  posterUrl: string;
+};
 
 const LEVEL_LABELS: Record<string, { fr: string; en: string }> = {
   A1: { fr: "Débutant", en: "Beginner" },
@@ -29,13 +32,13 @@ function flagFromCountry(value: string | null): string | null {
   return null;
 }
 
-export function VideoTestimonial() {
+export function VideoTestimonial({ candidateNumber, videoUrl, posterUrl }: Props) {
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const fetchCandidate = useServerFn(getPublicCandidateByNumber);
   const { data } = useQuery({
-    queryKey: ["public-candidate", CANDIDATE_NUMBER],
-    queryFn: () => fetchCandidate({ data: { candidateNumber: CANDIDATE_NUMBER } }),
+    queryKey: ["public-candidate", candidateNumber],
+    queryFn: () => fetchCandidate({ data: { candidateNumber } }),
   });
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -64,8 +67,8 @@ export function VideoTestimonial() {
         <div className="relative aspect-[9/16] w-full bg-black md:aspect-auto md:min-h-[420px]">
           <video
             ref={videoRef}
-            src={videoAsset.url}
-            poster={posterAsset.url}
+            src={videoUrl}
+            poster={posterUrl}
             controls
             playsInline
             preload="metadata"
@@ -104,7 +107,13 @@ export function VideoTestimonial() {
             ) : null}
             <div>
               <h3 className="font-display text-xl font-bold sm:text-2xl">
-                {fullName || (isFr ? "Candidat certifié" : "Certified candidate")}
+                <Link
+                  to="/profile/$id"
+                  params={{ id: data?.candidateNumber ?? candidateNumber }}
+                  className="transition-colors hover:text-brand-blue"
+                >
+                  {fullName || (isFr ? "Candidat certifié" : "Certified candidate")}
+                </Link>
               </h3>
               <p className="text-sm text-muted-foreground">
                 {level ? (

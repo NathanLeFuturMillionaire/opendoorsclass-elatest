@@ -1,4 +1,5 @@
 // Liste complète des pays et indicatifs internationaux.
+import { parsePhoneNumberFromString, type CountryCode } from "libphonenumber-js";
 // Générée à partir de libphonenumber-js (source de référence) et Intl.DisplayNames.
 export type PhoneCountry = {
   code: string;
@@ -275,4 +276,24 @@ export function toInternational(countryCode: string, rawPhone: string): string {
 /** Numéro nettoyé pour un lien wa.me (chiffres uniquement). */
 export function toWhatsAppNumber(value: string | null | undefined): string {
   return (value ?? "").replace(/\D/g, "");
+}
+
+/**
+ * Validation stricte du numéro international via libphonenumber-js.
+ * Retourne le numéro normalisé E.164 (+24174825725) ou null si invalide.
+ */
+export function toE164(countryCode: string, rawPhone: string): string | null {
+  const country = phoneCountryByCode(countryCode);
+  if (!country) return null;
+  const digits = (rawPhone ?? "").replace(/\D/g, "");
+  if (!digits) return null;
+  const dial = country.dial.replace("+", "");
+  const local = digits.startsWith(dial) ? digits.slice(dial.length) : digits.replace(/^0+/, "");
+  try {
+    const parsed = parsePhoneNumberFromString(local, country.code as CountryCode);
+    if (parsed && parsed.isValid()) return parsed.number;
+  } catch {
+    /* format non reconnu */
+  }
+  return null;
 }
