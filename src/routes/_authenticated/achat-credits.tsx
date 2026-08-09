@@ -3,14 +3,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Check, Loader2, Sparkles } from "lucide-react";
+import { Check, Loader2, MessageCircle, Sparkles } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PhoneCountrySelect } from "@/components/phone-country-select";
-import { phoneCountryByCode, toInternational } from "@/lib/phone-countries";
+import { phoneCountryByCode, toE164 } from "@/lib/phone-countries";
 import { listTestOffers, createCheckout, getMyProfile } from "@/lib/payments.functions";
 import { useT, useI18n } from "@/lib/i18n";
 import {
@@ -63,20 +63,22 @@ function BuyCreditsPage() {
   const nf = new Intl.NumberFormat(isFr ? "fr-FR" : "en-US");
   const features = isFr ? OFFER_FEATURES_FR : OFFER_FEATURES_EN;
 
+  const e164 = toE164(countryCode, phone);
+
   const handleBuy = async () => {
     if (!firstName.trim() || !lastName.trim()) {
       toast.error(t("buy.err.name"));
       return;
     }
-    const digits = phone.replace(/\D/g, "").replace(/^0+/, "");
-    if (digits.length < 6) {
+    if (!e164) {
       toast.error(
         isFr
-          ? "Veuillez saisir un numéro de téléphone valide."
-          : "Please enter a valid phone number."
+          ? "Numéro WhatsApp invalide pour le pays sélectionné. Vérifiez l'indicatif et le numéro."
+          : "Invalid WhatsApp number for the selected country. Check the dial code and the number.",
       );
       return;
     }
+    const digits = e164.replace("+", "");
     setLoading(true);
     try {
       const { checkoutUrl } = await startCheckout({
