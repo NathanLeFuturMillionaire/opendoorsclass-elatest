@@ -174,11 +174,32 @@ function BuyCreditsPage() {
                       className="mt-1"
                     />
                     {phone.replace(/\D/g, "") ? (
-                      <p className="mt-1 text-[11px] text-muted-foreground">
-                        {isFr ? "Format international" : "International format"} :{" "}
-                        <span className="font-medium">{toInternational(countryCode, phone)}</span>
-                      </p>
+                      e164 ? (
+                        <p className="mt-1 text-[11px] text-brand-green">
+                          {isFr ? "Format international" : "International format"} :{" "}
+                          <span className="font-semibold">{e164}</span>
+                        </p>
+                      ) : (
+                        <p className="mt-1 text-[11px] text-destructive">
+                          {isFr
+                            ? "Numéro invalide pour le pays sélectionné."
+                            : "Invalid number for the selected country."}
+                        </p>
+                      )
                     ) : null}
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 rounded-2xl border border-brand-green/30 bg-brand-green/5 p-3">
+                  <MessageCircle className="mt-0.5 size-4 shrink-0 text-brand-green" aria-hidden />
+                  <div className="text-xs">
+                    <p className="font-semibold">
+                      {isFr ? "Un numéro WhatsApp valide est requis" : "A valid WhatsApp number is required"}
+                    </p>
+                    <p className="mt-0.5 text-muted-foreground">
+                      {isFr
+                        ? "Ce numéro doit être actif sur WhatsApp. Il pourra être utilisé par OpenDoorsClass pour vous contacter en cas de besoin concernant votre paiement ou votre compte."
+                        : "This number must be active on WhatsApp. OpenDoorsClass may use it to contact you if needed about your payment or your account."}
+                    </p>
                   </div>
                 </div>
               </div>
