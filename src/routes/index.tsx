@@ -382,7 +382,18 @@ function TestimonialsSection() {
         <h2 className="text-3xl font-bold sm:text-4xl">{t("tm.title")}</h2>
         <p className="mt-3 text-muted-foreground">{t("tm.desc")}</p>
       </div>
-      <VideoTestimonial />
+      <div className="space-y-8">
+        <VideoTestimonial
+          candidateNumber="ODC-2026-62E98E"
+          videoUrl={raichaVideo.url}
+          posterUrl={raichaPoster.url}
+        />
+        <VideoTestimonial
+          candidateNumber="ODC-2026-DA455D"
+          videoUrl={oumarVideo.url}
+          posterUrl={oumarPoster.url}
+        />
+      </div>
       <div
         ref={scrollerRef}
         className="mt-10 flex gap-5 overflow-x-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]"
