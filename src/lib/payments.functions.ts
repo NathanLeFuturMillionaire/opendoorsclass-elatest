@@ -114,7 +114,7 @@ export const createCheckout = createServerFn({ method: "POST" })
           payment_id: payment.id,
           reference,
           user_id: context.userId,
-          offer_code: offer.code ?? data.offerCode,
+          offer_code: offer.code,
         },
       },
       apiKey
