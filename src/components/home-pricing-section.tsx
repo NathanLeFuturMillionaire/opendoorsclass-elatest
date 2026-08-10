@@ -6,10 +6,10 @@ import { Check, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { listTestOffers } from "@/lib/payments.functions";
 import { useI18n } from "@/lib/i18n";
+import { usePricing } from "@/hooks/use-pricing";
+import { PromoCountdown } from "@/components/pricing/promo-countdown";
 import {
-  OFFER_CREDITS,
   OFFER_CTA_EN,
   OFFER_CTA_FR,
   OFFER_DESCRIPTION_EN,
@@ -17,21 +17,15 @@ import {
   OFFER_FEATURES_EN,
   OFFER_FEATURES_FR,
   OFFER_NAME,
-  OFFER_PRICE_USD,
-  OFFER_PRICE_XAF,
 } from "@/lib/offer";
 
 export function HomePricingSection() {
   const { locale } = useI18n();
   const isFr = locale === "fr";
   const navigate = useNavigate();
-  const fetchOffers = useServerFn(listTestOffers);
-  const offersQuery = useQuery({ queryKey: ["public-test-offers"], queryFn: () => fetchOffers() });
-
-  const offer = (offersQuery.data ?? [])[0];
-  const price = offer?.price ?? OFFER_PRICE_XAF;
-  const credits = offer?.credits_included ?? OFFER_CREDITS;
-  const nf = new Intl.NumberFormat(isFr ? "fr-FR" : "en-US");
+  const pricing = usePricing(isFr ? "fr" : "en");
+  const price = pricing.price;
+  const credits = pricing.credits;
   const features = isFr ? OFFER_FEATURES_FR : OFFER_FEATURES_EN;
 
   async function go() {
@@ -79,21 +73,40 @@ export function HomePricingSection() {
         >
           <div className="flex items-center gap-2">
             <Sparkles className="size-4 text-brand-green" aria-hidden />
-            <h3 className="font-display text-xl font-bold">{offer?.label ?? OFFER_NAME}</h3>
+            <h3 className="font-display text-xl font-bold">{OFFER_NAME}</h3>
+            {pricing.promoActive ? (
+              <Badge className="bg-brand-green text-primary-foreground">
+                {isFr ? "Promotion" : "Promo"}
+              </Badge>
+            ) : null}
           </div>
 
-          <div className="mt-4">
-            <p className="text-4xl font-extrabold tracking-tight">
-              {nf.format(price)}{" "}
-              <span className="text-base font-semibold text-muted-foreground">FCFA</span>
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">≈ {OFFER_PRICE_USD} USD</p>
-            <p className="mt-2 text-sm font-semibold text-brand-green">
-              {isFr
-                ? `${credits} crédit, soit un test complet`
-                : `${credits} credit, one full test`}
-            </p>
-          </div>
+          {price === null ? (
+            <div className="mt-4 h-20 animate-shimmer rounded-xl bg-muted" />
+          ) : (
+            <div className="mt-4">
+              {pricing.promoActive && pricing.normalPrice ? (
+                <p className="text-base font-semibold text-muted-foreground line-through">
+                  {pricing.formatXaf(pricing.normalPrice)}
+                </p>
+              ) : null}
+              <p className="text-4xl font-extrabold tracking-tight">{pricing.formatXaf(price)}</p>
+              {pricing.localPrice(price) ? (
+                <p className="mt-1 text-sm text-muted-foreground">
+                  ≈ {pricing.localPrice(price)}
+                </p>
+              ) : null}
+              <p className="mt-2 text-sm font-semibold text-brand-green">
+                {isFr
+                  ? `${credits} crédit, soit un test complet`
+                  : `${credits} credit, one full test`}
+              </p>
+            </div>
+          )}
+
+          {pricing.promoActive ? (
+            <PromoCountdown remaining={pricing.remaining} isFr={isFr} className="mt-5" />
+          ) : null}
 
           <ul className="mt-6 grid gap-2.5 sm:grid-cols-2">
             {features.map((f) => (
