@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useT } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { NotificationBell } from "@/components/notifications/notification-bell";
+import odcLogo from "@/assets/odc-logo.png.asset.json";
 
 export function SiteHeader() {
   const { user, loading } = useSession();
@@ -40,11 +41,26 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link to="/" className="flex items-center gap-2 font-bold text-lg tracking-tight">
-          <span className="grid size-8 place-items-center rounded-lg bg-brand-gradient text-primary-foreground">
-            <span className="text-sm font-black">O</span>
-          </span>
-          <span className="text-foreground">OpenDoorsClass</span>
+        <Link
+          to="/"
+          aria-label="OpenDoorsClass"
+          className="group flex shrink-0 items-center transition-opacity duration-200 hover:opacity-80"
+        >
+          <span
+            role="img"
+            aria-label="OpenDoorsClass"
+            className="block h-6 w-[68px] bg-brand-gradient sm:h-7 sm:w-[80px]"
+            style={{
+              WebkitMaskImage: `url(${odcLogo.url})`,
+              maskImage: `url(${odcLogo.url})`,
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+            }}
+          />
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">

@@ -11,10 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PhoneCountrySelect } from "@/components/phone-country-select";
 import { phoneCountryByCode, toE164 } from "@/lib/phone-countries";
-import { listTestOffers, createCheckout, getMyProfile } from "@/lib/payments.functions";
+import { createCheckout, getMyProfile } from "@/lib/payments.functions";
 import { useT, useI18n } from "@/lib/i18n";
+import { usePricing } from "@/hooks/use-pricing";
+import { PromoCountdown } from "@/components/pricing/promo-countdown";
 import {
-  OFFER_CREDITS,
   OFFER_CTA_EN,
   OFFER_CTA_FR,
   OFFER_DESCRIPTION_EN,
@@ -22,8 +23,6 @@ import {
   OFFER_FEATURES_EN,
   OFFER_FEATURES_FR,
   OFFER_NAME,
-  OFFER_PRICE_USD,
-  OFFER_PRICE_XAF,
 } from "@/lib/offer";
 
 export const Route = createFileRoute("/_authenticated/achat-credits")({
@@ -33,7 +32,6 @@ export const Route = createFileRoute("/_authenticated/achat-credits")({
 function BuyCreditsPage() {
   const t = useT();
   const { locale } = useI18n();
-  const fetchOffers = useServerFn(listTestOffers);
   const fetchProfile = useServerFn(getMyProfile);
   const startCheckout = useServerFn(createCheckout);
   const [loading, setLoading] = useState(false);
@@ -42,7 +40,6 @@ function BuyCreditsPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
 
-  const offersQuery = useQuery({ queryKey: ["test-offers"], queryFn: () => fetchOffers() });
   const profileQuery = useQuery({ queryKey: ["my-profile"], queryFn: () => fetchProfile() });
 
   const profileData = profileQuery.data;
@@ -57,10 +54,9 @@ function BuyCreditsPage() {
   }, [profileData]);
 
   const isFr = locale === "fr";
-  const offer = (offersQuery.data ?? [])[0];
-  const price = offer?.price ?? OFFER_PRICE_XAF;
-  const credits = offer?.credits_included ?? OFFER_CREDITS;
-  const nf = new Intl.NumberFormat(isFr ? "fr-FR" : "en-US");
+  const pricing = usePricing(locale === "fr" ? "fr" : "en");
+  const price = pricing.price;
+  const credits = pricing.credits;
   const features = isFr ? OFFER_FEATURES_FR : OFFER_FEATURES_EN;
 
   const e164 = toE164(countryCode, phone);
@@ -107,7 +103,7 @@ function BuyCreditsPage() {
         <div className="animate-fade-up">
           <p className="text-sm font-medium text-brand-green">{t("buy.badge")}</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-            {offer?.label ?? OFFER_NAME}
+            {OFFER_NAME}
           </h1>
           <p className="mt-3 max-w-2xl text-muted-foreground">
             {isFr ? OFFER_DESCRIPTION_FR : OFFER_DESCRIPTION_EN}
@@ -205,27 +201,37 @@ function BuyCreditsPage() {
               </div>
             </div>
 
-            {offersQuery.isLoading ? (
+            {pricing.loading || price === null ? (
               <div className="h-64 animate-shimmer rounded-3xl bg-muted" />
             ) : (
               <div className="relative flex flex-col rounded-3xl border border-brand-blue/40 bg-card p-6 shadow-sm ring-2 ring-brand-blue/20 sm:p-8">
                 <div className="flex items-center gap-2">
                   <Sparkles className="size-5 text-brand-blue" />
-                  <h2 className="text-xl font-bold">{offer?.label ?? OFFER_NAME}</h2>
+                  <h2 className="text-xl font-bold">{OFFER_NAME}</h2>
                 </div>
                 <div className="mt-4">
+                  {pricing.promoActive && pricing.normalPrice ? (
+                    <div className="text-base font-semibold text-muted-foreground line-through">
+                      {pricing.formatXaf(pricing.normalPrice)}
+                    </div>
+                  ) : null}
                   <div className="text-4xl font-extrabold text-brand-gradient">
-                    {nf.format(price)} FCFA
+                    {pricing.formatXaf(price)}
                   </div>
-                  <div className="mt-1 text-sm font-semibold text-muted-foreground">
-                    ≈ {OFFER_PRICE_USD} USD
-                  </div>
+                  {pricing.localPrice(price) ? (
+                    <div className="mt-1 text-sm font-semibold text-muted-foreground">
+                      ≈ {pricing.localPrice(price)}
+                    </div>
+                  ) : null}
                   <p className="mt-2 text-xs text-muted-foreground">
                     {isFr
                       ? `${credits} crédit ajouté à votre compte, soit un test complet`
                       : `${credits} credit added to your account, one full test`}
                   </p>
                 </div>
+                {pricing.promoActive ? (
+                  <PromoCountdown remaining={pricing.remaining} isFr={isFr} className="mt-5" />
+                ) : null}
                 <ul className="mt-6 grid gap-2 text-sm sm:grid-cols-2">
                   {features.map((f) => (
                     <li key={f} className="flex items-start gap-2">

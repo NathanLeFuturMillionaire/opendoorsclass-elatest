@@ -200,7 +200,10 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
     // Determine CEFR: highest consecutive level with >=70% starting from A1.
     let levelResult: (typeof LEVEL_ORDER)[number] = "A1";
     for (const lvl of LEVEL_ORDER) {
-      if ((perLevel[lvl]?.percent ?? 0) >= 70) {
+      const cell = perLevel[lvl];
+      // Un niveau non servi ne doit pas interrompre la progression.
+      if (!cell || cell.total === 0) continue;
+      if (cell.percent >= 70) {
         levelResult = lvl;
       } else {
         break;
