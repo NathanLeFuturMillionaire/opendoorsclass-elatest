@@ -32,7 +32,7 @@ export const getTestAccessPlan = createServerFn({ method: "GET" }).handler(async
 
 const CheckoutInput = z.object({
   origin: z.string().url(),
-  offerCode: z.enum(["standard", "premium"]),
+  offerCode: z.enum(["standard", "premium"]).optional(),
   firstName: z.string().trim().min(1, "Prénom requis.").max(80),
   lastName: z.string().trim().min(1, "Nom requis.").max(80),
   phone: z
@@ -57,15 +57,18 @@ export const createCheckout = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: offer, error: offerError } = await supabaseAdmin
-      .from("test_access_plan")
-      .select("id, code, price, credits_included, currency, chariow_product_id")
-      .eq("code", data.offerCode)
-      .eq("is_active", true)
-      .maybeSingle();
-    if (offerError || !offer) throw new Error("Offre introuvable ou indisponible.");
-    const productId = offer.chariow_product_id || process.env.CHARIOW_PRODUCT_ID;
+    // Le tarif et le produit sont déterminés uniquement côté serveur,
+    // à partir de l'horloge serveur. Le client ne peut rien forcer.
+    const { resolveCurrentOffer } = await import("@/lib/pricing.server");
+    const resolved = await resolveCurrentOffer();
+    const productId = resolved.productId;
     if (!productId) throw new Error("Produit Chariow non configuré pour cette offre.");
+    const offer = {
+      code: "standard",
+      price: resolved.price,
+      credits_included: resolved.credits,
+      currency: resolved.currency,
+    };
 
     await context.supabase
       .from("profiles")
