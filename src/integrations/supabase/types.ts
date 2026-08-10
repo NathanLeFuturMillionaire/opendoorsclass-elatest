@@ -284,6 +284,51 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_promotion: {
+        Row: {
+          created_at: string
+          credits_included: number
+          currency: string
+          ends_at: string
+          id: string
+          is_enabled: boolean
+          normal_price: number
+          normal_product_id: string
+          promo_price: number
+          promo_product_id: string
+          starts_at: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credits_included?: number
+          currency?: string
+          ends_at: string
+          id?: string
+          is_enabled?: boolean
+          normal_price: number
+          normal_product_id: string
+          promo_price: number
+          promo_product_id: string
+          starts_at?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credits_included?: number
+          currency?: string
+          ends_at?: string
+          id?: string
+          is_enabled?: boolean
+          normal_price?: number
+          normal_product_id?: string
+          promo_price?: number
+          promo_product_id?: string
+          starts_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           about: string | null
