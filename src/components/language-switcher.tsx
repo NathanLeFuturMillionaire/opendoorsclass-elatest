@@ -32,6 +32,9 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
         <DropdownMenuItem onClick={() => setLocale("en")}>
           <span className="mr-2">🇬🇧</span> English
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setLocale("es")}>
+          <span className="mr-2">🇪🇸</span> Español
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
