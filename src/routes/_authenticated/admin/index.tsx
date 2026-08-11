@@ -95,16 +95,34 @@ function DashboardPage() {
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Pays des candidats</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Classement des pays</CardTitle></CardHeader>
         <CardContent>
           {countries.length === 0 ? <p className="text-sm text-muted-foreground">Aucune donnée.</p> : (
             <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
-              {countries.map((c: any) => (
-                <div key={c.country} className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2 text-sm">
-                  <span>{c.country}</span>
-                  <span className="font-semibold">{c.count}</span>
-                </div>
-              ))}
+              {(() => {
+                const total = countries.reduce((acc: number, c: any) => acc + Number(c.count), 0) || 1;
+                return countries.map((c: any, i: number) => {
+                  const label = countryByCode(c.country)
+                    ? countryLabel(c.country, "fr")
+                    : String(c.country);
+                  const share = Math.round((Number(c.count) / total) * 100);
+                  return (
+                    <div
+                      key={c.country}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-border/60 px-3 py-2 text-sm"
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className="w-5 text-xs font-bold text-muted-foreground">{i + 1}</span>
+                        <span className="truncate">{label}</span>
+                      </span>
+                      <span className="shrink-0 font-semibold">
+                        {c.count}
+                        <span className="ml-1 text-xs font-normal text-muted-foreground">{share} %</span>
+                      </span>
+                    </div>
+                  );
+                });
+              })()}
             </div>
           )}
         </CardContent>
