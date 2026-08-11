@@ -30,7 +30,7 @@ export const getProfileFull = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("profiles")
       .select(
-        "id, first_name, last_name, avatar_url, credits_remaining, created_at, nationality, date_of_birth, candidate_number, objectives, ai_recommendations, ai_recommendations_at, plan, plan_activated_at"
+        "id, first_name, last_name, avatar_url, credits_remaining, created_at, nationality, country, date_of_birth, candidate_number, objectives, ai_recommendations, ai_recommendations_at, plan, plan_activated_at"
       )
       .eq("id", context.userId)
       .maybeSingle();
@@ -143,6 +143,29 @@ const UpdateInput = z.object({
     .nullable(),
   objectives: z.array(z.string().trim().max(120)).max(10).optional().nullable(),
 });
+
+const SetCountryInput = z.object({
+  country: z.string().trim().length(2),
+});
+
+/** Renseigne automatiquement le pays du candidat s'il n'est pas encore défini. */
+export const setMyCountryIfMissing = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => SetCountryInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: current } = await context.supabase
+      .from("profiles")
+      .select("country")
+      .eq("id", context.userId)
+      .maybeSingle();
+    if (current?.country) return { ok: true, updated: false };
+    const { error } = await context.supabase
+      .from("profiles")
+      .update({ country: data.country.toUpperCase() })
+      .eq("id", context.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true, updated: true };
+  });
 
 export const updateMyProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
