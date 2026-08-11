@@ -1,5 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Check, Eye, EyeOff, Lock, ShieldCheck, Users, X } from "lucide-react";
@@ -19,8 +21,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SiteHeader } from "@/components/site-header";
 import { AuthSidePanel } from "@/components/auth/auth-side-panel";
-import { COUNTRIES } from "@/lib/countries";
-import { detectRegion } from "@/lib/geo-price";
+import { countryByCode } from "@/lib/countries";
+import { detectVisitorCountry } from "@/lib/geo.functions";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/auth")({
@@ -108,7 +110,6 @@ function AuthPage() {
   const [lastName, setLastName] = useState("");
   const [gender, setGender] = useState("");
   const [genderOther, setGenderOther] = useState("");
-  const [country, setCountry] = useState("");
   const [remember, setRemember] = useState(true);
   const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -121,10 +122,14 @@ function AuthPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    const detected = detectRegion();
-    if (COUNTRIES.some((c) => c.code === detected)) setCountry(detected);
-  }, []);
+  const fetchCountry = useServerFn(detectVisitorCountry);
+  const { data: countryData, isLoading: countryLoading } = useQuery({
+    queryKey: ["visitor-country"],
+    queryFn: () => fetchCountry(),
+    staleTime: Infinity,
+  });
+  const country = countryData?.country ?? null;
+  const detectedCountry = countryByCode(country ?? undefined);
 
   const checks = useMemo(() => passwordChecks(password), [password]);
   const strength = Object.values(checks).filter(Boolean).length;
@@ -164,7 +169,6 @@ function AuthPage() {
     EMAIL_RE.test(email) &&
     gender.length > 0 &&
     (gender !== "other" || genderOther.trim().length > 0) &&
-    country.length > 0 &&
     strength === 5 &&
     passwordsMatch;
 
@@ -368,20 +372,17 @@ function AuthPage() {
                     </div>
                   ) : null}
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="country">{t("authx.country")}</Label>
-                    <Select value={country} onValueChange={setCountry}>
-                      <SelectTrigger id="country" aria-label={t("authx.country")}>
-                        <SelectValue placeholder={t("authx.country.placeholder")} />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-72">
-                        {COUNTRIES.map((c) => (
-                          <SelectItem key={c.code} value={c.code}>
-                            {c.flag} {locale === "fr" ? c.fr : c.en}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="text-xs text-muted-foreground">
+                    {countryLoading ? (
+                      t("authx.country.detecting")
+                    ) : detectedCountry ? (
+                      <span>
+                        {detectedCountry.flag}{" "}
+                        {locale === "fr" ? detectedCountry.fr : detectedCountry.en}
+                        {" — "}
+                        {t("authx.country.auto")}
+                      </span>
+                    ) : null}
                   </div>
                 </>
               ) : null}

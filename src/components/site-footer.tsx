@@ -22,7 +22,7 @@ export function SiteFooter() {
             <h4 className="text-sm font-semibold text-foreground">{t("footer.platform")}</h4>
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
               <li><Link to="/auth" className="hover:text-foreground">{t("footer.signup")}</Link></li>
-              <li><a href="/#comment" className="hover:text-foreground">{t("nav.how")}</a></li>
+              <li><a href="/#tarifs" className="hover:text-foreground">{t("nav.how")}</a></li>
               <li><a href="/#temoignages" className="hover:text-foreground">{t("nav.testimonials")}</a></li>
             </ul>
           </div>

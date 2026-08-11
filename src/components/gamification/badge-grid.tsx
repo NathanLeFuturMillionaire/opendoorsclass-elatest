@@ -26,7 +26,7 @@ export function BadgeGrid({ badges, compact = false }: { badges: Badge[]; compac
   );
 }
 
-function BadgeCard({ b, locale, compact }: { b: Badge; locale: "fr" | "en"; compact: boolean }) {
+function BadgeCard({ b, locale, compact }: { b: Badge; locale: "fr" | "en" | "es"; compact: boolean }) {
   const unlocked = !!b.unlocked_at;
   const name = locale === "fr" ? b.name_fr : b.name_en;
   const desc = locale === "fr" ? b.description_fr : b.description_en;

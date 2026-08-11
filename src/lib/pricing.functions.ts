@@ -1,20 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestHeader } from "@tanstack/react-start/server";
 import type { PricingState } from "@/lib/pricing";
 
 export const getPricingState = createServerFn({ method: "GET" }).handler(
   async (): Promise<PricingState> => {
     const { resolveCurrentOffer, getXafRates } = await import("@/lib/pricing.server");
     const { currencyForCountry } = await import("@/lib/currency-map");
+    const { detectCountryFromRequest } = await import("@/lib/geo.server");
 
     const { row, promoActive, price, credits, currency } = await resolveCurrentOffer();
 
-    const country =
-      getRequestHeader("cf-ipcountry") ??
-      getRequestHeader("x-vercel-ip-country") ??
-      getRequestHeader("x-country-code") ??
-      null;
-    const normalized = country && country.length === 2 ? country.toUpperCase() : null;
+    const normalized = detectCountryFromRequest();
 
     const displayCurrency = currencyForCountry(normalized);
     const rates = await getXafRates();

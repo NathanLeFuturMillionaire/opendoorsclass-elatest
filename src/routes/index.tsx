@@ -4,16 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
 import {
-  BookOpen,
   CheckCircle2,
   Clock,
-  FileDown,
-  Headphones,
   MessageCircle,
-  Sparkles,
   Star,
-  Target,
-  Trophy,
 } from "lucide-react";
 import founderPhoto from "@/assets/founder-nathan.jpg.asset.json";
 import { SiteHeader } from "@/components/site-header";
@@ -27,6 +21,7 @@ import { WorldReachSection } from "@/components/world-reach-section";
 import { CommunityLeaderboardSection } from "@/components/community-leaderboard-section";
 import { HomePricingSection } from "@/components/home-pricing-section";
 import { ClubsSection } from "@/components/clubs-section";
+import { PaymentTutorialSection } from "@/components/payment-tutorial-section";
 import { CertifiedLearnersCard } from "@/components/certified-learners-card";
 import { VideoTestimonial } from "@/components/video-testimonial";
 import raichaVideo from "@/assets/testimonial-raicha.mp4.asset.json";
@@ -37,9 +32,6 @@ import oumarPoster from "@/assets/testimonial-oumar-poster.jpg.asset.json";
 export const Route = createFileRoute("/")({
   component: HomePage,
 });
-
-const STEP_ICONS = [Sparkles, BookOpen, Trophy];
-const BENEFIT_ICONS = [Target, Clock, Headphones, FileDown];
 
 const FALLBACK_TESTIMONIALS = [
   {
@@ -74,17 +66,6 @@ const FALLBACK_TESTIMONIALS = [
 
 function HomePage() {
   const t = useT();
-  const STEPS = [
-    { icon: STEP_ICONS[0], title: t("how.s1.title"), text: t("how.s1.text") },
-    { icon: STEP_ICONS[1], title: t("how.s2.title"), text: t("how.s2.text") },
-    { icon: STEP_ICONS[2], title: t("how.s3.title"), text: t("how.s3.text") },
-  ];
-  const BENEFITS = [
-    { icon: BENEFIT_ICONS[0], title: t("why.b1.title"), text: t("why.b1.text") },
-    { icon: BENEFIT_ICONS[1], title: t("why.b2.title"), text: t("why.b2.text") },
-    { icon: BENEFIT_ICONS[2], title: t("why.b3.title"), text: t("why.b3.text") },
-    { icon: BENEFIT_ICONS[3], title: t("why.b4.title"), text: t("why.b4.text") },
-  ];
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
@@ -139,7 +120,7 @@ function HomePage() {
                   variant="outline"
                   className="rounded-xl border-border/70 px-7 py-6 text-base font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:bg-muted/60"
                 >
-                  <a href="#comment">{t("hero.cta.how")}</a>
+                  <a href="#tarifs">{t("hero.cta.how")}</a>
                 </Button>
               </div>
               <ul className="mt-9 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
@@ -211,59 +192,9 @@ function HomePage() {
 
         <HomePricingSection />
 
+        <PaymentTutorialSection />
+
         <ClubsSection />
-
-        {/* Comment ça marche */}
-        <section id="comment" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="mx-auto max-w-2xl text-center">
-            <Badge variant="outline" className="mb-3">
-              {t("how.badge")}
-            </Badge>
-            <h2 className="text-3xl font-bold sm:text-4xl">{t("how.title")}</h2>
-            <p className="mt-3 text-muted-foreground">{t("how.desc")}</p>
-          </div>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {STEPS.map((s, i) => (
-              <Card key={s.title} className="border-border/60">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <span className="grid size-10 place-items-center rounded-xl bg-brand-blue-soft text-brand-blue">
-                      <s.icon className="size-5" />
-                    </span>
-                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      {t("how.step")} {i + 1}
-                    </span>
-                  </div>
-                  <h3 className="mt-4 text-lg font-semibold">{s.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{s.text}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        {/* Pourquoi nous */}
-        <section className="border-y border-border bg-secondary/40">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-            <div className="mx-auto max-w-2xl text-center">
-              <Badge variant="outline" className="mb-3">
-                {t("why.badge")}
-              </Badge>
-              <h2 className="text-3xl font-bold sm:text-4xl">{t("why.title")}</h2>
-            </div>
-            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {BENEFITS.map((b) => (
-                <div key={b.title} className="rounded-2xl bg-card p-6 shadow-sm">
-                  <span className="grid size-10 place-items-center rounded-xl bg-brand-green-soft text-brand-green">
-                    <b.icon className="size-5" />
-                  </span>
-                  <h3 className="mt-4 text-base font-semibold">{b.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{b.text}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         <WorldReachSection />
 
