@@ -49,7 +49,11 @@ import {
   updateMyProfile,
   generateAIRecommendations,
   updateMyAvatar,
+  setMyCountryIfMissing,
 } from "@/lib/profile.functions";
+import { countryByCode } from "@/lib/countries";
+import { detectVisitorCountry } from "@/lib/geo.functions";
+import { useI18n } from "@/lib/i18n";
 import { getMyReview, submitMyReview } from "@/lib/reviews.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Camera } from "lucide-react";
@@ -119,6 +123,9 @@ function ProfilePage() {
   const fetchMyReview = useServerFn(getMyReview);
   const doSubmitReview = useServerFn(submitMyReview);
   const doUpdateAvatar = useServerFn(updateMyAvatar);
+  const doSetCountry = useServerFn(setMyCountryIfMissing);
+  const fetchVisitorCountry = useServerFn(detectVisitorCountry);
+  const { locale } = useI18n();
   const qc = useQueryClient();
 
   const { data: profile, isLoading } = useQuery({
@@ -146,6 +153,17 @@ function ProfilePage() {
     setNationality(profile.nationality ?? "");
     setDob(profile.date_of_birth ?? "");
     setObjectivesText((profile.objectives ?? []).join(", "));
+  }, [profile]);
+
+  useEffect(() => {
+    if (!profile || profile.country) return;
+    (async () => {
+      const { country } = await fetchVisitorCountry();
+      if (!country) return;
+      const res = await doSetCountry({ data: { country } });
+      if (res.updated) qc.invalidateQueries({ queryKey: ["profile-full"] });
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
 
   const saveMutation = useMutation({
