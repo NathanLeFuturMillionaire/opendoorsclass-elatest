@@ -311,6 +311,12 @@ const fr: Dict = {
   "notif.time.min": "min",
   "notif.time.hour": "h",
   "notif.time.day": "jours",
+
+  // Tutoriel paiement
+  "tuto.badge": "Tutoriel",
+  "tuto.title": "Comment passer votre test chez OpenDoorsClass",
+  "tuto.desc": "Une courte vidéo qui vous montre, étape par étape, comment créer votre compte, régler votre test et lancer votre évaluation.",
+  "tuto.play": "Lire la vidéo du tutoriel",
 };
 
 export default fr;
