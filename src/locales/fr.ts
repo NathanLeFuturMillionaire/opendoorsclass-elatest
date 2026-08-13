@@ -317,6 +317,25 @@ const fr: Dict = {
   "tuto.title": "Comment passer votre test chez OpenDoorsClass",
   "tuto.desc": "Une courte vidéo qui vous montre, étape par étape, comment créer votre compte, régler votre test et lancer votre évaluation.",
   "tuto.play": "Lire la vidéo du tutoriel",
+
+  // Test languages
+  "testlang.badge": "Langues évaluées",
+  "testlang.badge.live": "Disponible maintenant",
+  "testlang.title": "Testez votre niveau dans la langue de votre choix",
+  "testlang.desc": "Évaluez vos compétences linguistiques grâce à une évaluation structurée et adaptée à votre niveau.",
+  "testlang.new": "Nouveau",
+  "testlang.soon": "Disponible prochainement",
+  "testlang.notify": "Être prévenu du lancement",
+  "testlang.pricing": "Voir le tarif",
+  "testlang.unknown": "Cette langue de test n'existe pas encore.",
+  "testlang.en.title": "English Level Test",
+  "testlang.en.desc": "Évaluez votre niveau d'anglais selon le Cadre européen commun de référence pour les langues (CECRL).",
+  "testlang.en.cta": "Passer le test",
+  "testlang.es.title": "Spanish Level Test",
+  "testlang.es.desc": "Découvrez votre niveau d'espagnol grâce à une évaluation complète et structurée.",
+  "testlang.es.cta": "Découvrir le test",
+  "hero.langline": "Anglais ou espagnol, évaluez vos compétences et découvrez précisément où vous vous situez.",
+  "hero.cta.lang": "Choisir ma langue de test",
 };
 
 export default fr;

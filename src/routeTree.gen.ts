@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
+import { Route as LeveltestLangRouteImport } from './routes/leveltest.$lang'
 import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/test'
 import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
@@ -70,6 +71,11 @@ const IndexRoute = IndexRouteImport.update({
 const ProfileIdRoute = ProfileIdRouteImport.update({
   id: '/profile/$id',
   path: '/profile/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeveltestLangRoute = LeveltestLangRouteImport.update({
+  id: '/leveltest/$lang',
+  path: '/leveltest/$lang',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedTestRoute = AuthenticatedTestRouteImport.update({
@@ -205,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
+  '/leveltest/$lang': typeof LeveltestLangRoute
   '/profile/$id': typeof ProfileIdRoute
   '/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
@@ -233,6 +240,7 @@ export interface FileRoutesByTo {
   '/profil': typeof AuthenticatedProfilRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/test': typeof AuthenticatedTestRoute
+  '/leveltest/$lang': typeof LeveltestLangRoute
   '/profile/$id': typeof ProfileIdRoute
   '/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
@@ -264,6 +272,7 @@ export interface FileRoutesById {
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/_authenticated/test': typeof AuthenticatedTestRoute
+  '/leveltest/$lang': typeof LeveltestLangRoute
   '/profile/$id': typeof ProfileIdRoute
   '/_authenticated/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/_authenticated/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
@@ -295,6 +304,7 @@ export interface FileRouteTypes {
     | '/profil'
     | '/tableau-de-bord'
     | '/test'
+    | '/leveltest/$lang'
     | '/profile/$id'
     | '/admin/avis'
     | '/admin/candidats'
@@ -323,6 +333,7 @@ export interface FileRouteTypes {
     | '/profil'
     | '/tableau-de-bord'
     | '/test'
+    | '/leveltest/$lang'
     | '/profile/$id'
     | '/admin/avis'
     | '/admin/candidats'
@@ -353,6 +364,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profil'
     | '/_authenticated/tableau-de-bord'
     | '/_authenticated/test'
+    | '/leveltest/$lang'
     | '/profile/$id'
     | '/_authenticated/admin/avis'
     | '/_authenticated/admin/candidats'
@@ -375,6 +387,7 @@ export interface RootRouteChildren {
   CertifiesRoute: typeof CertifiesRoute
   LeaderboardsRoute: typeof LeaderboardsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  LeveltestLangRoute: typeof LeveltestLangRoute
   ProfileIdRoute: typeof ProfileIdRoute
   ApiPublicChariowWebhookSecretRoute: typeof ApiPublicChariowWebhookSecretRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -430,6 +443,13 @@ declare module '@tanstack/react-router' {
       path: '/profile/$id'
       fullPath: '/profile/$id'
       preLoaderRoute: typeof ProfileIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leveltest/$lang': {
+      id: '/leveltest/$lang'
+      path: '/leveltest/$lang'
+      fullPath: '/leveltest/$lang'
+      preLoaderRoute: typeof LeveltestLangRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/test': {
@@ -646,6 +666,7 @@ const rootRouteChildren: RootRouteChildren = {
   CertifiesRoute: CertifiesRoute,
   LeaderboardsRoute: LeaderboardsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  LeveltestLangRoute: LeveltestLangRoute,
   ProfileIdRoute: ProfileIdRoute,
   ApiPublicChariowWebhookSecretRoute: ApiPublicChariowWebhookSecretRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,

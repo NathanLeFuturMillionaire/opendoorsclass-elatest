@@ -316,6 +316,25 @@ const es: Dict = {
   "tuto.title": "Cómo realizar tu prueba en OpenDoorsClass",
   "tuto.desc": "Un vídeo breve que te muestra, paso a paso, cómo crear tu cuenta, pagar tu prueba y comenzar tu evaluación.",
   "tuto.play": "Reproducir el vídeo del tutorial",
+
+  // Test languages
+  "testlang.badge": "Idiomas evaluados",
+  "testlang.badge.live": "Disponible ahora",
+  "testlang.title": "Evalua tu nivel en el idioma que prefieras",
+  "testlang.desc": "Mide tus competencias linguisticas con una evaluacion estructurada y adaptada a tu nivel.",
+  "testlang.new": "Nuevo",
+  "testlang.soon": "Disponible proximamente",
+  "testlang.notify": "Avisarme del lanzamiento",
+  "testlang.pricing": "Ver el precio",
+  "testlang.unknown": "Este idioma de test todavia no existe.",
+  "testlang.en.title": "English Level Test",
+  "testlang.en.desc": "Evalua tu nivel de ingles segun el Marco Comun Europeo de Referencia para las Lenguas (MCER).",
+  "testlang.en.cta": "Hacer el test",
+  "testlang.es.title": "Spanish Level Test",
+  "testlang.es.desc": "Descubre tu nivel de espanol con una evaluacion completa y estructurada.",
+  "testlang.es.cta": "Pasar el test",
+  "hero.langline": "Ingles o espanol, evalua tus competencias y descubre exactamente donde te situas.",
+  "hero.cta.lang": "Elegir mi idioma de test",
 };
 
 export default es;

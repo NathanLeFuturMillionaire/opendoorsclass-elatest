@@ -22,6 +22,7 @@ import { CommunityLeaderboardSection } from "@/components/community-leaderboard-
 import { HomePricingSection } from "@/components/home-pricing-section";
 import { ClubsSection } from "@/components/clubs-section";
 import { PaymentTutorialSection } from "@/components/payment-tutorial-section";
+import { TestLanguagesSection } from "@/components/test-languages-section";
 import { CertifiedLearnersCard } from "@/components/certified-learners-card";
 import { VideoTestimonial } from "@/components/video-testimonial";
 import raichaVideo from "@/assets/testimonial-raicha.mp4.asset.json";
@@ -31,6 +32,29 @@ import oumarPoster from "@/assets/testimonial-oumar-poster.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
+  head: () => ({
+    meta: [
+      { title: "OpenDoorsClass Level Test | English & Spanish Assessment" },
+      {
+        name: "description",
+        content:
+          "Measure your English or Spanish proficiency with the OpenDoorsClass Level Test: a structured CEFR language assessment from A1 to C2, with an official certificate.",
+      },
+      {
+        property: "og:title",
+        content: "OpenDoorsClass Level Test | English & Spanish Assessment",
+      },
+      {
+        property: "og:description",
+        content:
+          "English Level Test and Spanish Level Test by OpenDoorsClass: structured CEFR language assessment, instant result and official certificate.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://opendoorsclass-elatest.lovable.app/" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: "https://opendoorsclass-elatest.lovable.app/" }],
+  }),
 });
 
 const FALLBACK_TESTIMONIALS = [
@@ -106,6 +130,11 @@ function HomePage() {
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
                 {t("hero.desc")}
               </p>
+              <p className="mt-4 flex max-w-xl flex-wrap items-center gap-2 text-sm font-medium text-foreground/80">
+                <span aria-hidden="true">🇬🇧</span>
+                <span aria-hidden="true">🇪🇸</span>
+                {t("hero.langline")}
+              </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Button
                   asChild
@@ -120,7 +149,7 @@ function HomePage() {
                   variant="outline"
                   className="rounded-xl border-border/70 px-7 py-6 text-base font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:bg-muted/60"
                 >
-                  <a href="#tarifs">{t("hero.cta.how")}</a>
+                  <a href="#langues">{t("hero.cta.lang")}</a>
                 </Button>
               </div>
               <ul className="mt-9 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
@@ -187,6 +216,8 @@ function HomePage() {
             </motion.div>
           </div>
         </section>
+
+        <TestLanguagesSection />
 
         <CommunityLeaderboardSection />
 
