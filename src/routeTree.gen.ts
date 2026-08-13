@@ -34,6 +34,8 @@ import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminCertificatsRouteImport } from './routes/_authenticated/admin/certificats'
 import { Route as AuthenticatedAdminCandidatsRouteImport } from './routes/_authenticated/admin/candidats'
 import { Route as AuthenticatedAdminAvisRouteImport } from './routes/_authenticated/admin/avis'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicChariowWebhookSecretRouteImport } from './routes/api/public/chariow-webhook.$secret'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -171,6 +173,16 @@ const AuthenticatedAdminAvisRoute = AuthenticatedAdminAvisRouteImport.update({
   path: '/avis',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicChariowWebhookSecretRoute =
   ApiPublicChariowWebhookSecretRouteImport.update({
     id: '/api/public/chariow-webhook/$secret',
@@ -204,6 +216,8 @@ export interface FileRoutesByFullPath {
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -230,6 +244,8 @@ export interface FileRoutesByTo {
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -259,6 +275,8 @@ export interface FileRoutesById {
   '/_authenticated/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -288,6 +306,8 @@ export interface FileRouteTypes {
     | '/resultat/$id'
     | '/admin/'
     | '/api/public/chariow-webhook/$secret'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -314,6 +334,8 @@ export interface FileRouteTypes {
     | '/resultat/$id'
     | '/admin'
     | '/api/public/chariow-webhook/$secret'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
   id:
     | '__root__'
     | '/'
@@ -342,6 +364,8 @@ export interface FileRouteTypes {
     | '/_authenticated/resultat/$id'
     | '/_authenticated/admin/'
     | '/api/public/chariow-webhook/$secret'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -353,6 +377,8 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   ProfileIdRoute: typeof ProfileIdRoute
   ApiPublicChariowWebhookSecretRoute: typeof ApiPublicChariowWebhookSecretRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -532,6 +558,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAvisRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/chariow-webhook/$secret': {
       id: '/api/public/chariow-webhook/$secret'
       path: '/api/public/chariow-webhook/$secret'
@@ -608,6 +648,8 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ProfileIdRoute: ProfileIdRoute,
   ApiPublicChariowWebhookSecretRoute: ApiPublicChariowWebhookSecretRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
