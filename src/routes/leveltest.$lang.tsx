@@ -98,9 +98,7 @@ function LevelTestLanding() {
                     <Link to="/auth">{t("hero.cta.start")}</Link>
                   </Button>
                   <Button asChild size="lg" variant="outline" className="rounded-xl px-7">
-                    <Link to="/" hash="tarifs">
-                      {t("nav.pricing")}
-                    </Link>
+                    <a href="/#tarifs">{t("testlang.pricing")}</a>
                   </Button>
                 </>
               ) : (

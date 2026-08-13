@@ -295,6 +295,25 @@ const en: Dict = {
   "tuto.title": "How to take your test with OpenDoorsClass",
   "tuto.desc": "A short video showing you, step by step, how to create your account, pay for your test and start your assessment.",
   "tuto.play": "Play the tutorial video",
+
+  // Test languages
+  "testlang.badge": "Assessed languages",
+  "testlang.badge.live": "Available now",
+  "testlang.title": "Test your level in the language of your choice",
+  "testlang.desc": "Assess your language skills through a structured evaluation tailored to your level.",
+  "testlang.new": "New",
+  "testlang.soon": "Coming soon",
+  "testlang.notify": "Get notified at launch",
+  "testlang.pricing": "See the price",
+  "testlang.unknown": "This test language does not exist yet.",
+  "testlang.en.title": "English Level Test",
+  "testlang.en.desc": "Assess your English proficiency against the Common European Framework of Reference for Languages (CEFR).",
+  "testlang.en.cta": "Take the test",
+  "testlang.es.title": "Spanish Level Test",
+  "testlang.es.desc": "Discover your Spanish proficiency through a complete and structured assessment.",
+  "testlang.es.cta": "Discover the test",
+  "hero.langline": "English or Spanish, assess your skills and find out exactly where you stand.",
+  "hero.cta.lang": "Choose my test language",
 };
 
 export default en;
