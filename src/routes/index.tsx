@@ -24,6 +24,7 @@ import { ClubsSection } from "@/components/clubs-section";
 import { PaymentTutorialSection } from "@/components/payment-tutorial-section";
 import { TestLanguagesSection } from "@/components/test-languages-section";
 import { CertifiedLearnersCard } from "@/components/certified-learners-card";
+import { HeroTestPreview } from "@/components/hero-test-preview";
 import { VideoTestimonial } from "@/components/video-testimonial";
 import raichaVideo from "@/assets/testimonial-raicha.mp4.asset.json";
 import raichaPoster from "@/assets/testimonial-raicha-poster.jpg.asset.json";
@@ -175,44 +176,7 @@ function HomePage() {
               className="relative mx-auto w-full max-w-md"
             >
               <div className="absolute -inset-4 rounded-3xl bg-brand-gradient opacity-20 blur-2xl" />
-              <Card className="relative overflow-hidden border-border/60 shadow-xl">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>{t("hero.preview.step")}</span>
-                    <span className="rounded-full bg-brand-yellow-soft px-2 py-0.5 text-xs font-semibold text-brand-yellow-foreground">
-                      {t("hero.preview.count")}
-                    </span>
-                  </div>
-                  <p className="mt-4 text-base font-semibold">{t("hero.preview.q")}</p>
-                  <div className="mt-4 space-y-2">
-                    {[
-                      "She don't like tea.",
-                      "She doesn't likes tea.",
-                      "She doesn't like tea.",
-                      "She not like tea.",
-                    ].map((choice, i) => (
-                      <div
-                        key={choice}
-                        className={
-                          "flex items-center gap-3 rounded-xl border px-3 py-2 text-sm " +
-                          (i === 2 ? "border-brand-green bg-brand-green-soft" : "border-border bg-muted/30")
-                        }
-                      >
-                        <span className="grid size-6 place-items-center rounded-full border border-border bg-background text-xs font-semibold">
-                          {String.fromCharCode(65 + i)}
-                        </span>
-                        <span className="text-foreground">{choice}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-5 flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="inline-flex items-center gap-1">
-                      <Clock className="size-3.5" /> {t("hero.preview.remaining")}
-                    </span>
-                    <span>{t("hero.preview.level")}</span>
-                  </div>
-                </CardContent>
-              </Card>
+              <HeroTestPreview />
             </motion.div>
           </div>
         </section>
