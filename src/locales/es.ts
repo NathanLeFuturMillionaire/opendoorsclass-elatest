@@ -18,11 +18,11 @@ const es: Dict = {
 
   // Hero
   "hero.badge": "La nueva plataforma oficial de OpenDoorsClass",
-  "hero.title.a": "Descubre tu",
-  "hero.title.b": "verdadero nivel de ingles",
+  "hero.title.a": "Inglés. Español. ",
+  "hero.title.b": "Tu nivel real",
   "hero.title.c": " en menos de treinta minutos.",
   "hero.desc":
-    "Una evaluacion rigurosa, alineada estrictamente con el Marco Comun Europeo de Referencia para las Lenguas (MCER, de A1 a C2). Disenada por el profesor Nathan Harysthote para estudiantes de Africa francofona y de todo el mundo: exigente, cercana e inmediatamente util.",
+    "Una evaluación completa, estrictamente alineada con el MCER (de A1 a C2), diseñada por Mr Nathan para estudiantes de África y de todo el mundo. Exigente, cercana, inmediatamente útil.",
   "hero.cta.start": "Hacer el test ahora",
   "hero.cta.how": "Descubrir el metodo",
   "hero.tag.instant": "Resultado inmediato",

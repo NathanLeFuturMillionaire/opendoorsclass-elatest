@@ -16,11 +16,11 @@ const en: Dict = {
   "lang.switch": "Language",
 
   "hero.badge": "The official OpenDoorsClass platform",
-  "hero.title.a": "Discover your",
-  "hero.title.b": "true English proficiency",
+  "hero.title.a": "English. Spanish. ",
+  "hero.title.b": "Your real level",
   "hero.title.c": " in under thirty minutes.",
   "hero.desc":
-    "A rigorous assessment strictly aligned with the Common European Framework of Reference (CEFR, A1 to C2). Designed by Professor Nathan Harysthote for learners across French-speaking Africa and beyond: demanding, supportive and immediately actionable.",
+    "A complete assessment strictly aligned with the CEFR (A1 to C2), designed by Mr Nathan for learners in Africa and beyond. Demanding, supportive, immediately actionable.",
   "hero.cta.start": "Take the test now",
   "hero.cta.how": "See how it works",
   "hero.tag.instant": "Instant result",

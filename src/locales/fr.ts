@@ -18,11 +18,11 @@ const fr: Dict = {
 
   // Hero
   "hero.badge": "Nouvelle plateforme officielle OpenDoorsClass",
-  "hero.title.a": "Évaluez avec précision votre",
-  "hero.title.b": "niveau réel d'anglais",
+  "hero.title.a": "Anglais. Espagnol. ",
+  "hero.title.b": "Votre niveau réel",
   "hero.title.c": ", en moins de trente minutes.",
   "hero.desc":
-    "Un examen complet, rigoureusement aligné sur le Cadre européen commun de référence pour les langues (CECRL, A1 à C2). Une évaluation conçue par le professeur Nathan Harysthote pour les apprenants francophones d'Afrique et d'ailleurs, exigeante, bienveillante, immédiatement exploitable.",
+    "Un examen complet, strictement aligné sur le CECRL (A1 à C2), conçu par Mr Nathan pour les apprenants d'Afrique et d'ailleurs. Exigeant, bienveillant, immédiatement exploitable.",
   "hero.cta.start": "Passer le test maintenant",
   "hero.cta.how": "Découvrir la démarche",
   "hero.tag.instant": "Résultat immédiat",
