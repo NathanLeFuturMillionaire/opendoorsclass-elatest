@@ -31,6 +31,10 @@ const en: Dict = {
   "hero.preview.count": "Question 12 / 30",
   "hero.preview.remaining": "24:12 left",
   "hero.preview.level": "Target level, B1",
+  "hero.preview.tab.en": "English",
+  "hero.preview.tab.es": "Spanish",
+  "hero.preview.es.q": "Elige la frase correcta:",
+  "hero.preview.es.level": "Target level, A2",
 
   "how.badge": "How it works",
   "how.title": "Three steps, one clear result.",
