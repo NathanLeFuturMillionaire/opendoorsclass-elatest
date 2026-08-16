@@ -340,6 +340,24 @@ const fr: Dict = {
   "testlang.es.cta": "Découvrir le test",
   "hero.langline": "Anglais ou espagnol, évaluez vos compétences et découvrez précisément où vous vous situez.",
   "hero.cta.lang": "Choisir ma langue de test",
+
+  // Statuts publics
+  "role.founder": "Fondateur",
+  "role.cofounder": "Co-fondatrice",
+
+  // Section About (fondateurs)
+  "about.badge": "Les fondateurs",
+  "about.title.a": "Deux personnes,",
+  "about.title.b": "une meme conviction.",
+  "about.desc": "OpenDoorsClass est porte par une equipe qui enseigne, evalue et accompagne au quotidien.",
+  "about.hint": "Faites glisser la carte ou utilisez les fleches pour decouvrir l'autre profil.",
+  "about.next": "Voir le profil suivant",
+  "about.prev": "Voir le profil precedent",
+  "about.hulda.name": "IBALA BISSELO Hulda Christ Girelle",
+  "about.hulda.p1": "Elle aime l'anglais et est toujours engagee dans son apprentissage. Elle croit profondement que cette langue peut ouvrir des portes inimaginables et que son apprentissage devrait etre une priorite pour chacun.",
+  "about.hulda.p2": "En tant que co-fondatrice d'OpenDoorsClass, elle participe activement a l'evolution de l'entreprise et contribue a son developpement.",
+  "about.cta.wa": "Contacter sur WhatsApp",
+  "about.wa.msg": "Bonjour OpenDoorsClass, j'aimerais obtenir plus d'informations concernant votre programme.",
 };
 
 export default fr;
