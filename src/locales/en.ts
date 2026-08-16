@@ -318,6 +318,24 @@ const en: Dict = {
   "testlang.es.cta": "Discover the test",
   "hero.langline": "English or Spanish, assess your skills and find out exactly where you stand.",
   "hero.cta.lang": "Choose my test language",
+
+  // Public statuses
+  "role.founder": "Founder",
+  "role.cofounder": "Co-Founder",
+
+  // About section (founders)
+  "about.badge": "The founders",
+  "about.title.a": "Two people,",
+  "about.title.b": "one shared conviction.",
+  "about.desc": "OpenDoorsClass is driven by a team that teaches, assesses and supports learners every day.",
+  "about.hint": "Swipe the card or use the arrows to discover the other profile.",
+  "about.next": "See next profile",
+  "about.prev": "See previous profile",
+  "about.hulda.name": "IBALA BISSELO Hulda Christ Girelle",
+  "about.hulda.p1": "She loves English and is always engaged in learning it. She deeply believes this language can open unimaginable doors and that learning it should be a priority for everyone.",
+  "about.hulda.p2": "As co-founder of OpenDoorsClass, she actively takes part in the growth of the company and contributes to its development.",
+  "about.cta.wa": "Contact on WhatsApp",
+  "about.wa.msg": "Hello OpenDoorsClass, I would like to get more information about your program.",
 };
 
 export default en;

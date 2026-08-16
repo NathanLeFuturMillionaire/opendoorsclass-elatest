@@ -339,6 +339,24 @@ const es: Dict = {
   "testlang.es.cta": "Pasar el test",
   "hero.langline": "Ingles o espanol, evalua tus competencias y descubre exactamente donde te situas.",
   "hero.cta.lang": "Elegir mi idioma de test",
+
+  // Estatus publicos
+  "role.founder": "Fundador",
+  "role.cofounder": "Co-fundadora",
+
+  // Seccion About (fundadores)
+  "about.badge": "Los fundadores",
+  "about.title.a": "Dos personas,",
+  "about.title.b": "una misma conviccion.",
+  "about.desc": "OpenDoorsClass esta impulsado por un equipo que ensena, evalua y acompana cada dia.",
+  "about.hint": "Desliza la tarjeta o usa las flechas para descubrir el otro perfil.",
+  "about.next": "Ver el siguiente perfil",
+  "about.prev": "Ver el perfil anterior",
+  "about.hulda.name": "IBALA BISSELO Hulda Christ Girelle",
+  "about.hulda.p1": "Ama el ingles y siempre esta comprometida con su aprendizaje. Cree profundamente que este idioma puede abrir puertas inimaginables y que aprenderlo deberia ser una prioridad para todos.",
+  "about.hulda.p2": "Como co-fundadora de OpenDoorsClass, participa activamente en la evolucion de la empresa y contribuye a su desarrollo.",
+  "about.cta.wa": "Contactar por WhatsApp",
+  "about.wa.msg": "Hola OpenDoorsClass, me gustaria obtener mas informacion sobre su programa.",
 };
 
 export default es;
