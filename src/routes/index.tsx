@@ -195,47 +195,8 @@ function HomePage() {
 
         <TestimonialsSection />
 
-        {/* Fondateur */}
-        <section id="fondateur" className="border-t border-border bg-secondary/40">
-          <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-5 md:items-center">
-            <div className="md:col-span-2">
-              <div className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-3xl border border-border shadow-xl">
-                <img
-                  src={founderPhoto.url}
-                  alt="MAYUKWA Nathan Harysthote, fondateur d'OpenDoorsClass"
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-            </div>
-            <div className="md:col-span-3">
-              <Badge variant="outline" className="mb-3">
-                {t("fd.badge")}
-              </Badge>
-              <h2 className="text-3xl font-bold sm:text-4xl">
-                {t("fd.title.a")}
-                <span className="block text-brand-gradient">{t("fd.title.b")}</span>
-              </h2>
-              <p className="mt-4 text-muted-foreground">{t("fd.p1")}</p>
-              <p className="mt-3 text-muted-foreground">{t("fd.p2")}</p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Button asChild size="lg" className="bg-brand-gradient text-primary-foreground">
-                  <Link to="/auth">{t("fd.cta.test")}</Link>
-                </Button>
-                <Button asChild size="lg" variant="outline">
-                  <a
-                    href="https://wa.me/24174825725?text=Bonjour%20Nathan%2C%20je%20souhaite%20des%20informations%20sur%20les%20formations%20OpenDoorsClass."
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <MessageCircle className="mr-2 size-4" /> {t("fd.cta.wa")}
-                  </a>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Fondateurs */}
+        <FoundersSection />
 
         {/* Final CTA */}
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
