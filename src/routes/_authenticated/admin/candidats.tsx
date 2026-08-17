@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { Coins } from "lucide-react";
 import { toast } from "sonner";
+import { FounderBadge } from "@/components/founder-badge";
+import { RelativeTime } from "@/components/relative-time";
 
 export const Route = createFileRoute("/_authenticated/admin/candidats")({
   component: CandidatesPage,
@@ -88,6 +90,7 @@ function CandidatesPage() {
                     <th className="p-3">Nom</th>
                     <th className="p-3">N° candidat</th>
                     <th className="p-3">Pays</th>
+                    <th className="p-3">Inscription</th>
                     <th className="p-3">Crédits</th>
                     <th className="p-3">Tests</th>
                     <th className="p-3">Meilleur</th>
@@ -99,9 +102,17 @@ function CandidatesPage() {
                 <tbody>
                   {(data ?? []).map((c: any) => (
                     <tr key={c.id} className="border-b last:border-0 hover:bg-muted/20">
-                      <td className="p-3">{c.first_name} {c.last_name}</td>
+                      <td className="p-3">
+                        <span className="flex flex-wrap items-center gap-1.5">
+                          {c.first_name} {c.last_name}
+                          <FounderBadge userId={c.id} candidateNumber={c.candidate_number} />
+                        </span>
+                      </td>
                       <td className="p-3 font-mono text-xs">{c.candidate_number}</td>
                       <td className="p-3">{c.nationality ?? "-"}</td>
+                      <td className="p-3 text-xs text-muted-foreground">
+                        <RelativeTime value={c.created_at} />
+                      </td>
                       <td className="p-3 font-medium">{c.credits_remaining ?? 0}</td>
                       <td className="p-3">{c.test_count}</td>
                       <td className="p-3">{c.best_score ? `${Math.round(c.best_score)}%` : "-"}</td>
@@ -128,7 +139,7 @@ function CandidatesPage() {
                     </tr>
                   ))}
                   {(data ?? []).length === 0 && (
-                    <tr><td colSpan={9} className="p-6 text-center text-muted-foreground">Aucun candidat.</td></tr>
+                    <tr><td colSpan={10} className="p-6 text-center text-muted-foreground">Aucun candidat.</td></tr>
                   )}
                 </tbody>
               </table>
