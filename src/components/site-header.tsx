@@ -81,8 +81,8 @@ export function SiteHeader() {
             <>
               <NotificationBell />
               {isStaff && (
-                <Button asChild variant="ghost" size="sm">
-                  <Link to="/admin"><Shield className="mr-1 size-4" /> {t("nav.admin")}</Link>
+                <Button asChild variant="outline" size="sm" className="border-brand-green/50 text-brand-green hover:bg-brand-green/10">
+                  <Link to="/admin"><Shield className="mr-1 size-4" aria-hidden /> {t("nav.admin")}</Link>
                 </Button>
               )}
               <Button asChild variant="ghost" size="sm">
