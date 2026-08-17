@@ -101,6 +101,7 @@ export const listPublicReviews = createServerFn({ method: "GET" }).handler(async
   const avatarByUser = new Map((profs ?? []).map((p: any) => [p.id, p.avatar_url as string | null]));
   return reviews.map((r) => ({
     id: r.id,
+    user_id: r.user_id,
     rating: r.rating,
     title: r.title,
     comment: r.comment,
