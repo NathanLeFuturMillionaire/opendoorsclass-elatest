@@ -23,6 +23,7 @@ import { PaymentTutorialSection } from "@/components/payment-tutorial-section";
 import { TestLanguagesSection } from "@/components/test-languages-section";
 import { CertifiedLearnersCard } from "@/components/certified-learners-card";
 import { HeroTestPreview } from "@/components/hero-test-preview";
+import { FounderBadge } from "@/components/founder-badge";
 import { VideoTestimonial } from "@/components/video-testimonial";
 import raichaVideo from "@/assets/testimonial-raicha.mp4.asset.json";
 import raichaPoster from "@/assets/testimonial-raicha-poster.jpg.asset.json";
@@ -226,6 +227,7 @@ function TestimonialsSection() {
   const reviews =
     data && data.length > 0
       ? data.map((r) => ({
+          user_id: (r as { user_id?: string | null }).user_id ?? null,
           display_name: r.display_name ?? "Candidat",
           level_achieved: r.level_achieved ?? "",
           rating: r.rating,
@@ -325,7 +327,10 @@ function TestimonialsSection() {
                       </div>
                     )}
                     <div>
-                      <p className="text-sm font-semibold">{t.display_name}</p>
+                      <p className="flex flex-wrap items-center gap-1.5 text-sm font-semibold">
+                        {t.display_name}
+                        <FounderBadge userId={(t as { user_id?: string | null }).user_id ?? null} />
+                      </p>
                       {t.country ? <p className="text-xs text-muted-foreground">{t.country}</p> : null}
                     </div>
                   </div>
