@@ -81,8 +81,8 @@ export function SiteHeader() {
             <>
               <NotificationBell />
               {isStaff && (
-                <Button asChild variant="ghost" size="sm">
-                  <Link to="/admin"><Shield className="mr-1 size-4" /> {t("nav.admin")}</Link>
+                <Button asChild variant="outline" size="sm" className="border-brand-green/50 text-brand-green hover:bg-brand-green/10">
+                  <Link to="/admin"><Shield className="mr-1 size-4" aria-hidden /> {t("nav.admin")}</Link>
                 </Button>
               )}
               <Button asChild variant="ghost" size="sm">
@@ -131,8 +131,15 @@ export function SiteHeader() {
                 <div className="flex justify-center pb-1">
                   <LanguageSwitcher />
                 </div>
-                {user ? (
+              {user ? (
                   <>
+                    {isStaff && (
+                      <Button asChild variant="outline" onClick={() => setOpen(false)}>
+                        <Link to="/admin">
+                          <Shield className="mr-1 size-4" aria-hidden /> {t("nav.admin")}
+                        </Link>
+                      </Button>
+                    )}
                     <Button asChild variant="outline" onClick={() => setOpen(false)}>
                       <Link to="/notifications">{t("notif.title")}</Link>
                     </Button>

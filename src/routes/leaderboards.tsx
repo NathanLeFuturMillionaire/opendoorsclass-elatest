@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { flagFor, LeaderAvatar, medalFor } from "@/components/leaderboard/shared";
+import { FounderBadge } from "@/components/founder-badge";
 import {
   getLeaderboard,
   LEADERBOARD_CATEGORIES,
@@ -94,8 +95,9 @@ function EntryRow({ entry, index, en }: { entry: LeaderboardEntry; index: number
         </span>
         <LeaderAvatar entry={entry} size={isFirst ? 52 : 42} />
         <div className="min-w-0">
-          <p className={"truncate font-semibold " + (isFirst ? "text-base" : "text-sm")}>
-            {entry.display_name}
+          <p className={"flex flex-wrap items-center gap-1.5 font-semibold " + (isFirst ? "text-base" : "text-sm")}>
+            <span className="truncate">{entry.display_name}</span>
+            <FounderBadge userId={entry.user_id} />
           </p>
           <p className="truncate text-xs text-muted-foreground">
             <span aria-hidden>{flagFor(entry.country)}</span> {entry.country ?? (en ? "Worldwide" : "International")}
