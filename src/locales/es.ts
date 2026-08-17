@@ -90,11 +90,11 @@ const es: Dict = {
   // Founder
   "fd.badge": "El fundador",
   "fd.title.a": "MAYUKWA Nathan Harysthote,",
-  "fd.title.b": "profesor de ingles comprometido y apasionado.",
+  "fd.title.b": "profesor de inglés comprometido y apasionado.",
   "fd.p1":
-    "Formador en Gabon, Nathan acompana desde hace varios anos a alumnos, estudiantes y profesionales hacia un ingles verdaderamente util, el que abre las puertas de la escuela, el trabajo y los viajes.",
+    "Formador en Gabón, Nathan acompaña desde hace varios años a alumnos, estudiantes y profesionales hacia un inglés verdaderamente útil, el que abre las puertas de la escuela, el trabajo y los viajes.",
   "fd.p2":
-    "OpenDoorsClass nacio de una conviccion sencilla: cada estudiante merece conocer su nivel real antes de elegir su camino. Este test es el primer paso.",
+    "OpenDoorsClass nació de una convicción sencilla: cada estudiante merece conocer su nivel real antes de elegir su camino. Este test es el primer paso.",
   "fd.cta.test": "Hacer el test",
   "fd.cta.wa": "Contactar por WhatsApp",
 
@@ -347,16 +347,16 @@ const es: Dict = {
   // Seccion About (fundadores)
   "about.badge": "Los fundadores",
   "about.title.a": "Dos personas,",
-  "about.title.b": "una misma conviccion.",
-  "about.desc": "OpenDoorsClass esta impulsado por un equipo que ensena, evalua y acompana cada dia.",
+  "about.title.b": "una misma convicción.",
+  "about.desc": "OpenDoorsClass está impulsado por un equipo que enseña, evalúa y acompaña cada día.",
   "about.hint": "Desliza la tarjeta o usa las flechas para descubrir el otro perfil.",
   "about.next": "Ver el siguiente perfil",
   "about.prev": "Ver el perfil anterior",
   "about.hulda.name": "IBALA BISSELO Hulda Christ Girelle",
-  "about.hulda.p1": "Ama el ingles y siempre esta comprometida con su aprendizaje. Cree profundamente que este idioma puede abrir puertas inimaginables y que aprenderlo deberia ser una prioridad para todos.",
-  "about.hulda.p2": "Como co-fundadora de OpenDoorsClass, participa activamente en la evolucion de la empresa y contribuye a su desarrollo.",
+  "about.hulda.p1": "Ama el inglés y siempre está comprometida con su aprendizaje. Cree profundamente que este idioma puede abrir puertas inimaginables y que aprenderlo debería ser una prioridad para todos.",
+  "about.hulda.p2": "Como co-fundadora de OpenDoorsClass, participa activamente en la evolución de la empresa y contribuye a su desarrollo.",
   "about.cta.wa": "Contactar por WhatsApp",
-  "about.wa.msg": "Hola OpenDoorsClass, me gustaria obtener mas informacion sobre su programa.",
+  "about.wa.msg": "Hola OpenDoorsClass, me gustaría obtener más información sobre su programa.",
 };
 
 export default es;
