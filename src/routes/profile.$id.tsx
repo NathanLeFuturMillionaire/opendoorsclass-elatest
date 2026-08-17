@@ -17,6 +17,7 @@ import { Progress } from "@/components/ui/progress";
 import { flagFor } from "@/components/leaderboard/shared";
 import { getPublicProfile, type PublicProfile } from "@/lib/public-profile.functions";
 import { useI18n } from "@/lib/i18n";
+import { FounderBadge } from "@/components/founder-badge";
 
 const SKILL_LABELS: Record<string, { fr: string; en: string }> = {
   grammar: { fr: "Grammaire", en: "Grammar" },
@@ -137,9 +138,16 @@ function PublicProfilePage() {
                 </span>
               )}
               <div className="min-w-0 flex-1">
-                <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-                  {profile.displayName}
-                </h1>
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                  <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+                    {profile.displayName}
+                  </h1>
+                  <FounderBadge
+                    userId={profile.userId}
+                    candidateNumber={profile.candidateNumber}
+                    size="md"
+                  />
+                </div>
                 <p className="mt-1 text-sm text-muted-foreground">
                   <span aria-hidden>{flagFor(profile.country)}</span>{" "}
                   {profile.country ?? (en ? "Worldwide" : "International")}
