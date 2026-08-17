@@ -5,8 +5,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
 import {
   CheckCircle2,
-  Clock,
-  MessageCircle,
   Star,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
