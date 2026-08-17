@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { flagFor, LeaderAvatar, medalFor } from "@/components/leaderboard/shared";
 import { getLeaderboard, type LeaderboardEntry } from "@/lib/leaderboards.functions";
 import { useI18n } from "@/lib/i18n";
+import { FounderBadge } from "@/components/founder-badge";
 
 function Row({ entry, delay, en }: { entry: LeaderboardEntry; delay: number; en: boolean }) {
   const medal = medalFor(entry.rank);
@@ -37,8 +38,9 @@ function Row({ entry, delay, en }: { entry: LeaderboardEntry; delay: number; en:
         </span>
         <LeaderAvatar entry={entry} size={isFirst ? 52 : 42} />
         <div className="min-w-0 flex-1">
-          <p className={"truncate font-semibold " + (isFirst ? "text-base" : "text-sm")}>
-            {entry.display_name}
+          <p className={"flex flex-wrap items-center gap-1.5 font-semibold " + (isFirst ? "text-base" : "text-sm")}>
+            <span className="truncate">{entry.display_name}</span>
+            <FounderBadge userId={entry.user_id} />
           </p>
           <p className="truncate text-xs text-muted-foreground">
             <span aria-hidden>{flagFor(entry.country)}</span> {entry.country ?? (en ? "Worldwide" : "International")}
