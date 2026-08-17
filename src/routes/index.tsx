@@ -9,8 +9,8 @@ import {
   MessageCircle,
   Star,
 } from "lucide-react";
-import founderPhoto from "@/assets/founder-nathan.jpg.asset.json";
 import { SiteHeader } from "@/components/site-header";
+import { FoundersSection } from "@/components/founders-section";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
