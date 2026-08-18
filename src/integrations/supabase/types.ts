@@ -119,6 +119,44 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          language: string | null
+          reason: string
+          session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          language?: string | null
+          reason: string
+          session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          language?: string | null
+          reason?: string
+          session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_transactions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "test_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       level_messages: {
         Row: {
           id: string
@@ -427,6 +465,7 @@ export type Database = {
           image_alt: string | null
           image_url: string | null
           is_active: boolean
+          language: string
           level: Database["public"]["Enums"]["cecrl_level"]
           max_plays: number
           options: Json
@@ -447,6 +486,7 @@ export type Database = {
           image_alt?: string | null
           image_url?: string | null
           is_active?: boolean
+          language?: string
           level: Database["public"]["Enums"]["cecrl_level"]
           max_plays?: number
           options: Json
@@ -467,6 +507,7 @@ export type Database = {
           image_alt?: string | null
           image_url?: string | null
           is_active?: boolean
+          language?: string
           level?: Database["public"]["Enums"]["cecrl_level"]
           max_plays?: number
           options?: Json
@@ -583,42 +624,60 @@ export type Database = {
           answers: Json
           completed_at: string | null
           created_at: string
+          credits_consumed: number
+          current_question: number
+          current_section: string | null
           duration_seconds: number | null
           id: string
+          language: string
           level_result: Database["public"]["Enums"]["cecrl_level"] | null
           per_category_scores: Json
+          progress: Json
           question_ids: string[]
           score: number | null
           skill_scores: Json | null
           started_at: string
+          status: Database["public"]["Enums"]["assessment_status"]
           user_id: string
         }
         Insert: {
           answers?: Json
           completed_at?: string | null
           created_at?: string
+          credits_consumed?: number
+          current_question?: number
+          current_section?: string | null
           duration_seconds?: number | null
           id?: string
+          language?: string
           level_result?: Database["public"]["Enums"]["cecrl_level"] | null
           per_category_scores?: Json
+          progress?: Json
           question_ids?: string[]
           score?: number | null
           skill_scores?: Json | null
           started_at?: string
+          status?: Database["public"]["Enums"]["assessment_status"]
           user_id: string
         }
         Update: {
           answers?: Json
           completed_at?: string | null
           created_at?: string
+          credits_consumed?: number
+          current_question?: number
+          current_section?: string | null
           duration_seconds?: number | null
           id?: string
+          language?: string
           level_result?: Database["public"]["Enums"]["cecrl_level"] | null
           per_category_scores?: Json
+          progress?: Json
           question_ids?: string[]
           score?: number | null
           skill_scores?: Json | null
           started_at?: string
+          status?: Database["public"]["Enums"]["assessment_status"]
           user_id?: string
         }
         Relationships: []
@@ -786,6 +845,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      abandon_assessment_session: {
+        Args: { _session_id: string }
+        Returns: Json
+      }
       admin_dashboard_stats: { Args: never; Returns: Json }
       award_xp: {
         Args: {
@@ -857,10 +920,18 @@ export type Database = {
         Args: { _country?: string; _opt_in: boolean }
         Returns: Json
       }
+      start_assessment_session: { Args: { _language: string }; Returns: Json }
       start_test_session: { Args: never; Returns: string }
     }
     Enums: {
       app_role: "admin" | "user" | "owner" | "moderator"
+      assessment_status:
+        | "not_started"
+        | "in_progress"
+        | "paused"
+        | "completed"
+        | "abandoned"
+        | "expired"
       cecrl_level: "A1" | "A2" | "B1" | "B2" | "C1" | "C2"
       level_range: "A1-A2" | "B1-B2" | "C1-C2"
       payment_status: "pending" | "success" | "failed" | "cancelled"
@@ -1001,6 +1072,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "owner", "moderator"],
+      assessment_status: [
+        "not_started",
+        "in_progress",
+        "paused",
+        "completed",
+        "abandoned",
+        "expired",
+      ],
       cecrl_level: ["A1", "A2", "B1", "B2", "C1", "C2"],
       level_range: ["A1-A2", "B1-B2", "C1-C2"],
       payment_status: ["pending", "success", "failed", "cancelled"],
