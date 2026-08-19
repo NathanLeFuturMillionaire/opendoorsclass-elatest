@@ -53,8 +53,7 @@ export function WorldReachSection() {
           <Badge variant="outline" className="mb-3">
             {t("world.badge")}
           </Badge>
-          <h2 className="text-3xl font-bold sm:text-4xl">{t("world.title")}</h2>
-          <p className="mt-3 text-muted-foreground">{t("world.desc")}</p>
+          <p className="text-muted-foreground">{t("world.desc")}</p>
         </div>
 
         <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3">
