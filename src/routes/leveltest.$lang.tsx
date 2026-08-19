@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/lib/i18n";
 import { getTestLanguage, isTestLanguageCode } from "@/lib/test-languages";
+import { socialMeta, canonicalLink, breadcrumbLd, courseLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/leveltest/$lang")({
   beforeLoad: ({ params }) => {
@@ -16,24 +17,36 @@ export const Route = createFileRoute("/leveltest/$lang")({
     const isEs = params.lang === "es";
     const title = isEs
       ? "Spanish Level Test | OpenDoorsClass"
-      : "English Level Test | OpenDoorsClass";
+      : "Test de niveau d'anglais en ligne CECRL | OpenDoorsClass";
     const description = isEs
       ? "Spanish proficiency assessment by OpenDoorsClass, structured on the CEFR scale from A1 to C2, with an official certificate."
-      : "English proficiency assessment by OpenDoorsClass, aligned with the CEFR scale from A1 to C2, with an official certificate.";
+      : "Passez le test de niveau d'anglais OpenDoorsClass, aligné sur le CECRL de A1 à C2 : grammaire, vocabulaire, lecture, écoute, écrit et oral, avec attestation officielle.";
+    const path = `/leveltest/${params.lang}`;
     return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
-        { property: "og:url", content: `https://opendoorsclass-elatest.lovable.app/leveltest/${params.lang}` },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-      links: [
+      meta: socialMeta({ title, description, path }),
+      links: canonicalLink(path),
+      scripts: [
         {
-          rel: "canonical",
-          href: `https://opendoorsclass-elatest.lovable.app/leveltest/${params.lang}`,
+          type: "application/ld+json",
+          children: JSON.stringify(
+            courseLd({
+              name: isEs
+                ? "OpenDoorsClass Spanish Assessment"
+                : "OpenDoorsClass English Assessment",
+              description,
+              path,
+              inLanguage: isEs ? "es" : "en",
+            }),
+          ),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(
+            breadcrumbLd([
+              { name: "OpenDoorsClass", path: "/" },
+              { name: isEs ? "Spanish Assessment" : "English Assessment", path },
+            ]),
+          ),
         },
       ],
     };

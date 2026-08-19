@@ -30,24 +30,38 @@ import {
   startAssessmentSession,
 } from "@/lib/assessment.functions";
 
-const CANONICAL = "https://opendoorsclass-elatest.lovable.app/spanish-test";
+import { socialMeta, canonicalLink, breadcrumbLd, courseLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/spanish-test")({
   head: () => {
-    const title = "Spanish Language Assessment | OpenDoorsClass";
+    const title = "Test de niveau d'espagnol en ligne | OpenDoorsClass";
     const description =
-      "Measure your real Spanish proficiency on the CEFR scale, from A1 to C2, with the OpenDoorsClass assessment engine.";
+      "Évaluez votre niveau réel d'espagnol sur l'échelle CECRL, de A1 à C2, avec le Spanish Assessment OpenDoorsClass : grammaire, vocabulaire, lecture, écoute, écrit et oral.";
     return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
-        { property: "og:url", content: CANONICAL },
-        { name: "twitter:card", content: "summary_large_image" },
+      meta: socialMeta({ title, description, path: "/spanish-test" }),
+      links: canonicalLink("/spanish-test"),
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(
+            courseLd({
+              name: "OpenDoorsClass Spanish Assessment",
+              description,
+              path: "/spanish-test",
+              inLanguage: "es",
+            }),
+          ),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(
+            breadcrumbLd([
+              { name: "OpenDoorsClass", path: "/" },
+              { name: "Spanish Assessment", path: "/spanish-test" },
+            ]),
+          ),
+        },
       ],
-      links: [{ rel: "canonical", href: CANONICAL }],
     };
   },
   component: SpanishAssessmentPage,
