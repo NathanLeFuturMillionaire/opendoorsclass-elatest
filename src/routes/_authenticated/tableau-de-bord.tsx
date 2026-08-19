@@ -145,6 +145,19 @@ function DashboardPage() {
 
         <section className="mt-10 animate-fade-up">
           <div className="mb-4 flex items-center gap-2">
+            <Award className="size-5 text-primary" />
+            <h2 className="text-xl font-semibold">
+              {locale === "en" ? "My assessments" : "Mes évaluations"}
+            </h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <AssessmentBlock language="en" history={history} locale={locale} />
+            <AssessmentBlock language="es" history={history} locale={locale} />
+          </div>
+        </section>
+
+        <section className="mt-10 animate-fade-up">
+          <div className="mb-4 flex items-center gap-2">
             <ClipboardList className="size-5 text-primary" />
             <h2 className="text-xl font-semibold">{t("dash.history")}</h2>
           </div>
@@ -158,6 +171,9 @@ function DashboardPage() {
                 <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
                   <tr>
                     <th className="px-4 py-3 text-left">{t("dash.col.date")}</th>
+                    <th className="px-4 py-3 text-left">
+                      {locale === "en" ? "Assessment" : "Évaluation"}
+                    </th>
                     <th className="px-4 py-3 text-left">{t("dash.col.status")}</th>
                     <th className="px-4 py-3 text-left">{t("dash.col.level")}</th>
                     <th className="px-4 py-3 text-left">{t("dash.col.score")}</th>
@@ -173,6 +189,9 @@ function DashboardPage() {
                           month: "short",
                           year: "numeric",
                         })}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap font-medium">
+                        {s.language === "es" ? "🇪🇸 Spanish" : "🇬🇧 English"}
                       </td>
                       <td className="px-4 py-3">
                         {s.completed_at ? (
