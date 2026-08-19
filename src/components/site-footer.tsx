@@ -44,6 +44,11 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
+                <Link to="/cecr-niveaux-anglais" className="hover:text-foreground">
+                  Niveaux d'anglais CECRL
+                </Link>
+              </li>
+              <li>
                 <Link to="/formation-anglais-programme" className="hover:text-foreground">
                   Formation anglais professionnel
                 </Link>
