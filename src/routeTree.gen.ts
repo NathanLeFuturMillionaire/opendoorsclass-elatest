@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SpanishTestRouteImport } from './routes/spanish-test'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LeaderboardsRouteImport } from './routes/leaderboards'
+import { Route as FormationAnglaisProgrammeRouteImport } from './routes/formation-anglais-programme'
 import { Route as CertifiesRouteImport } from './routes/certifies'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -55,6 +56,12 @@ const LeaderboardsRoute = LeaderboardsRouteImport.update({
   path: '/leaderboards',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FormationAnglaisProgrammeRoute =
+  FormationAnglaisProgrammeRouteImport.update({
+    id: '/formation-anglais-programme',
+    path: '/formation-anglais-programme',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CertifiesRoute = CertifiesRouteImport.update({
   id: '/certifies',
   path: '/certifies',
@@ -206,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/certifies': typeof CertifiesRoute
+  '/formation-anglais-programme': typeof FormationAnglaisProgrammeRoute
   '/leaderboards': typeof LeaderboardsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/spanish-test': typeof SpanishTestRoute
@@ -237,6 +245,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/certifies': typeof CertifiesRoute
+  '/formation-anglais-programme': typeof FormationAnglaisProgrammeRoute
   '/leaderboards': typeof LeaderboardsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/spanish-test': typeof SpanishTestRoute
@@ -269,6 +278,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/certifies': typeof CertifiesRoute
+  '/formation-anglais-programme': typeof FormationAnglaisProgrammeRoute
   '/leaderboards': typeof LeaderboardsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/spanish-test': typeof SpanishTestRoute
@@ -302,6 +312,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/certifies'
+    | '/formation-anglais-programme'
     | '/leaderboards'
     | '/reset-password'
     | '/spanish-test'
@@ -333,6 +344,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/certifies'
+    | '/formation-anglais-programme'
     | '/leaderboards'
     | '/reset-password'
     | '/spanish-test'
@@ -364,6 +376,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/certifies'
+    | '/formation-anglais-programme'
     | '/leaderboards'
     | '/reset-password'
     | '/spanish-test'
@@ -397,6 +410,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   CertifiesRoute: typeof CertifiesRoute
+  FormationAnglaisProgrammeRoute: typeof FormationAnglaisProgrammeRoute
   LeaderboardsRoute: typeof LeaderboardsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SpanishTestRoute: typeof SpanishTestRoute
@@ -428,6 +442,13 @@ declare module '@tanstack/react-router' {
       path: '/leaderboards'
       fullPath: '/leaderboards'
       preLoaderRoute: typeof LeaderboardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/formation-anglais-programme': {
+      id: '/formation-anglais-programme'
+      path: '/formation-anglais-programme'
+      fullPath: '/formation-anglais-programme'
+      preLoaderRoute: typeof FormationAnglaisProgrammeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/certifies': {
@@ -684,6 +705,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   CertifiesRoute: CertifiesRoute,
+  FormationAnglaisProgrammeRoute: FormationAnglaisProgrammeRoute,
   LeaderboardsRoute: LeaderboardsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SpanishTestRoute: SpanishTestRoute,

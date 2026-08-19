@@ -6,7 +6,7 @@ const en: Dict = {
   "nav.leaderboards": "Leaderboards",
   "nav.testimonials": "Testimonials",
   "nav.founder": "The founder",
-  "nav.worldwide": "Worldwide access",
+  "nav.training": "Training",
   "nav.admin": "Admin",
   "nav.space": "My space",
   "nav.signout": "Sign out",

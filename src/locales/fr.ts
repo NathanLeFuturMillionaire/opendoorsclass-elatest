@@ -7,7 +7,7 @@ const fr: Dict = {
   "nav.leaderboards": "Classements",
   "nav.testimonials": "Témoignages",
   "nav.founder": "Le fondateur",
-  "nav.worldwide": "Accessible partout",
+  "nav.training": "Formation",
   "nav.admin": "Administration",
   "nav.space": "Mon espace",
   "nav.signout": "Déconnexion",

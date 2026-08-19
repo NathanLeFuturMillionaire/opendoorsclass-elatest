@@ -7,7 +7,7 @@ const es: Dict = {
   "nav.leaderboards": "Clasificaciones",
   "nav.testimonials": "Testimonios",
   "nav.founder": "El fundador",
-  "nav.worldwide": "Acceso mundial",
+  "nav.training": "Formacion",
   "nav.admin": "Administracion",
   "nav.space": "Mi espacio",
   "nav.signout": "Cerrar sesion",

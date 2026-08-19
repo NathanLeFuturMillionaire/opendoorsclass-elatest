@@ -20,7 +20,7 @@ export function SiteHeader() {
   const NAV = [
     { to: "/", label: t("nav.home") },
     { to: "/leaderboards", label: t("nav.leaderboards") },
-    { to: "/#monde", label: t("nav.worldwide") },
+    { to: "/#formation", label: t("nav.training") },
   ];
 
   useEffect(() => {

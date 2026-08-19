@@ -15,10 +15,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { listPublicReviews } from "@/lib/reviews.functions";
 import { useT } from "@/lib/i18n";
-import { WorldReachSection } from "@/components/world-reach-section";
 import { HomePricingSection } from "@/components/home-pricing-section";
-import { ClubsSection } from "@/components/clubs-section";
 import { PaymentTutorialSection } from "@/components/payment-tutorial-section";
+import { TrainingSection } from "@/components/training-section";
 import { TestLanguagesSection } from "@/components/test-languages-section";
 import { CertifiedLearnersCard } from "@/components/certified-learners-card";
 import { HeroTestPreview } from "@/components/hero-test-preview";
@@ -179,15 +178,13 @@ function HomePage() {
           </div>
         </section>
 
+        <TrainingSection />
+
         <TestLanguagesSection />
 
         <HomePricingSection />
 
         <PaymentTutorialSection />
-
-        <ClubsSection />
-
-        <WorldReachSection />
 
         <TestimonialsSection />
 
