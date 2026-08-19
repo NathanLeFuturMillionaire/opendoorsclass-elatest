@@ -107,8 +107,10 @@ export const startAssessmentSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => LanguageInput.parse(input))
   .handler(async ({ data, context }): Promise<StartAssessmentResult> => {
-    const { data: result, error } = await context.supabase.rpc("start_assessment_session", {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: result, error } = await supabaseAdmin.rpc("start_assessment_session", {
       _language: data.language,
+      _actor: context.userId,
     });
     if (error) {
       if (error.message.includes("INSUFFICIENT_CREDITS")) throw new Error("INSUFFICIENT_CREDITS");
@@ -133,8 +135,10 @@ export const abandonAssessmentSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ sessionId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { data: result, error } = await context.supabase.rpc("abandon_assessment_session", {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: result, error } = await supabaseAdmin.rpc("abandon_assessment_session", {
       _session_id: data.sessionId,
+      _actor: context.userId,
     });
     if (error) throw new Error("SESSION_ABANDON_FAILED");
     return { abandoned: Boolean((result as { abandoned?: boolean } | null)?.abandoned) };

@@ -104,7 +104,8 @@ export const getTestQuestions = createServerFn({ method: "GET" })
 export const startTestSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase.rpc("start_test_session");
+    const { supabaseAdmin: admin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await admin.rpc("start_test_session", { _actor: context.userId });
     if (error) {
       if (error.message.includes("INSUFFICIENT_CREDITS")) {
         throw new Error("INSUFFICIENT_CREDITS");
