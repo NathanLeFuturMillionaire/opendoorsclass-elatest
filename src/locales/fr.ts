@@ -22,7 +22,7 @@ const fr: Dict = {
   "hero.title.b": "Votre niveau réel",
   "hero.title.c": ", en moins de trente minutes.",
   "hero.desc":
-    "Un examen complet, strictement aligné sur le CECRL (A1 à C2), conçu par Mr Nathan pour les apprenants d'Afrique et d'ailleurs. Exigeant, bienveillant, immédiatement exploitable.",
+    "Un examen complet, strictement aligné sur le CECRL (A1 à C2), conçu par Mr Nathan et Miss IBALA pour les apprenants d'Afrique et d'ailleurs. Exigeant, bienveillant, immédiatement exploitable.",
   "hero.cta.start": "Passer le test maintenant",
   "hero.cta.how": "Découvrir la démarche",
   "hero.tag.instant": "Résultat immédiat",

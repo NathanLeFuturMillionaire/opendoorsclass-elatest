@@ -20,7 +20,7 @@ const en: Dict = {
   "hero.title.b": "Your real level",
   "hero.title.c": " in under thirty minutes.",
   "hero.desc":
-    "A complete assessment strictly aligned with the CEFR (A1 to C2), designed by Mr Nathan for learners in Africa and beyond. Demanding, supportive, immediately actionable.",
+    "A complete assessment strictly aligned with the CEFR (A1 to C2), designed by Mr Nathan and Miss IBALA for learners in Africa and beyond. Demanding, supportive, immediately actionable.",
   "hero.cta.start": "Take the test now",
   "hero.cta.how": "See how it works",
   "hero.tag.instant": "Instant result",

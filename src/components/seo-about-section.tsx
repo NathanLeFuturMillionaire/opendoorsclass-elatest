@@ -22,7 +22,7 @@ const CONTENT: Record<
     lead: "À propos",
     title: "OpenDoorsClass, la plateforme d'évaluation et d'apprentissage des langues",
     intro:
-      "OpenDoorsClass est une plateforme en ligne dédiée à l'évaluation et à l'apprentissage des langues, l'anglais et l'espagnol. Conçue par Mr Nathan, formateur basé à Libreville au Gabon, elle permet à chaque candidat de situer son niveau réel sur l'échelle du CECRL, de A1 à C2, puis de progresser avec un parcours adapté.",
+      "OpenDoorsClass est une plateforme en ligne dédiée à l'évaluation et à l'apprentissage des langues, l'anglais et l'espagnol. Conçue par ses deux fondateurs, Mr Nathan (MAYUKWA Nathan Harysthote), fondateur, et Miss IBALA (IBALA BISSELO Hulda Christ Girelle), co-fondatrice, basés à Libreville au Gabon, elle permet à chaque candidat de situer son niveau réel sur l'échelle du CECRL, de A1 à C2, puis de progresser avec un parcours adapté.",
     blocks: [
       {
         h: "Testez votre niveau d'anglais en ligne",
@@ -59,7 +59,7 @@ const CONTENT: Record<
     faq: [
       {
         q: "Qu'est-ce qu'OpenDoorsClass ?",
-        a: "OpenDoorsClass est une plateforme d'évaluation et d'apprentissage des langues, anglais et espagnol, fondée par Mr Nathan à Libreville, au Gabon. Elle propose un test de niveau aligné sur le CECRL ainsi qu'une formation d'anglais professionnel.",
+        a: "OpenDoorsClass est une plateforme d'évaluation et d'apprentissage des langues, anglais et espagnol, fondée à Libreville, au Gabon, par Mr Nathan (MAYUKWA Nathan Harysthote), fondateur, et Miss IBALA (IBALA BISSELO Hulda Christ Girelle), co-fondatrice. Elle propose un test de niveau aligné sur le CECRL ainsi qu'une formation d'anglais professionnel.",
       },
       {
         q: "Comment fonctionne le test de niveau ?",
@@ -97,7 +97,7 @@ const CONTENT: Record<
     lead: "About",
     title: "OpenDoorsClass, the language assessment and learning platform",
     intro:
-      "OpenDoorsClass is an online platform dedicated to language assessment and learning, in English and Spanish. Designed by Mr Nathan, a trainer based in Libreville, Gabon, it lets every candidate measure their real level on the CEFR scale, from A1 to C2, and then progress with a suitable learning path.",
+      "OpenDoorsClass is an online platform dedicated to language assessment and learning, in English and Spanish. Designed by its two founders, Mr Nathan (MAYUKWA Nathan Harysthote), founder, and Miss IBALA (IBALA BISSELO Hulda Christ Girelle), co-founder, based in Libreville, Gabon, it lets every candidate measure their real level on the CEFR scale, from A1 to C2, and then progress with a suitable learning path.",
     blocks: [
       {
         h: "Test your English level online",
@@ -134,7 +134,7 @@ const CONTENT: Record<
     faq: [
       {
         q: "What is OpenDoorsClass?",
-        a: "OpenDoorsClass is a language assessment and learning platform for English and Spanish, founded by Mr Nathan in Libreville, Gabon. It offers a CEFR aligned level test and a professional English training programme.",
+        a: "OpenDoorsClass is a language assessment and learning platform for English and Spanish, founded in Libreville, Gabon, by Mr Nathan (MAYUKWA Nathan Harysthote), founder, and Miss IBALA (IBALA BISSELO Hulda Christ Girelle), co-founder. It offers a CEFR aligned level test and a professional English training programme.",
       },
       {
         q: "How does the level test work?",
@@ -172,7 +172,7 @@ const CONTENT: Record<
     lead: "Acerca de",
     title: "OpenDoorsClass, la plataforma de evaluación y aprendizaje de idiomas",
     intro:
-      "OpenDoorsClass es una plataforma en línea dedicada a la evaluación y al aprendizaje de idiomas, inglés y español. Creada por Mr Nathan, formador radicado en Libreville, Gabón, permite a cada candidato conocer su nivel real en la escala del MCER, de A1 a C2, y avanzar con un itinerario adaptado.",
+      "OpenDoorsClass es una plataforma en línea dedicada a la evaluación y al aprendizaje de idiomas, inglés y español. Creada por sus dos fundadores, Mr Nathan (MAYUKWA Nathan Harysthote), fundador, y Miss IBALA (IBALA BISSELO Hulda Christ Girelle), cofundadora, radicados en Libreville, Gabón, permite a cada candidato conocer su nivel real en la escala del MCER, de A1 a C2, y avanzar con un itinerario adaptado.",
     blocks: [
       {
         h: "Evalúa tu nivel de inglés en línea",
@@ -209,7 +209,7 @@ const CONTENT: Record<
     faq: [
       {
         q: "¿Qué es OpenDoorsClass?",
-        a: "OpenDoorsClass es una plataforma de evaluación y aprendizaje de idiomas, inglés y español, fundada por Mr Nathan en Libreville, Gabón. Ofrece un test de nivel alineado con el MCER y una formación de inglés profesional.",
+        a: "OpenDoorsClass es una plataforma de evaluación y aprendizaje de idiomas, inglés y español, fundada en Libreville, Gabón, por Mr Nathan (MAYUKWA Nathan Harysthote), fundador, y Miss IBALA (IBALA BISSELO Hulda Christ Girelle), cofundadora. Ofrece un test de nivel alineado con el MCER y una formación de inglés profesional.",
       },
       {
         q: "¿Cómo funciona el test de nivel?",

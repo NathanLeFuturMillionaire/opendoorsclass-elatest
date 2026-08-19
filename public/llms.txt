@@ -2,7 +2,7 @@
 
 > OpenDoorsClass est une plateforme d'évaluation et d'apprentissage des langues, en anglais et en espagnol, qui mesure le niveau réel des candidats sur l'échelle CECRL (A1 à C2) et délivre une attestation officielle.
 
-La plateforme est dirigée par Mr Nathan (MAYUKWA Nathan Harysthote), formateur basé à Libreville, au Gabon. Chaque test couvre la grammaire, le vocabulaire, la lecture, l'écoute, l'expression écrite, l'expression orale et l'orthographe. Le résultat est fourni immédiatement, avec un détail par compétence et une recommandation de parcours.
+La plateforme a été fondée par Mr Nathan (MAYUKWA Nathan Harysthote), fondateur, et Miss IBALA (IBALA BISSELO Hulda Christ Girelle), co-fondatrice, tous deux basés à Libreville, au Gabon. Chaque test couvre la grammaire, le vocabulaire, la lecture, l'écoute, l'expression écrite, l'expression orale et l'orthographe. Le résultat est fourni immédiatement, avec un détail par compétence et une recommandation de parcours.
 
 ## Pages
 
