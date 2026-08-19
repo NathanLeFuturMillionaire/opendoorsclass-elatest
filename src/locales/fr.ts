@@ -429,8 +429,8 @@ const fr: Dict = {
   "sa.audio.plays": "Écoutes restantes",
   "sa.audio.listen": "Écouter",
   "sa.audio.playing": "Lecture en cours...",
-  "sa.audio.none": "Plus d"écoutes",
-  "sa.audio.tip": "Utilisez des écouteurs pour une meilleure qualité d"écoute.",
+  "sa.audio.none": "Plus d'écoutes",
+  "sa.audio.tip": "Utilisez des écouteurs pour une meilleure qualité d'écoute.",
   "sa.writing.hint": "Rédigez votre réponse en espagnol, puis faites évaluer votre texte.",
   "sa.writing.words": "mots",
   "sa.writing.submit": "Faire évaluer ma réponse",
@@ -443,13 +443,13 @@ const fr: Dict = {
   "sa.speaking.again": "Réenregistrer",
   "sa.speaking.stop": "Arrêter",
   "sa.speaking.skip": "Ignorer cette question",
-  "sa.speaking.skip.hint": "Si vous n"avez pas de microphone, vous pouvez continuer sans cette question.",
+  "sa.speaking.skip.hint": "Si vous n'avez pas de microphone, vous pouvez continuer sans cette question.",
   "sa.speaking.transcript": "Voir la transcription",
   "sa.speaking.short": "Enregistrement trop court, réessayez.",
-  "sa.speaking.error": "Impossible d"accéder au microphone.",
+  "sa.speaking.error": "Impossible d'accéder au microphone.",
   "sa.grade.ok": "Validé",
   "sa.grade.ko": "À améliorer",
-  "sa.grade.failed": "L"évaluation a échoué. Merci de réessayer.",
+  "sa.grade.failed": "L'évaluation a échoué. Merci de réessayer.",
 };
 
 export default fr;
