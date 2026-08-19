@@ -59,7 +59,10 @@ export function levelInfo(xp: number) {
 export const getMyGamification = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase.rpc("get_gamification_summary");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin.rpc("get_gamification_summary", {
+      _actor: context.userId,
+    });
     if (error) throw new Error(error.message);
     return (data ?? {}) as GamificationSummary;
   });
@@ -73,9 +76,11 @@ export const getGamificationLeaderboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => LbInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { data: rows, error } = await context.supabase.rpc("get_gamification_leaderboard", {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin.rpc("get_gamification_leaderboard", {
       _scope: data.scope,
       _limit: data.limit,
+      _actor: context.userId,
     });
     if (error) throw new Error(error.message);
     return (rows ?? []) as Array<{
@@ -97,10 +102,12 @@ export const setLeaderboardOptIn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => OptInInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.rpc("set_leaderboard_opt_in", {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.rpc("set_leaderboard_opt_in", {
       _opt_in: data.opt_in,
-      _country: data.country ?? undefined,
-    });
+      _country: data.country ?? null,
+      _actor: context.userId,
+    } as never);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -108,7 +115,8 @@ export const setLeaderboardOptIn = createServerFn({ method: "POST" })
 export const recordDailyStreak = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase.rpc("record_streak", { _user_id: context.userId });
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin.rpc("record_streak", { _user_id: context.userId });
     if (error) throw new Error(error.message);
     return data as { current: number; longest: number };
   });
@@ -116,7 +124,19 @@ export const recordDailyStreak = createServerFn({ method: "POST" })
 export const getAdminGamificationOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase.rpc("get_gamification_admin_overview", { _limit: 20 });
+    const { data: roleRows } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId);
+    const roles = (roleRows ?? []).map((r: { role: string }) => r.role);
+    if (!roles.some((r) => ["owner", "admin", "moderator"].includes(r))) {
+      throw new Error("Forbidden");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin.rpc("get_gamification_admin_overview", {
+      _limit: 20,
+      _actor: context.userId,
+    });
     if (error) throw new Error(error.message);
     return data as {
       total_xp_awarded: number;

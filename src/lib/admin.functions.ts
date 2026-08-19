@@ -50,7 +50,12 @@ export const getAdminContext = createServerFn({ method: "GET" })
 export const getDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase.rpc("admin_dashboard_stats");
+    const roles = await getRoles(context.supabase, context.userId);
+    requireRole(roles, ["owner", "admin", "moderator"]);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin.rpc("admin_dashboard_stats", {
+      _actor: context.userId,
+    });
     if (error) throw new Error(error.message);
     return data as Record<string, any>;
   });
