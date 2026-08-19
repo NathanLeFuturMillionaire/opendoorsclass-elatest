@@ -9,51 +9,55 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SpanishTestRouteImport } from './routes/spanish-test'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as LeaderboardsRouteImport } from './routes/leaderboards'
-import { Route as FormationAnglaisProgrammeRouteImport } from './routes/formation-anglais-programme'
-import { Route as CertifiesRouteImport } from './routes/certifies'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProfileIdRouteImport } from './routes/profile.$id'
-import { Route as LeveltestLangRouteImport } from './routes/leveltest.$lang'
-import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/test'
-import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
-import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
-import { Route as AuthenticatedPaiementRetourRouteImport } from './routes/_authenticated/paiement-retour'
-import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
-import { Route as AuthenticatedClassementRouteImport } from './routes/_authenticated/classement'
-import { Route as AuthenticatedAchatCreditsRouteImport } from './routes/_authenticated/achat-credits'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CertifiesRouteImport } from './routes/certifies'
+import { Route as FormationAnglaisProgrammeRouteImport } from './routes/formation-anglais-programme'
+import { Route as LeaderboardsRouteImport } from './routes/leaderboards'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SpanishTestRouteImport } from './routes/spanish-test'
 import { Route as AuthenticatedAccomplissementsRouteImport } from './routes/_authenticated/accomplissements'
+import { Route as AuthenticatedAchatCreditsRouteImport } from './routes/_authenticated/achat-credits'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedClassementRouteImport } from './routes/_authenticated/classement'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as AuthenticatedPaiementRetourRouteImport } from './routes/_authenticated/paiement-retour'
+import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
+import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
+import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/test'
+import { Route as LeveltestLangRouteImport } from './routes/leveltest.$lang'
+import { Route as ProfileIdRouteImport } from './routes/profile.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
-import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
-import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin/utilisateurs'
-import { Route as AuthenticatedAdminQuestionsRouteImport } from './routes/_authenticated/admin/questions'
-import { Route as AuthenticatedAdminJournalRouteImport } from './routes/_authenticated/admin/journal'
-import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin/finance'
-import { Route as AuthenticatedAdminCertificatsRouteImport } from './routes/_authenticated/admin/certificats'
-import { Route as AuthenticatedAdminCandidatsRouteImport } from './routes/_authenticated/admin/candidats'
 import { Route as AuthenticatedAdminAvisRouteImport } from './routes/_authenticated/admin/avis'
-import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
-import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as AuthenticatedAdminCandidatsRouteImport } from './routes/_authenticated/admin/candidats'
+import { Route as AuthenticatedAdminCertificatsRouteImport } from './routes/_authenticated/admin/certificats'
+import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin/finance'
+import { Route as AuthenticatedAdminJournalRouteImport } from './routes/_authenticated/admin/journal'
+import { Route as AuthenticatedAdminQuestionsRouteImport } from './routes/_authenticated/admin/questions'
+import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin/utilisateurs'
+import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
 import { Route as ApiPublicChariowWebhookSecretRouteImport } from './routes/api/public/chariow-webhook.$secret'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 
-const SpanishTestRoute = SpanishTestRouteImport.update({
-  id: '/spanish-test',
-  path: '/spanish-test',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LeaderboardsRoute = LeaderboardsRouteImport.update({
-  id: '/leaderboards',
-  path: '/leaderboards',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CertifiesRoute = CertifiesRouteImport.update({
+  id: '/certifies',
+  path: '/certifies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FormationAnglaisProgrammeRoute =
@@ -62,38 +66,58 @@ const FormationAnglaisProgrammeRoute =
     path: '/formation-anglais-programme',
     getParentRoute: () => rootRouteImport,
   } as any)
-const CertifiesRoute = CertifiesRouteImport.update({
-  id: '/certifies',
-  path: '/certifies',
+const LeaderboardsRoute = LeaderboardsRouteImport.update({
+  id: '/leaderboards',
+  path: '/leaderboards',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const SpanishTestRoute = SpanishTestRouteImport.update({
+  id: '/spanish-test',
+  path: '/spanish-test',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedAccomplissementsRoute =
+  AuthenticatedAccomplissementsRouteImport.update({
+    id: '/accomplissements',
+    path: '/accomplissements',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAchatCreditsRoute =
+  AuthenticatedAchatCreditsRouteImport.update({
+    id: '/achat-credits',
+    path: '/achat-credits',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const ProfileIdRoute = ProfileIdRouteImport.update({
-  id: '/profile/$id',
-  path: '/profile/$id',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedClassementRoute = AuthenticatedClassementRouteImport.update({
+  id: '/classement',
+  path: '/classement',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const LeveltestLangRoute = LeveltestLangRouteImport.update({
-  id: '/leveltest/$lang',
-  path: '/leveltest/$lang',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedTestRoute = AuthenticatedTestRouteImport.update({
-  id: '/test',
-  path: '/test',
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPaiementRetourRoute =
+  AuthenticatedPaiementRetourRouteImport.update({
+    id: '/paiement-retour',
+    path: '/paiement-retour',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProfilRoute = AuthenticatedProfilRouteImport.update({
+  id: '/profil',
+  path: '/profil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedTableauDeBordRoute =
@@ -102,77 +126,35 @@ const AuthenticatedTableauDeBordRoute =
     path: '/tableau-de-bord',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedProfilRoute = AuthenticatedProfilRouteImport.update({
-  id: '/profil',
-  path: '/profil',
+const AuthenticatedTestRoute = AuthenticatedTestRouteImport.update({
+  id: '/test',
+  path: '/test',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedPaiementRetourRoute =
-  AuthenticatedPaiementRetourRouteImport.update({
-    id: '/paiement-retour',
-    path: '/paiement-retour',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedNotificationsRoute =
-  AuthenticatedNotificationsRouteImport.update({
-    id: '/notifications',
-    path: '/notifications',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedClassementRoute = AuthenticatedClassementRouteImport.update({
-  id: '/classement',
-  path: '/classement',
-  getParentRoute: () => AuthenticatedRouteRoute,
+const LeveltestLangRoute = LeveltestLangRouteImport.update({
+  id: '/leveltest/$lang',
+  path: '/leveltest/$lang',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAchatCreditsRoute =
-  AuthenticatedAchatCreditsRouteImport.update({
-    id: '/achat-credits',
-    path: '/achat-credits',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAccomplissementsRoute =
-  AuthenticatedAccomplissementsRouteImport.update({
-    id: '/accomplissements',
-    path: '/accomplissements',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => AuthenticatedRouteRoute,
+const ProfileIdRoute = ProfileIdRouteImport.update({
+  id: '/profile/$id',
+  path: '/profile/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
-const AuthenticatedResultatIdRoute = AuthenticatedResultatIdRouteImport.update({
-  id: '/resultat/$id',
-  path: '/resultat/$id',
-  getParentRoute: () => AuthenticatedRouteRoute,
+const AuthenticatedAdminAvisRoute = AuthenticatedAdminAvisRouteImport.update({
+  id: '/avis',
+  path: '/avis',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
-const AuthenticatedAdminUtilisateursRoute =
-  AuthenticatedAdminUtilisateursRouteImport.update({
-    id: '/utilisateurs',
-    path: '/utilisateurs',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
-  } as any)
-const AuthenticatedAdminQuestionsRoute =
-  AuthenticatedAdminQuestionsRouteImport.update({
-    id: '/questions',
-    path: '/questions',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
-  } as any)
-const AuthenticatedAdminJournalRoute =
-  AuthenticatedAdminJournalRouteImport.update({
-    id: '/journal',
-    path: '/journal',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
-  } as any)
-const AuthenticatedAdminFinanceRoute =
-  AuthenticatedAdminFinanceRouteImport.update({
-    id: '/finance',
-    path: '/finance',
+const AuthenticatedAdminCandidatsRoute =
+  AuthenticatedAdminCandidatsRouteImport.update({
+    id: '/candidats',
+    path: '/candidats',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminCertificatsRoute =
@@ -181,26 +163,34 @@ const AuthenticatedAdminCertificatsRoute =
     path: '/certificats',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedAdminCandidatsRoute =
-  AuthenticatedAdminCandidatsRouteImport.update({
-    id: '/candidats',
-    path: '/candidats',
+const AuthenticatedAdminFinanceRoute =
+  AuthenticatedAdminFinanceRouteImport.update({
+    id: '/finance',
+    path: '/finance',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedAdminAvisRoute = AuthenticatedAdminAvisRouteImport.update({
-  id: '/avis',
-  path: '/avis',
-  getParentRoute: () => AuthenticatedAdminRouteRoute,
-} as any)
-const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
-  id: '/lovable/email/auth/webhook',
-  path: '/lovable/email/auth/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
-  id: '/lovable/email/auth/preview',
-  path: '/lovable/email/auth/preview',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedAdminJournalRoute =
+  AuthenticatedAdminJournalRouteImport.update({
+    id: '/journal',
+    path: '/journal',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminQuestionsRoute =
+  AuthenticatedAdminQuestionsRouteImport.update({
+    id: '/questions',
+    path: '/questions',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminUtilisateursRoute =
+  AuthenticatedAdminUtilisateursRouteImport.update({
+    id: '/utilisateurs',
+    path: '/utilisateurs',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedResultatIdRoute = AuthenticatedResultatIdRouteImport.update({
+  id: '/resultat/$id',
+  path: '/resultat/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ApiPublicChariowWebhookSecretRoute =
   ApiPublicChariowWebhookSecretRouteImport.update({
@@ -208,6 +198,16 @@ const ApiPublicChariowWebhookSecretRoute =
     path: '/api/public/chariow-webhook/$secret',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -423,46 +423,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/spanish-test': {
-      id: '/spanish-test'
-      path: '/spanish-test'
-      fullPath: '/spanish-test'
-      preLoaderRoute: typeof SpanishTestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/leaderboards': {
-      id: '/leaderboards'
-      path: '/leaderboards'
-      fullPath: '/leaderboards'
-      preLoaderRoute: typeof LeaderboardsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/formation-anglais-programme': {
-      id: '/formation-anglais-programme'
-      path: '/formation-anglais-programme'
-      fullPath: '/formation-anglais-programme'
-      preLoaderRoute: typeof FormationAnglaisProgrammeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/certifies': {
-      id: '/certifies'
-      path: '/certifies'
-      fullPath: '/certifies'
-      preLoaderRoute: typeof CertifiesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -472,67 +437,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/profile/$id': {
-      id: '/profile/$id'
-      path: '/profile/$id'
-      fullPath: '/profile/$id'
-      preLoaderRoute: typeof ProfileIdRouteImport
+    '/certifies': {
+      id: '/certifies'
+      path: '/certifies'
+      fullPath: '/certifies'
+      preLoaderRoute: typeof CertifiesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/leveltest/$lang': {
-      id: '/leveltest/$lang'
-      path: '/leveltest/$lang'
-      fullPath: '/leveltest/$lang'
-      preLoaderRoute: typeof LeveltestLangRouteImport
+    '/formation-anglais-programme': {
+      id: '/formation-anglais-programme'
+      path: '/formation-anglais-programme'
+      fullPath: '/formation-anglais-programme'
+      preLoaderRoute: typeof FormationAnglaisProgrammeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/test': {
-      id: '/_authenticated/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof AuthenticatedTestRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/leaderboards': {
+      id: '/leaderboards'
+      path: '/leaderboards'
+      fullPath: '/leaderboards'
+      preLoaderRoute: typeof LeaderboardsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/tableau-de-bord': {
-      id: '/_authenticated/tableau-de-bord'
-      path: '/tableau-de-bord'
-      fullPath: '/tableau-de-bord'
-      preLoaderRoute: typeof AuthenticatedTableauDeBordRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/profil': {
-      id: '/_authenticated/profil'
-      path: '/profil'
-      fullPath: '/profil'
-      preLoaderRoute: typeof AuthenticatedProfilRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/spanish-test': {
+      id: '/spanish-test'
+      path: '/spanish-test'
+      fullPath: '/spanish-test'
+      preLoaderRoute: typeof SpanishTestRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/paiement-retour': {
-      id: '/_authenticated/paiement-retour'
-      path: '/paiement-retour'
-      fullPath: '/paiement-retour'
-      preLoaderRoute: typeof AuthenticatedPaiementRetourRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/notifications': {
-      id: '/_authenticated/notifications'
-      path: '/notifications'
-      fullPath: '/notifications'
-      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/classement': {
-      id: '/_authenticated/classement'
-      path: '/classement'
-      fullPath: '/classement'
-      preLoaderRoute: typeof AuthenticatedClassementRouteImport
+    '/_authenticated/accomplissements': {
+      id: '/_authenticated/accomplissements'
+      path: '/accomplissements'
+      fullPath: '/accomplissements'
+      preLoaderRoute: typeof AuthenticatedAccomplissementsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/achat-credits': {
@@ -542,13 +493,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAchatCreditsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/accomplissements': {
-      id: '/_authenticated/accomplissements'
-      path: '/accomplissements'
-      fullPath: '/accomplissements'
-      preLoaderRoute: typeof AuthenticatedAccomplissementsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -556,60 +500,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/classement': {
+      id: '/_authenticated/classement'
+      path: '/classement'
+      fullPath: '/classement'
+      preLoaderRoute: typeof AuthenticatedClassementRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/paiement-retour': {
+      id: '/_authenticated/paiement-retour'
+      path: '/paiement-retour'
+      fullPath: '/paiement-retour'
+      preLoaderRoute: typeof AuthenticatedPaiementRetourRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profil': {
+      id: '/_authenticated/profil'
+      path: '/profil'
+      fullPath: '/profil'
+      preLoaderRoute: typeof AuthenticatedProfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tableau-de-bord': {
+      id: '/_authenticated/tableau-de-bord'
+      path: '/tableau-de-bord'
+      fullPath: '/tableau-de-bord'
+      preLoaderRoute: typeof AuthenticatedTableauDeBordRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/test': {
+      id: '/_authenticated/test'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof AuthenticatedTestRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/leveltest/$lang': {
+      id: '/leveltest/$lang'
+      path: '/leveltest/$lang'
+      fullPath: '/leveltest/$lang'
+      preLoaderRoute: typeof LeveltestLangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile/$id': {
+      id: '/profile/$id'
+      path: '/profile/$id'
+      fullPath: '/profile/$id'
+      preLoaderRoute: typeof ProfileIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/_authenticated/resultat/$id': {
-      id: '/_authenticated/resultat/$id'
-      path: '/resultat/$id'
-      fullPath: '/resultat/$id'
-      preLoaderRoute: typeof AuthenticatedResultatIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/admin/utilisateurs': {
-      id: '/_authenticated/admin/utilisateurs'
-      path: '/utilisateurs'
-      fullPath: '/admin/utilisateurs'
-      preLoaderRoute: typeof AuthenticatedAdminUtilisateursRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/_authenticated/admin/questions': {
-      id: '/_authenticated/admin/questions'
-      path: '/questions'
-      fullPath: '/admin/questions'
-      preLoaderRoute: typeof AuthenticatedAdminQuestionsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/_authenticated/admin/journal': {
-      id: '/_authenticated/admin/journal'
-      path: '/journal'
-      fullPath: '/admin/journal'
-      preLoaderRoute: typeof AuthenticatedAdminJournalRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/_authenticated/admin/finance': {
-      id: '/_authenticated/admin/finance'
-      path: '/finance'
-      fullPath: '/admin/finance'
-      preLoaderRoute: typeof AuthenticatedAdminFinanceRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/_authenticated/admin/certificats': {
-      id: '/_authenticated/admin/certificats'
-      path: '/certificats'
-      fullPath: '/admin/certificats'
-      preLoaderRoute: typeof AuthenticatedAdminCertificatsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/_authenticated/admin/candidats': {
-      id: '/_authenticated/admin/candidats'
-      path: '/candidats'
-      fullPath: '/admin/candidats'
-      preLoaderRoute: typeof AuthenticatedAdminCandidatsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/avis': {
@@ -619,11 +570,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAvisRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/lovable/email/auth/webhook': {
-      id: '/lovable/email/auth/webhook'
-      path: '/lovable/email/auth/webhook'
-      fullPath: '/lovable/email/auth/webhook'
-      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+    '/_authenticated/admin/candidats': {
+      id: '/_authenticated/admin/candidats'
+      path: '/candidats'
+      fullPath: '/admin/candidats'
+      preLoaderRoute: typeof AuthenticatedAdminCandidatsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/certificats': {
+      id: '/_authenticated/admin/certificats'
+      path: '/certificats'
+      fullPath: '/admin/certificats'
+      preLoaderRoute: typeof AuthenticatedAdminCertificatsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/finance': {
+      id: '/_authenticated/admin/finance'
+      path: '/finance'
+      fullPath: '/admin/finance'
+      preLoaderRoute: typeof AuthenticatedAdminFinanceRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/journal': {
+      id: '/_authenticated/admin/journal'
+      path: '/journal'
+      fullPath: '/admin/journal'
+      preLoaderRoute: typeof AuthenticatedAdminJournalRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/questions': {
+      id: '/_authenticated/admin/questions'
+      path: '/questions'
+      fullPath: '/admin/questions'
+      preLoaderRoute: typeof AuthenticatedAdminQuestionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/utilisateurs': {
+      id: '/_authenticated/admin/utilisateurs'
+      path: '/utilisateurs'
+      fullPath: '/admin/utilisateurs'
+      preLoaderRoute: typeof AuthenticatedAdminUtilisateursRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/resultat/$id': {
+      id: '/_authenticated/resultat/$id'
+      path: '/resultat/$id'
+      fullPath: '/resultat/$id'
+      preLoaderRoute: typeof AuthenticatedResultatIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/chariow-webhook/$secret': {
+      id: '/api/public/chariow-webhook/$secret'
+      path: '/api/public/chariow-webhook/$secret'
+      fullPath: '/api/public/chariow-webhook/$secret'
+      preLoaderRoute: typeof ApiPublicChariowWebhookSecretRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/auth/preview': {
@@ -633,11 +633,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/chariow-webhook/$secret': {
-      id: '/api/public/chariow-webhook/$secret'
-      path: '/api/public/chariow-webhook/$secret'
-      fullPath: '/api/public/chariow-webhook/$secret'
-      preLoaderRoute: typeof ApiPublicChariowWebhookSecretRouteImport
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
