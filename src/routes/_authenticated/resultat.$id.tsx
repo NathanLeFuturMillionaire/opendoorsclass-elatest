@@ -47,6 +47,8 @@ const CATEGORY_EN: Record<string, string> = {
   reading: "Reading",
   listening: "Listening",
   speaking: "Speaking",
+  writing: "Writing",
+  orthography: "Orthography",
 };
 
 function mention(score: number | null | undefined) {

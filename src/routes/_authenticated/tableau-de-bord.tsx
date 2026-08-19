@@ -380,7 +380,15 @@ function _AccessStatusCard({ status }: { status: "unlocked" | "pending" | "faile
             <p className="mt-1 text-sm text-muted-foreground">{config.desc}</p>
           </div>
         </div>
-        {config.cta ? (
+        {status === "unlocked" ? (
+          <TakeTestDialog
+            trigger={
+              <Button className="bg-brand-gradient text-primary-foreground">
+                Démarrer mon test
+              </Button>
+            }
+          />
+        ) : config.cta ? (
           <Button asChild className="bg-brand-gradient text-primary-foreground">
             <Link to={config.cta.to}>{config.cta.label}</Link>
           </Button>
