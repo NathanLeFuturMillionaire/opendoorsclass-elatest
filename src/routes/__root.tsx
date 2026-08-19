@@ -182,6 +182,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <Outlet />
+        <CompleteProfileDialog />
         <Toaster richColors position="top-center" />
       </LanguageProvider>
     </QueryClientProvider>
