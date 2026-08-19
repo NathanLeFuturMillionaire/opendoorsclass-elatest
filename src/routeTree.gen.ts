@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SpanishTestRouteImport } from './routes/spanish-test'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LeaderboardsRouteImport } from './routes/leaderboards'
 import { Route as CertifiesRouteImport } from './routes/certifies'
@@ -39,6 +40,11 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicChariowWebhookSecretRouteImport } from './routes/api/public/chariow-webhook.$secret'
 
+const SpanishTestRoute = SpanishTestRouteImport.update({
+  id: '/spanish-test',
+  path: '/spanish-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -202,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/certifies': typeof CertifiesRoute
   '/leaderboards': typeof LeaderboardsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/spanish-test': typeof SpanishTestRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
@@ -232,6 +239,7 @@ export interface FileRoutesByTo {
   '/certifies': typeof CertifiesRoute
   '/leaderboards': typeof LeaderboardsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/spanish-test': typeof SpanishTestRoute
   '/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
   '/classement': typeof AuthenticatedClassementRoute
@@ -263,6 +271,7 @@ export interface FileRoutesById {
   '/certifies': typeof CertifiesRoute
   '/leaderboards': typeof LeaderboardsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/spanish-test': typeof SpanishTestRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/_authenticated/achat-credits': typeof AuthenticatedAchatCreditsRoute
@@ -295,6 +304,7 @@ export interface FileRouteTypes {
     | '/certifies'
     | '/leaderboards'
     | '/reset-password'
+    | '/spanish-test'
     | '/admin'
     | '/accomplissements'
     | '/achat-credits'
@@ -325,6 +335,7 @@ export interface FileRouteTypes {
     | '/certifies'
     | '/leaderboards'
     | '/reset-password'
+    | '/spanish-test'
     | '/accomplissements'
     | '/achat-credits'
     | '/classement'
@@ -355,6 +366,7 @@ export interface FileRouteTypes {
     | '/certifies'
     | '/leaderboards'
     | '/reset-password'
+    | '/spanish-test'
     | '/_authenticated/admin'
     | '/_authenticated/accomplissements'
     | '/_authenticated/achat-credits'
@@ -387,6 +399,7 @@ export interface RootRouteChildren {
   CertifiesRoute: typeof CertifiesRoute
   LeaderboardsRoute: typeof LeaderboardsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SpanishTestRoute: typeof SpanishTestRoute
   LeveltestLangRoute: typeof LeveltestLangRoute
   ProfileIdRoute: typeof ProfileIdRoute
   ApiPublicChariowWebhookSecretRoute: typeof ApiPublicChariowWebhookSecretRoute
@@ -396,6 +409,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/spanish-test': {
+      id: '/spanish-test'
+      path: '/spanish-test'
+      fullPath: '/spanish-test'
+      preLoaderRoute: typeof SpanishTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -666,6 +686,7 @@ const rootRouteChildren: RootRouteChildren = {
   CertifiesRoute: CertifiesRoute,
   LeaderboardsRoute: LeaderboardsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SpanishTestRoute: SpanishTestRoute,
   LeveltestLangRoute: LeveltestLangRoute,
   ProfileIdRoute: ProfileIdRoute,
   ApiPublicChariowWebhookSecretRoute: ApiPublicChariowWebhookSecretRoute,
