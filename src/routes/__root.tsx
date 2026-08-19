@@ -82,6 +82,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      {
+        name: "google-site-verification",
+        content: "QcRBbPyXe1HvYqtUf5ioiGZiQzdpL-PnhrysS2IBB4M",
+      },
       { title: "OpenDoorsClass, Test de niveau d'anglais CECRL en ligne" },
       {
         name: "description",
