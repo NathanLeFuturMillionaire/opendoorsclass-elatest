@@ -501,34 +501,3 @@ function TimerChip({ seconds }: { seconds: number | null }) {
     </span>
   );
 }
-
-function LegacySaveIndicator({ state, onRetry }: { state: SaveState; onRetry: () => void }) {
-  const t = useT();
-  if (state === "idle") return null;
-  if (state === "saving") {
-    return (
-      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-        <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
-        {t("sa.saving")}
-      </span>
-    );
-  }
-  if (state === "saved") {
-    return (
-      <span className="flex items-center gap-1.5 text-xs text-brand-green">
-        <CheckCircle2 className="size-3.5" aria-hidden="true" />
-        {t("sa.saved")}
-      </span>
-    );
-  }
-  return (
-    <button
-      type="button"
-      onClick={onRetry}
-      className="flex items-center gap-1.5 text-xs font-medium text-destructive underline-offset-2 hover:underline"
-    >
-      <CloudOff className="size-3.5" aria-hidden="true" />
-      {t("sa.savefail.final")}
-    </button>
-  );
-}
