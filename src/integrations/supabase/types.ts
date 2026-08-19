@@ -915,7 +915,7 @@ export type Database = {
     }
     Functions: {
       abandon_assessment_session: {
-        Args: { _session_id: string }
+        Args: { _actor: string; _session_id: string }
         Returns: Json
       }
       admin_dashboard_stats: { Args: { _actor?: string }; Returns: Json }
@@ -936,7 +936,7 @@ export type Database = {
         Returns: Json
       }
       get_gamification_leaderboard: {
-        Args: { _limit?: number; _scope?: string }
+        Args: { _actor: string; _limit: number; _scope: string }
         Returns: {
           cefr_level: string
           country: string
@@ -946,7 +946,7 @@ export type Database = {
           total_xp: number
         }[]
       }
-      get_gamification_summary: { Args: never; Returns: Json }
+      get_gamification_summary: { Args: { _actor: string }; Returns: Json }
       get_profile_stats: {
         Args: { p_user_id: string }
         Returns: {
@@ -986,11 +986,14 @@ export type Database = {
       }
       record_streak: { Args: { _user_id: string }; Returns: Json }
       set_leaderboard_opt_in: {
-        Args: { _country?: string; _opt_in: boolean }
+        Args: { _actor: string; _country: string; _opt_in: boolean }
         Returns: Json
       }
-      start_assessment_session: { Args: { _language: string }; Returns: Json }
-      start_test_session: { Args: never; Returns: string }
+      start_assessment_session: {
+        Args: { _actor: string; _language: string }
+        Returns: Json
+      }
+      start_test_session: { Args: { _actor: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "user" | "owner" | "moderator"
