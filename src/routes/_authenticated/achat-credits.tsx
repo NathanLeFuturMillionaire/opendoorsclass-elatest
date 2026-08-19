@@ -24,8 +24,16 @@ import {
   OFFER_FEATURES_FR,
   OFFER_NAME,
 } from "@/lib/offer";
+import { NOINDEX } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/achat-credits")({
+  head: () => ({
+    meta: [
+      { title: "Acheter des crédits de test | OpenDoorsClass" },
+      { name: "description", content: "Achetez vos crédits pour passer le test de niveau d'anglais ou d'espagnol OpenDoorsClass." },
+      NOINDEX,
+    ],
+  }),
   component: BuyCreditsPage,
 });
 

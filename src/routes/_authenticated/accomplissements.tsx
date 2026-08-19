@@ -13,8 +13,16 @@ import { BadgeGrid } from "@/components/gamification/badge-grid";
 import { XpActivityList } from "@/components/gamification/xp-activity-list";
 import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
+import { NOINDEX } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/accomplissements")({
+  head: () => ({
+    meta: [
+      { title: "Mes accomplissements | OpenDoorsClass" },
+      { name: "description", content: "Retrouvez vos badges, votre expérience et vos séries d'apprentissage OpenDoorsClass." },
+      NOINDEX,
+    ],
+  }),
   component: AchievementsPage,
 });
 

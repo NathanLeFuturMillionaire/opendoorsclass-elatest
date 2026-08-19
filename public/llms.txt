@@ -1,0 +1,19 @@
+# OpenDoorsClass
+
+> OpenDoorsClass est une plateforme d'évaluation et d'apprentissage des langues, en anglais et en espagnol, qui mesure le niveau réel des candidats sur l'échelle CECRL (A1 à C2) et délivre une attestation officielle.
+
+La plateforme est dirigée par Mr Nathan (MAYUKWA Nathan Harysthote), formateur basé à Libreville, au Gabon. Chaque test couvre la grammaire, le vocabulaire, la lecture, l'écoute, l'expression écrite, l'expression orale et l'orthographe. Le résultat est fourni immédiatement, avec un détail par compétence et une recommandation de parcours.
+
+## Pages
+
+- [Accueil](/): Présentation de la plateforme, tarifs, témoignages et foire aux questions.
+- [Test de niveau d'anglais](/leveltest/en): Évaluation d'anglais alignée sur le CECRL, de A1 à C2.
+- [Test de niveau d'espagnol](/spanish-test): Évaluation d'espagnol alignée sur le CECRL, de A1 à C2.
+- [Guide des niveaux CECRL](/cecr-niveaux-anglais): Explication détaillée des niveaux A1, A2, B1, B2, C1 et C2 en anglais.
+- [Formation anglais professionnel](/formation-anglais-programme): Programme de formation sur dix mois, trois séances par semaine.
+- [Classements](/leaderboards): Classements généraux et par compétence des candidats.
+- [Candidats certifiés](/certifies): Candidats ayant obtenu leur attestation OpenDoorsClass.
+
+## Optional
+
+- [Contact WhatsApp](https://wa.me/24174825725): Contact direct avec le coach.

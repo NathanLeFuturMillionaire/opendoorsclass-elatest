@@ -30,8 +30,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { useI18n } from "@/lib/i18n";
 import { InsufficientCreditsDialog } from "@/components/insufficient-credits-dialog";
 import { PreTestWarning } from "@/components/assessment/pre-test-warning";
+import { NOINDEX } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/test")({
+  head: () => ({
+    meta: [
+      { title: "Passer le test de niveau | OpenDoorsClass" },
+      { name: "description", content: "Session de test de niveau OpenDoorsClass en cours, alignée sur le cadre CECRL." },
+      NOINDEX,
+    ],
+  }),
   component: TestPage,
 });
 
