@@ -21,6 +21,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SiteHeader } from "@/components/site-header";
 import { AuthSidePanel } from "@/components/auth/auth-side-panel";
+import { PhoneCountrySelect } from "@/components/phone-country-select";
+import { toE164 } from "@/lib/phone-countries";
 import { countryByCode } from "@/lib/countries";
 import { detectVisitorCountry } from "@/lib/geo.functions";
 import { useI18n } from "@/lib/i18n";
@@ -112,6 +114,8 @@ function AuthPage() {
   const [lastName, setLastName] = useState("");
   const [gender, setGender] = useState("");
   const [genderOther, setGenderOther] = useState("");
+  const [phone, setPhone] = useState("");
+  const [phoneCountry, setPhoneCountry] = useState("GA");
   const [remember, setRemember] = useState(true);
   const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -132,6 +136,12 @@ function AuthPage() {
   });
   const country = countryData?.country ?? null;
   const detectedCountry = countryByCode(country ?? undefined);
+  const phoneE164 = toE164(phoneCountry, phone);
+
+  useEffect(() => {
+    if (country) setPhoneCountry((c) => (c === "GA" && !phone ? country : c));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [country]);
 
   const checks = useMemo(() => passwordChecks(password), [password]);
   const strength = Object.values(checks).filter(Boolean).length;
@@ -171,12 +181,13 @@ function AuthPage() {
     EMAIL_RE.test(email) &&
     gender.length > 0 &&
     (gender !== "other" || genderOther.trim().length > 0) &&
+    !!phoneE164 &&
     strength === 5 &&
     passwordsMatch;
 
   async function handleEmailAuth(e: React.FormEvent) {
     e.preventDefault();
-    setTouched({ firstName: true, lastName: true, email: true, password: true, confirm: true });
+    setTouched({ firstName: true, lastName: true, email: true, password: true, confirm: true, phone: true });
     if (mode === "signup" && !canSignup) return;
     setLoading(true);
     try {
@@ -191,6 +202,8 @@ function AuthPage() {
               last_name: lastName.trim(),
               sex: gender,
               sex_other: gender === "other" ? genderOther.trim() : null,
+              phone: phoneE164,
+              phone_country: phoneCountry,
               country,
             },
             emailRedirectTo: `${window.location.origin}/tableau-de-bord`,
@@ -211,6 +224,8 @@ function AuthPage() {
               last_name: lastName.trim(),
               sex: gender,
               sex_other: gender === "other" ? genderOther.trim() : null,
+              phone: phoneE164,
+              phone_country: phoneCountry,
               country,
             })
             .eq("id", data.session.user.id);
@@ -373,6 +388,55 @@ function AuthPage() {
                       />
                     </div>
                   ) : null}
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="signup-phone">
+                      {isFr ? "Numéro de téléphone" : "Phone number"}
+                    </Label>
+                    <div className="grid gap-2 sm:grid-cols-[minmax(0,9.5rem)_1fr]">
+                      <PhoneCountrySelect
+                        value={phoneCountry}
+                        onChange={setPhoneCountry}
+                        locale={isFr ? "fr" : "en"}
+                      />
+                      <Input
+                        id="signup-phone"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        placeholder="74825725"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        onBlur={() => markTouched("phone")}
+                        aria-invalid={touched['phone'] && !phoneE164}
+                        required
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {isFr
+                        ? "Veuillez indiquer un numéro WhatsApp valide, il sera utilisé pour vous contacter."
+                        : "Please provide a valid WhatsApp number, it will be used to contact you."}
+                    </p>
+                    <p className="min-h-4 text-xs">
+                      {phone.replace(/\D/g, "") ? (
+                        phoneE164 ? (
+                          <span className="text-brand-green">
+                            {isFr ? "Format international" : "International format"} :{" "}
+                            <span className="font-semibold">{phoneE164}</span>
+                          </span>
+                        ) : (
+                          <span className="text-destructive">
+                            {isFr
+                              ? "Numéro invalide pour le pays sélectionné."
+                              : "Invalid number for the selected country."}
+                          </span>
+                        )
+                      ) : touched['phone'] ? (
+                        <span className="text-destructive">
+                          {isFr ? "Le numéro de téléphone est requis." : "Phone number is required."}
+                        </span>
+                      ) : null}
+                    </p>
+                  </div>
 
                   <div className="text-xs text-muted-foreground">
                     {countryLoading ? (
