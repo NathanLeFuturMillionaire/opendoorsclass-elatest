@@ -59,7 +59,7 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
   const [current, setCurrent] = useState(0);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [remaining, setRemaining] = useState<number | null>(null);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const hydrated = useRef(false);
   // Answers awaiting a confirmed server write, replayed on retry.
   const pending = useRef<Record<string, string>>({});
@@ -94,7 +94,7 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
   useEffect(() => {
     if (!state.data) return;
     const deadline = new Date(state.data.deadlineAt).getTime();
-    const sync = () => setRemaining(Math.max(0, Math.round((deadline - Date.now()) / 1000)));
+    const sync = () => setTimeLeft(Math.max(0, Math.round((deadline - Date.now()) / 1000)));
     sync();
     const id = setInterval(sync, 1000);
     return () => clearInterval(id);
