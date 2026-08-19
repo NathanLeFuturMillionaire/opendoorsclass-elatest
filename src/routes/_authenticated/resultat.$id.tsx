@@ -89,8 +89,13 @@ function ResultPage() {
   }, []);
 
   const r = state.data;
+  // The certificate names the assessed language and carries its own numbering.
+  const assessedLanguage = r?.language === "es" ? "Spanish" : "English";
+  const certPrefix = r?.language === "es" ? "ODC-ES" : "ODC";
   const verifId = r
-    ? (r.candidateNumber ?? `ODC-${r.sessionId.slice(0, 8).toUpperCase()}`)
+    ? (r.language === "es"
+        ? `${certPrefix}-${r.sessionId.slice(0, 8).toUpperCase()}`
+        : (r.candidateNumber ?? `${certPrefix}-${r.sessionId.slice(0, 8).toUpperCase()}`))
     : "";
   const dateStr = r?.completedAt
     ? new Date(r.completedAt).toLocaleDateString("en-GB", {
@@ -353,7 +358,7 @@ function ResultPage() {
                         </div>
                       </div>
                       <div style={{ marginTop: 14, fontSize: 12.5, lineHeight: 1.55, color: "#333" }}>
-                        has successfully completed the OpenDoorsClass English positioning
+                        has successfully completed the OpenDoorsClass {assessedLanguage} positioning
                         assessment aligned with the Common European Framework of Reference
                         for Languages (CEFR), and has demonstrated the level indicated below.
                       </div>
