@@ -18,7 +18,7 @@ import { socialMeta, canonicalLink, breadcrumbLd, courseLd } from "@/lib/seo";
 
 const TITLE = "Programme complet | Formation Anglais Professionnel OpenDoorsClass";
 const DESC =
-  "Le programme officiel OpenDoorsClass de Mr Nathan : progression mois par mois du niveau A1 au niveau C2, méthode, structure des séances et certification.";
+  "Le programme officiel OpenDoorsClass de Mr Nathan : progression du niveau A1 au niveau C2, méthode, séances et certification.";
 
 export const Route = createFileRoute("/formation-anglais-programme")({
   component: ProgramPage,

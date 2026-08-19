@@ -8,7 +8,7 @@ import { socialMeta, canonicalLink, breadcrumbLd, canonical, SITE_NAME, SITE_URL
 const PATH = "/cecr-niveaux-anglais";
 const TITLE = "Niveaux d'anglais CECRL : guide A1 à C2";
 const DESCRIPTION =
-  "Comprendre les niveaux d'anglais du CECRL, de A1 à C2 : ce que vous savez faire à chaque niveau, la durée d'apprentissage et comment tester votre niveau réel.";
+  "Les niveaux d'anglais du CECRL de A1 à C2 : ce que vous savez faire à chaque niveau et comment tester votre niveau réel.";
 
 export const Route = createFileRoute("/cecr-niveaux-anglais")({
   head: () => ({

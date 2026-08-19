@@ -34,7 +34,7 @@ export const Route = createFileRoute("/")({
   component: HomePage,
   head: () => ({
     meta: socialMeta({
-      title: "OpenDoorsClass, test de niveau d'anglais et d'espagnol en ligne",
+      title: "Test de niveau anglais et espagnol | OpenDoorsClass",
       description:
         "Évaluez votre niveau réel d'anglais ou d'espagnol sur l'échelle CECRL, de A1 à C2, en moins de trente minutes, avec attestation officielle.",
       path: "/",

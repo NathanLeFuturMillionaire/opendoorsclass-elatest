@@ -36,7 +36,7 @@ export const Route = createFileRoute("/spanish-test")({
   head: () => {
     const title = "Test de niveau d'espagnol en ligne | OpenDoorsClass";
     const description =
-      "Évaluez votre niveau réel d'espagnol sur l'échelle CECRL, de A1 à C2, avec le Spanish Assessment OpenDoorsClass : grammaire, vocabulaire, lecture, écoute, écrit et oral.";
+      "Évaluez votre niveau réel d'espagnol sur l'échelle CECRL, de A1 à C2, avec le Spanish Assessment OpenDoorsClass et son attestation officielle.";
     return {
       meta: socialMeta({ title, description, path: "/spanish-test" }),
       links: canonicalLink("/spanish-test"),

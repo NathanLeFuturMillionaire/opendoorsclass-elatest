@@ -17,10 +17,10 @@ export const Route = createFileRoute("/leveltest/$lang")({
     const isEs = params.lang === "es";
     const title = isEs
       ? "Spanish Level Test | OpenDoorsClass"
-      : "Test de niveau d'anglais en ligne CECRL | OpenDoorsClass";
+      : "Test de niveau d'anglais CECRL | OpenDoorsClass";
     const description = isEs
       ? "Spanish proficiency assessment by OpenDoorsClass, structured on the CEFR scale from A1 to C2, with an official certificate."
-      : "Passez le test de niveau d'anglais OpenDoorsClass, aligné sur le CECRL de A1 à C2 : grammaire, vocabulaire, lecture, écoute, écrit et oral, avec attestation officielle.";
+      : "Passez le test de niveau d'anglais OpenDoorsClass, aligné sur le CECRL de A1 à C2, avec résultat détaillé et attestation officielle.";
     const path = `/leveltest/${params.lang}`;
     return {
       meta: socialMeta({ title, description, path }),
