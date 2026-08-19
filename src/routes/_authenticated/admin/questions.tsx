@@ -151,3 +151,43 @@ function QuestionsPage() {
     </div>
   );
 }
+type Coverage = Awaited<ReturnType<typeof getAssessmentPoolCoverage>>;
+
+/** Randomisation depth of the Spanish bank, per level and skill. */
+function PoolCoverage({ data }: { data?: Coverage }) {
+  if (!data) return null;
+  const alerts = data.cells.filter((c) => c.status !== "ok");
+  return (
+    <Card>
+      <CardContent className="space-y-3 p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-sm font-semibold">Profondeur de tirage (Espagnol)</h2>
+          <Badge variant={data.criticalCount ? "destructive" : alerts.length ? "outline" : "secondary"}>
+            {data.criticalCount
+              ? `${data.criticalCount} catégorie(s) insuffisante(s)`
+              : alerts.length
+                ? `${alerts.length} pool(s) trop mince(s)`
+                : "Randomisation optimale"}
+          </Badge>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Seuil recommandé : au moins {data.minPoolRatio} fois le quota par niveau et compétence, pour
+          que deux tentatives successives ne retombent pas sur les mêmes questions.
+        </p>
+        {alerts.length ? (
+          <ul className="grid gap-1 text-xs sm:grid-cols-2">
+            {alerts.map((c) => (
+              <li key={`${c.level}-${c.skill}-${c.type}`} className="flex items-center gap-2">
+                <Badge variant={c.status === "critical" ? "destructive" : "outline"}>{c.level}</Badge>
+                <span className="text-muted-foreground">
+                  {c.skill} ({c.type}) : {c.available} disponible(s), {c.required} servie(s) par test,
+                  {" "}{c.recommended} recommandée(s)
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
