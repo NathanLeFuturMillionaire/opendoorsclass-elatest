@@ -3,7 +3,7 @@ import { resolveOffer } from "@/lib/pricing";
 
 const FALLBACK: PromotionRow = {
   is_enabled: false,
-  promo_price: 3500,
+  promo_price: 3600,
   promo_product_id: "prd_inqj69el",
   normal_price: 12000,
   normal_product_id: "prd_00p1bi7x",
