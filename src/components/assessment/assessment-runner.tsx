@@ -213,7 +213,10 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
               <span aria-hidden="true">🇪🇸</span> {t("sa.subtitle")}
             </p>
           </div>
-          <SaveIndicator state={saveState} onRetry={() => void retryPending()} />
+          <div className="flex items-center gap-3">
+            <TimerChip seconds={timeLeft} />
+            <SaveIndicator state={saveState} onRetry={() => void retryPending()} />
+          </div>
         </div>
         <div className="mt-3 flex items-center justify-between text-xs font-medium text-muted-foreground">
           <span>
@@ -224,31 +227,49 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
         <Progress value={percent} className="mt-2 h-2" aria-label={t("sa.question")} />
       </header>
 
-      {/* Question navigator */}
-      <nav aria-label={t("sa.nav.title")} className="mt-6 flex flex-wrap gap-1.5">
-        {items.map((item, index) => {
-          const done = (answers[item.id] ?? "").trim().length > 0;
-          const isCurrent = index === current;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setCurrent(index)}
-              aria-current={isCurrent ? "step" : undefined}
-              aria-label={`${t("sa.question")} ${index + 1}`}
-              className={[
-                "grid size-8 place-items-center rounded-lg border text-xs font-semibold transition-colors",
-                isCurrent
-                  ? "border-brand-blue bg-brand-blue text-primary-foreground"
-                  : done
-                    ? "border-brand-green/40 bg-brand-green/10 text-brand-green"
-                    : "border-border/70 bg-card text-muted-foreground hover:bg-secondary",
-              ].join(" ")}
-            >
-              {done && !isCurrent ? <Check className="size-3.5" aria-hidden="true" /> : index + 1}
-            </button>
-          );
-        })}
+      {/* Question navigator, grouped by skill */}
+      <nav aria-label={t("sa.nav.title")} className="mt-6 space-y-3">
+        {groups.map((group) => (
+          <div key={group.skill}>
+            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {SKILL_LABELS[group.skill as Skill]
+                ? locale === "fr"
+                  ? SKILL_LABELS[group.skill as Skill].fr
+                  : SKILL_LABELS[group.skill as Skill].en
+                : group.skill}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {group.indexes.map((index) => {
+                const item = items[index];
+                const done = (answers[item.id] ?? "").trim().length > 0;
+                const isCurrent = index === current;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setCurrent(index)}
+                    aria-current={isCurrent ? "step" : undefined}
+                    aria-label={`${t("sa.question")} ${index + 1}`}
+                    className={[
+                      "grid size-8 place-items-center rounded-lg border text-xs font-semibold transition-colors",
+                      isCurrent
+                        ? "border-brand-blue bg-brand-blue text-primary-foreground"
+                        : done
+                          ? "border-brand-green/40 bg-brand-green/10 text-brand-green"
+                          : "border-border/70 bg-card text-muted-foreground hover:bg-secondary",
+                    ].join(" ")}
+                  >
+                    {done && !isCurrent ? (
+                      <Check className="size-3.5" aria-hidden="true" />
+                    ) : (
+                      index + 1
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       {/* Question */}
@@ -273,7 +294,37 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
                 {q.question_text}
               </h1>
 
-              {q.options.length ? (
+              {q.image_url ? (
+                <img
+                  src={q.image_url}
+                  alt={q.image_alt ?? ""}
+                  loading="lazy"
+                  width={768}
+                  height={576}
+                  className="mx-auto w-full max-w-sm rounded-xl border border-border/60 bg-muted/30 object-contain"
+                />
+              ) : null}
+
+              {q.audio_url ? (
+                <AssessmentAudio url={q.audio_url} maxPlays={q.max_plays} />
+              ) : null}
+
+              {q.category === "writing" ? (
+                <AssessmentWriting
+                  sessionId={props.sessionId}
+                  questionId={q.id}
+                  value={answers[q.id]}
+                  onGraded={setAnswer}
+                />
+              ) : q.category === "speaking" ? (
+                <AssessmentSpeaking
+                  sessionId={props.sessionId}
+                  questionId={q.id}
+                  value={answers[q.id]}
+                  onGraded={setAnswer}
+                  onSkip={() => setCurrent((c) => Math.min(total - 1, c + 1))}
+                />
+              ) : q.options.length ? (
                 <RadioGroup
                   value={answers[q.id] ?? ""}
                   onValueChange={setAnswer}
