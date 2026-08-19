@@ -5,13 +5,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
   ArrowRight,
-  Check,
   CheckCircle2,
   CloudOff,
+  ListChecks,
   Loader2,
   RefreshCw,
   Timer,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,6 +20,7 @@ import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +39,7 @@ import {
   AssessmentSpeaking,
   AssessmentWriting,
 } from "@/components/assessment/assessment-media";
+import { AssessmentNavigator } from "@/components/assessment/assessment-navigator";
 import {
   completeAssessmentSession,
   getAssessmentQuestions,
@@ -60,7 +63,10 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [navOpen, setNavOpen] = useState(false);
+  const [transition, setTransition] = useState<string | null>(null);
   const hydrated = useRef(false);
+  const warned = useRef<Record<number, boolean>>({});
   // Answers awaiting a confirmed server write, replayed on retry.
   const pending = useRef<Record<string, string>>({});
 
@@ -148,6 +154,20 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft]);
 
+  // Discreet countdown reminders at 10 min, 5 min, 1 min and 30 seconds.
+  useEffect(() => {
+    if (timeLeft === null) return;
+    for (const mark of [600, 300, 60, 30]) {
+      if (timeLeft <= mark && timeLeft > mark - 2 && !warned.current[mark]) {
+        warned.current[mark] = true;
+        toast(
+          `${t("sa.timer.left")} : ${Math.floor(mark / 60) ? `${Math.floor(mark / 60)} min` : `${mark} s`}`,
+        );
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft]);
+
   // Replay queued answers as soon as the connection is back.
   useEffect(() => {
     const handler = () => void retryPending();
@@ -203,15 +223,47 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
   };
 
   // Navigator sections follow the order in which the skills appear in the attempt.
-  const groups: Array<{ skill: string; indexes: number[] }> = [];
+  const groups: Array<{ skill: string; indexes: number[]; answered: number }> = [];
   items.forEach((item, index) => {
+    const done = (answers[item.id] ?? "").trim().length > 0;
     const last = groups[groups.length - 1];
-    if (last && last.skill === item.category) last.indexes.push(index);
-    else groups.push({ skill: item.category, indexes: [index] });
+    if (last && last.skill === item.category) {
+      last.indexes.push(index);
+      if (done) last.answered += 1;
+    } else {
+      groups.push({ skill: item.category, indexes: [index], answered: done ? 1 : 0 });
+    }
   });
 
+  const isAnswered = (index: number) => (answers[items[index].id] ?? "").trim().length > 0;
+
+  const goTo = (index: number) => {
+    const next = Math.min(total - 1, Math.max(0, index));
+    const from = items[current]?.category;
+    const to = items[next]?.category;
+    if (from && to && from !== to && next > current) {
+      const fromLabel = SKILL_LABELS[from as Skill];
+      const toLabel = SKILL_LABELS[to as Skill];
+      setTransition(
+        `${locale === "fr" ? (fromLabel?.fr ?? from) : (fromLabel?.en ?? from)} ✓ · ${locale === "fr" ? (toLabel?.fr ?? to) : (toLabel?.en ?? to)}`,
+      );
+      window.setTimeout(() => setTransition(null), 1600);
+    }
+    setCurrent(next);
+    setNavOpen(false);
+  };
+
+  const navigator = (
+    <AssessmentNavigator
+      groups={groups}
+      current={current}
+      answeredIds={isAnswered}
+      onSelect={goTo}
+    />
+  );
+
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pb-16 sm:px-6">
+    <div className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
       {/* Assessment header */}
       <header className="sticky top-0 z-20 -mx-4 border-b border-border/60 bg-background/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -229,57 +281,53 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
         <div className="mt-3 flex items-center justify-between text-xs font-medium text-muted-foreground">
           <span>
             {t("sa.question")} {current + 1} {t("sa.of")} {total}
+            {skillLabel ? (
+              <span className="hidden sm:inline">
+                {" "}
+                · {locale === "fr" ? skillLabel.fr : skillLabel.en}
+              </span>
+            ) : null}
           </span>
           <span>{percent} %</span>
         </div>
         <Progress value={percent} className="mt-2 h-2" aria-label={t("sa.question")} />
+        <div className="mt-3 lg:hidden">
+          <Sheet open={navOpen} onOpenChange={setNavOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm" className="w-full rounded-xl">
+                <ListChecks className="mr-2 size-4" aria-hidden="true" />
+                {t("sa.nav.title")}
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="max-h-[75dvh] overflow-y-auto rounded-t-2xl">
+              <SheetHeader>
+                <SheetTitle>{t("sa.nav.title")}</SheetTitle>
+              </SheetHeader>
+              <div className="mt-4">{navigator}</div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </header>
 
-      {/* Question navigator, grouped by skill */}
-      <nav aria-label={t("sa.nav.title")} className="mt-6 space-y-3">
-        {groups.map((group) => (
-          <div key={group.skill}>
-            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              {SKILL_LABELS[group.skill as Skill]
-                ? locale === "fr"
-                  ? SKILL_LABELS[group.skill as Skill].fr
-                  : SKILL_LABELS[group.skill as Skill].en
-                : group.skill}
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {group.indexes.map((index) => {
-                const item = items[index];
-                const done = (answers[item.id] ?? "").trim().length > 0;
-                const isCurrent = index === current;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setCurrent(index)}
-                    aria-current={isCurrent ? "step" : undefined}
-                    aria-label={`${t("sa.question")} ${index + 1}`}
-                    className={[
-                      "grid size-8 place-items-center rounded-lg border text-xs font-semibold transition-colors",
-                      isCurrent
-                        ? "border-brand-blue bg-brand-blue text-primary-foreground"
-                        : done
-                          ? "border-brand-green/40 bg-brand-green/10 text-brand-green"
-                          : "border-border/70 bg-card text-muted-foreground hover:bg-secondary",
-                    ].join(" ")}
-                  >
-                    {done && !isCurrent ? (
-                      <Check className="size-3.5" aria-hidden="true" />
-                    ) : (
-                      index + 1
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </nav>
+      <div className="mt-6 grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
+        {/* Compact navigator, desktop side panel */}
+        <aside className="hidden lg:block">
+          <div className="sticky top-40">{navigator}</div>
+        </aside>
 
+        <div>
+        <AnimatePresence>
+          {transition ? (
+            <motion.p
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="mb-3 rounded-xl border border-brand-green/40 bg-brand-green/10 px-4 py-2 text-sm font-medium text-brand-green"
+            >
+              {transition}
+            </motion.p>
+          ) : null}
+        </AnimatePresence>
       {/* Question */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -289,7 +337,7 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
         >
-          <Card className="mt-6 border-border/60">
+          <Card className="border-border/60">
             <CardContent className="space-y-6 p-5 sm:p-7">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="secondary">{q.level}</Badge>
@@ -328,7 +376,7 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
                   questionId={q.id}
                   value={answers[q.id]}
                   onGraded={setAnswer}
-                  onSkip={() => setCurrent((c) => Math.min(total - 1, c + 1))}
+                  onSkip={() => goTo(current + 1)}
                 />
               ) : q.options.length ? (
                 <RadioGroup
@@ -376,7 +424,7 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
         <Button
           variant="outline"
           className="rounded-xl"
-          onClick={() => setCurrent((c) => Math.max(0, c - 1))}
+          onClick={() => goTo(current - 1)}
           disabled={current === 0}
         >
           <ArrowLeft className="mr-2 size-4" aria-hidden="true" />
@@ -394,12 +442,14 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
         ) : (
           <Button
             className="rounded-xl bg-brand-gradient text-primary-foreground"
-            onClick={() => setCurrent((c) => Math.min(total - 1, c + 1))}
+            onClick={() => goTo(current + 1)}
           >
             {t("sa.next")}
             <ArrowRight className="ml-2 size-4" aria-hidden="true" />
           </Button>
         )}
+      </div>
+        </div>
       </div>
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
