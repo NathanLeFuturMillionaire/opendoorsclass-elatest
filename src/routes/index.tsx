@@ -221,7 +221,7 @@ function TestimonialsSection() {
   const reviews =
     data && data.length > 0
       ? data.map((r) => ({
-          user_id: (r as { user_id?: string | null }).user_id ?? null,
+          public_role: (r as { public_role?: "founder" | "cofounder" | null }).public_role ?? null,
           display_name: r.display_name ?? "Candidat",
           level_achieved: r.level_achieved ?? "",
           rating: r.rating,
