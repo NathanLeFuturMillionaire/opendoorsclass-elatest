@@ -218,3 +218,161 @@ export const getAssessmentQuestions = createServerFn({ method: "GET" })
       order_hint: q.order_hint,
     }));
   });
+
+export type AssessmentSessionState = {
+  sessionId: string;
+  language: string;
+  status: AssessmentStatus;
+  currentQuestion: number;
+  answers: Record<string, string>;
+  startedAt: string;
+  completedAt: string | null;
+};
+
+/** Reads the candidate own session, its saved answers and its position. */
+export const getAssessmentSessionState = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ sessionId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<AssessmentSessionState> => {
+    const { data: session, error } = await context.supabase
+      .from("test_sessions")
+      .select("id, language, status, answers, current_question, started_at, completed_at")
+      .eq("id", data.sessionId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!session) throw new Error("SESSION_NOT_FOUND");
+    const raw = (session.answers ?? {}) as Record<string, unknown>;
+    const answers: Record<string, string> = {};
+    for (const [k, v] of Object.entries(raw)) {
+      if (typeof v === "string") answers[k] = v;
+    }
+    return {
+      sessionId: session.id,
+      language: session.language,
+      status: session.status as AssessmentStatus,
+      currentQuestion: session.current_question ?? 0,
+      answers,
+      startedAt: session.started_at,
+      completedAt: session.completed_at,
+    };
+  });
+
+const SaveAnswerInput = z.object({
+  sessionId: z.string().uuid(),
+  questionId: z.string().uuid(),
+  answer: z.string().max(4000),
+  currentQuestion: z.number().int().min(0).max(500),
+});
+
+/**
+ * Persists one answer plus the candidate position.
+ * The session identity comes from the database row, never from the client:
+ * user_id, language, status, score and credits cannot be altered here.
+ */
+export const saveAssessmentAnswer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => SaveAnswerInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: session, error } = await context.supabase
+      .from("test_sessions")
+      .select("id, status, answers, question_ids")
+      .eq("id", data.sessionId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!session) throw new Error("SESSION_NOT_FOUND");
+    if (session.status === "completed") throw new Error("SESSION_ALREADY_COMPLETED");
+    if (session.status !== "in_progress") throw new Error("SESSION_NOT_ACTIVE");
+
+    const served = ((session.question_ids as string[] | null) ?? []).filter(Boolean);
+    if (served.length && !served.includes(data.questionId)) throw new Error("QUESTION_NOT_IN_SESSION");
+
+    const answers: Record<string, string> = {};
+    for (const [k, v] of Object.entries((session.answers ?? {}) as Record<string, unknown>)) {
+      if (typeof v === "string") answers[k] = v;
+    }
+    answers[data.questionId] = data.answer;
+    const answered = Object.keys(answers).length;
+
+    const { error: updateError } = await context.supabase
+      .from("test_sessions")
+      .update({
+        answers,
+        current_question: data.currentQuestion,
+        progress: {
+          answered,
+          total: served.length,
+          updated_at: new Date().toISOString(),
+        },
+      })
+      .eq("id", session.id)
+      .eq("user_id", context.userId)
+      .eq("status", "in_progress");
+    if (updateError) throw new Error("ANSWER_SAVE_FAILED");
+
+    return { saved: true, answered, total: served.length };
+  });
+
+export type CompleteAssessmentResult = {
+  sessionId: string;
+  alreadyCompleted: boolean;
+  answered: number;
+  total: number;
+};
+
+/**
+ * Closes the session. Idempotent: a second call returns the same completed session
+ * and never produces a second result. No CEFR scoring happens at this stage.
+ */
+export const completeAssessmentSession = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ sessionId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<CompleteAssessmentResult> => {
+    const { data: session, error } = await context.supabase
+      .from("test_sessions")
+      .select("id, status, answers, question_ids, started_at")
+      .eq("id", data.sessionId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!session) throw new Error("SESSION_NOT_FOUND");
+
+    const served = ((session.question_ids as string[] | null) ?? []).filter(Boolean);
+    const answered = Object.keys((session.answers ?? {}) as Record<string, unknown>).length;
+
+    if (session.status === "completed") {
+      return { sessionId: session.id, alreadyCompleted: true, answered, total: served.length };
+    }
+    if (session.status !== "in_progress") throw new Error("SESSION_NOT_ACTIVE");
+
+    const startedAt = new Date(session.started_at).getTime();
+    const duration = Math.max(0, Math.round((Date.now() - startedAt) / 1000));
+
+    // Single conditional write: two parallel submissions cannot both succeed.
+    const { data: updated, error: updateError } = await context.supabase
+      .from("test_sessions")
+      .update({
+        status: "completed",
+        completed_at: new Date().toISOString(),
+        duration_seconds: duration,
+        progress: {
+          answered,
+          total: served.length,
+          updated_at: new Date().toISOString(),
+        },
+      })
+      .eq("id", session.id)
+      .eq("user_id", context.userId)
+      .eq("status", "in_progress")
+      .select("id")
+      .maybeSingle();
+    if (updateError) throw new Error("SESSION_COMPLETION_FAILED");
+
+    return {
+      sessionId: session.id,
+      alreadyCompleted: !updated,
+      answered,
+      total: served.length,
+    };
+  });

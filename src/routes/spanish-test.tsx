@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { AssessmentRunner } from "@/components/assessment/assessment-runner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -69,6 +70,9 @@ function SpanishAssessmentPage() {
   const queryClient = useQueryClient();
   const [authState, setAuthState] = useState<"loading" | "in" | "out">("loading");
   const guard = useRef(false);
+  // Phase of the page: presentation, live assessment, completion screen.
+  const [phase, setPhase] = useState<"intro" | "running" | "done">("intro");
+  const [runningSessionId, setRunningSessionId] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -99,9 +103,11 @@ function SpanishAssessmentPage() {
     onSuccess: (result) => {
       guard.current = false;
       toast.success(result.resumed ? t("es.session.resumed") : t("es.session.started"), {
-        description: t("es.soon.desc"),
+        description: result.resumed ? t("sa.resume.note") : undefined,
       });
       queryClient.invalidateQueries({ queryKey: ["assessment-overview", "es"] });
+      setRunningSessionId(result.sessionId);
+      setPhase("running");
     },
     onError: (error: Error) => {
       guard.current = false;
@@ -132,6 +138,57 @@ function SpanishAssessmentPage() {
   const credits = overview.data?.credits ?? 0;
   const activeSession = overview.data?.activeSession ?? null;
   const busy = start.isPending || overview.isLoading;
+
+  if (phase === "running" && runningSessionId) {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <main className="flex-1 py-6">
+          <AssessmentRunner
+            sessionId={runningSessionId}
+            onCompleted={() => {
+              setPhase("done");
+              queryClient.invalidateQueries({ queryKey: ["assessment-overview", "es"] });
+            }}
+          />
+        </main>
+      </div>
+    );
+  }
+
+  if (phase === "done") {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <SiteHeader />
+        <main className="flex flex-1 items-center justify-center px-4 py-20">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="w-full max-w-lg"
+          >
+            <Card className="border-border/60 text-center">
+              <CardContent className="space-y-4 p-8">
+                <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-brand-green/10 text-brand-green">
+                  <CheckCircle2 className="size-7" aria-hidden="true" />
+                </span>
+                <h1 className="text-2xl font-bold tracking-tight">{t("sa.done.title")}</h1>
+                <p className="text-muted-foreground">{t("sa.done.desc")}</p>
+                <p className="text-sm text-muted-foreground">{t("sa.done.processing")}</p>
+                {/* Placeholder for the future CEFR scoring and result report. */}
+                <Button
+                  className="rounded-xl bg-brand-gradient text-primary-foreground"
+                  onClick={() => navigate({ to: "/tableau-de-bord" })}
+                >
+                  {t("sa.done.back")}
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </main>
+        <SiteFooter />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
