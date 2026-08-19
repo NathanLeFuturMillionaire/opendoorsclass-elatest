@@ -443,6 +443,8 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
     const { levelWeight } = await import("@/lib/assessment-difficulty");
     const perLevel: Record<string, { correct: number; total: number; percent: number }> = {};
     const perCategory: Record<string, { correct: number; total: number; percent: number }> = {};
+    // Weighted numerator and denominator per category, used for the percent.
+    const catWeights: Record<string, { correct: number; total: number }> = {};
     let totalCorrect = 0;
     let weightedCorrect = 0;
     let weightedTotal = 0;
@@ -467,17 +469,24 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
       weightedTotal += weight;
       perLevel[lvl] ??= { correct: 0, total: 0, percent: 0 };
       perCategory[cat] ??= { correct: 0, total: 0, percent: 0 };
+      catWeights[cat] ??= { correct: 0, total: 0 };
+      catWeights[cat].total += weight;
       perLevel[lvl].total++;
       perCategory[cat].total++;
       if (isCorrect) {
         totalCorrect++;
         weightedCorrect += weight;
+        catWeights[cat].correct += weight;
         perLevel[lvl].correct++;
         perCategory[cat].correct++;
       }
     }
-    for (const cell of [...Object.values(perLevel), ...Object.values(perCategory)]) {
+    for (const cell of Object.values(perLevel)) {
       cell.percent = cell.total ? Math.round((cell.correct / cell.total) * 100) : 0;
+    }
+    for (const [cat, cell] of Object.entries(perCategory)) {
+      const w = catWeights[cat];
+      cell.percent = w && w.total ? Math.round((w.correct / w.total) * 100) : 0;
     }
 
     // CEFR ceiling: the highest level mastered without a break in the ladder.
