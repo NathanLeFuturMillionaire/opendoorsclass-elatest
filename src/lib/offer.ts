@@ -1,7 +1,7 @@
 export const OFFER_CODE = "standard" as const;
 
 export const OFFER_NAME = "OpenDoorsClass Level Test";
-export const OFFER_PRICE_XAF = 3500;
+export const OFFER_PRICE_XAF = 3600;
 export const OFFER_PRICE_USD = 6;
 export const OFFER_CREDITS = 1;
 

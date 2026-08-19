@@ -280,6 +280,69 @@ export type Database = {
         }
         Relationships: []
       }
+      payments_archive: {
+        Row: {
+          amount: number
+          archived_at: string
+          chariow_sale_id: string | null
+          confirmed_at: string | null
+          created_at: string
+          credits_added: number
+          currency: string
+          id: string
+          moneroo_reference: string
+          moneroo_transaction_id: string | null
+          offer_code: string | null
+          payment_method: string | null
+          phone: string | null
+          phone_country: string | null
+          provider: string
+          raw_payload: Json | null
+          status: Database["public"]["Enums"]["payment_status"]
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          archived_at?: string
+          chariow_sale_id?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          credits_added?: number
+          currency?: string
+          id?: string
+          moneroo_reference: string
+          moneroo_transaction_id?: string | null
+          offer_code?: string | null
+          payment_method?: string | null
+          phone?: string | null
+          phone_country?: string | null
+          provider?: string
+          raw_payload?: Json | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          archived_at?: string
+          chariow_sale_id?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          credits_added?: number
+          currency?: string
+          id?: string
+          moneroo_reference?: string
+          moneroo_transaction_id?: string | null
+          offer_code?: string | null
+          payment_method?: string | null
+          phone?: string | null
+          phone_country?: string | null
+          provider?: string
+          raw_payload?: Json | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       pricing_offers: {
         Row: {
           created_at: string

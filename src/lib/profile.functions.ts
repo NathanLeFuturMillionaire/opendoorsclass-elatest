@@ -40,7 +40,7 @@ export const getProfileFull = createServerFn({ method: "GET" })
     const { data: sessions } = await context.supabase
       .from("test_sessions")
       .select(
-        "id, started_at, completed_at, score, level_result, per_category_scores, duration_seconds"
+        "id, started_at, completed_at, score, level_result, per_category_scores, duration_seconds, language"
       )
       .eq("user_id", context.userId)
       .order("started_at", { ascending: false });
@@ -127,6 +127,7 @@ export const getProfileFull = createServerFn({ method: "GET" })
         completed_at: s.completed_at,
         score: s.score,
         level_result: s.level_result,
+        language: s.language ?? "en",
       })),
       payments: paymentsHistory ?? [],
     };

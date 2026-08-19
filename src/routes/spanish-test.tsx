@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { AssessmentRunner } from "@/components/assessment/assessment-runner";
+import { PreTestWarning } from "@/components/assessment/pre-test-warning";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -71,7 +72,7 @@ function SpanishAssessmentPage() {
   const [authState, setAuthState] = useState<"loading" | "in" | "out">("loading");
   const guard = useRef(false);
   // Phase of the page: presentation, live assessment, completion screen.
-  const [phase, setPhase] = useState<"intro" | "running" | "done">("intro");
+  const [phase, setPhase] = useState<"intro" | "warning" | "running" | "done">("intro");
   const [runningSessionId, setRunningSessionId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -128,6 +129,11 @@ function SpanishAssessmentPage() {
     onError: () => toast.error(t("es.error.generic")),
   });
 
+  // L'ecran d'avertissement est obligatoire avant tout decompte de credit.
+  function requestStart() {
+    setPhase("warning");
+  }
+
   // Client side guard on top of the idempotent database function.
   function handleStart() {
     if (guard.current || start.isPending) return;
@@ -152,6 +158,24 @@ function SpanishAssessmentPage() {
             }}
           />
         </main>
+      </div>
+    );
+  }
+
+  if (phase === "warning") {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <SiteHeader />
+        <main className="flex-1 px-4 py-12">
+          <PreTestWarning
+            testLanguage="es"
+            loading={start.isPending}
+            onStart={handleStart}
+            onCancel={() => setPhase("intro")}
+            cancelLabel="Volver"
+          />
+        </main>
+        <SiteFooter />
       </div>
     );
   }
@@ -231,7 +255,7 @@ function SpanishAssessmentPage() {
                 busy={busy}
                 activeSessionId={activeSession?.id ?? null}
                 abandoning={abandon.isPending}
-                onStart={handleStart}
+                onStart={requestStart}
                 onAbandon={(id) => abandon.mutate(id)}
                 onBuy={() => navigate({ to: "/achat-credits" })}
               />

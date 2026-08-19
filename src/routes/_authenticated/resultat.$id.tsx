@@ -91,11 +91,17 @@ function ResultPage() {
   const r = state.data;
   // The certificate names the assessed language and carries its own numbering.
   const assessedLanguage = r?.language === "es" ? "Spanish" : "English";
-  const certPrefix = r?.language === "es" ? "ODC-ES" : "ODC";
+  const certPrefix = r?.language === "es" ? "ODC-ES" : "ODC-EN";
+  // Numero unique, prefixe par la langue evaluee: ODC-EN-2026-XXXXXX / ODC-ES-2026-XXXXXX.
+  const certYear = r?.completedAt
+    ? new Date(r.completedAt).getFullYear()
+    : new Date().getFullYear();
   const verifId = r
-    ? (r.language === "es"
-        ? `${certPrefix}-${r.sessionId.slice(0, 8).toUpperCase()}`
-        : (r.candidateNumber ?? `${certPrefix}-${r.sessionId.slice(0, 8).toUpperCase()}`))
+    ? `${certPrefix}-${
+        r.candidateNumber
+          ? r.candidateNumber.replace(/^ODC-(EN-|ES-)?/, "")
+          : `${certYear}-${r.sessionId.slice(0, 6).toUpperCase()}`
+      }`
     : "";
   const dateStr = r?.completedAt
     ? new Date(r.completedAt).toLocaleDateString("en-GB", {
@@ -291,7 +297,9 @@ function ResultPage() {
                         color: "#0B1F3A",
                       }}
                     >
-                      OFFICIAL CERTIFICATE OF ENGLISH LEVEL
+                      {assessedLanguage === "Spanish"
+                        ? "SPANISH LANGUAGE CERTIFICATE"
+                        : "ENGLISH LANGUAGE CERTIFICATE"}
                     </h1>
                     <div
                       style={{
@@ -361,6 +369,10 @@ function ResultPage() {
                         has successfully completed the OpenDoorsClass {assessedLanguage} positioning
                         assessment aligned with the Common European Framework of Reference
                         for Languages (CEFR), and has demonstrated the level indicated below.
+                      </div>
+                      <div style={{ marginTop: 8, fontSize: 12, fontStyle: "italic", color: "#0B1F3A" }}>
+                        This certificate attests a {r.levelResult ?? "N/A"} level in{" "}
+                        {assessedLanguage} according to the CEFR.
                       </div>
 
                       {/* Skills */}
@@ -482,7 +494,7 @@ function ResultPage() {
                         MAYUKWA Nathan Harysthote
                       </div>
                       <div style={{ fontSize: 10, color: "#5a6675", letterSpacing: 1 }}>
-                        Founder & Lead English Coach
+                        Founder & Lead Language Coach
                       </div>
                     </div>
 
