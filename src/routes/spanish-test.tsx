@@ -341,16 +341,6 @@ function SpanishAssessmentPage() {
                 </li>
               ))}
             </ul>
-
-            <Card className="mt-10 border-dashed border-border/70 bg-secondary/20">
-              <CardContent className="flex flex-col gap-2 p-6">
-                <div className="flex items-center gap-2 font-semibold">
-                  <ShieldCheck className="size-5 text-brand-green" aria-hidden="true" />
-                  {t("es.soon.title")}
-                </div>
-                <p className="text-sm text-muted-foreground">{t("es.soon.desc")}</p>
-              </CardContent>
-            </Card>
           </div>
         </section>
       </main>
