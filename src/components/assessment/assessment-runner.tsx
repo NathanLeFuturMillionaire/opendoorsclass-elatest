@@ -477,3 +477,58 @@ function SaveIndicator({ state, onRetry }: { state: SaveState; onRetry: () => vo
     </button>
   );
 }
+
+/** Exam countdown. Turns red in the final five minutes. */
+function TimerChip({ seconds }: { seconds: number | null }) {
+  const t = useT();
+  if (seconds === null) return null;
+  const urgent = seconds <= 300;
+  const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const ss = String(seconds % 60).padStart(2, "0");
+  return (
+    <span
+      aria-live="polite"
+      title={seconds === 0 ? t("sa.timer.over") : t("sa.timer.left")}
+      className={[
+        "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold tabular-nums",
+        urgent
+          ? "border-destructive/40 bg-destructive/10 text-destructive"
+          : "border-border/70 bg-secondary text-foreground",
+      ].join(" ")}
+    >
+      <Timer className="size-3.5" aria-hidden="true" />
+      {mm}:{ss}
+    </span>
+  );
+}
+
+function LegacySaveIndicator({ state, onRetry }: { state: SaveState; onRetry: () => void }) {
+  const t = useT();
+  if (state === "idle") return null;
+  if (state === "saving") {
+    return (
+      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+        {t("sa.saving")}
+      </span>
+    );
+  }
+  if (state === "saved") {
+    return (
+      <span className="flex items-center gap-1.5 text-xs text-brand-green">
+        <CheckCircle2 className="size-3.5" aria-hidden="true" />
+        {t("sa.saved")}
+      </span>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={onRetry}
+      className="flex items-center gap-1.5 text-xs font-medium text-destructive underline-offset-2 hover:underline"
+    >
+      <CloudOff className="size-3.5" aria-hidden="true" />
+      {t("sa.savefail.final")}
+    </button>
+  );
+}
