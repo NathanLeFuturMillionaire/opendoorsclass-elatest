@@ -2,7 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { listQuestions, upsertQuestion, deleteQuestion } from "@/lib/admin.functions";
+import {
+  listQuestions,
+  upsertQuestion,
+  deleteQuestion,
+  getAssessmentPoolCoverage,
+} from "@/lib/admin.functions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,11 +34,16 @@ function QuestionsPage() {
   const list = useServerFn(listQuestions);
   const upsert = useServerFn(upsertQuestion);
   const del = useServerFn(deleteQuestion);
+  const coverageFn = useServerFn(getAssessmentPoolCoverage);
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Q | null>(null);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<string>("all");
   const { data, isLoading } = useQuery({ queryKey: ["admin-questions"], queryFn: () => list() });
+  const coverage = useQuery({
+    queryKey: ["admin-pool-coverage", "es"],
+    queryFn: () => coverageFn({ data: { language: "es" as const } }),
+  });
 
   function openNew() { setEditing({ ...EMPTY }); setOpen(true); }
   function openEdit(q: any) { setEditing({ ...q, audio_url: q.audio_url ?? "" }); setOpen(true); }
@@ -74,6 +84,7 @@ function QuestionsPage() {
           <Button key={l} size="sm" variant={filter === l ? "default" : "outline"} onClick={() => setFilter(l)}>{l}</Button>
         ))}
       </div>
+      <PoolCoverage data={coverage.data} />
       {isLoading ? <p className="text-muted-foreground">Chargement...</p> : (
         <Card>
           <CardContent className="p-0">
