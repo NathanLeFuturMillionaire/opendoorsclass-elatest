@@ -29,6 +29,7 @@ import {
   type FollowUpPayment,
 } from "@/components/admin/payment-followup-dialog";
 import { toInternational } from "@/lib/phone-countries";
+import { CHARIOW_COMMISSION_RATE, chariowCommission, netRevenue } from "@/lib/finance";
 
 export const Route = createFileRoute("/_authenticated/admin/finance")({
   component: FinancePage,
@@ -79,6 +80,8 @@ type PaymentRow = {
   phone: string | null;
   phone_country: string | null;
   amount: number;
+  commission?: number;
+  net_amount?: number;
   currency: string;
   credits_added: number;
   method: string;
@@ -204,7 +207,7 @@ function FinancePage() {
 
   const cards = [
     {
-      label: "Chiffre d'affaires total",
+      label: "Chiffre d'affaires net",
       value: d.totals.revenue,
       sub: formatUSD(d.totals.revenue),
       icon: Wallet,
@@ -234,8 +237,8 @@ function FinancePage() {
   ];
 
   const kpis = [
-    { label: "Panier moyen", value: formatFCFA(d.totals.avgTicket), icon: TrendingUp },
-    { label: "Plus grosse vente", value: formatFCFA(d.totals.biggest), icon: Trophy },
+    { label: "Panier moyen net", value: formatFCFA(d.totals.avgTicket), icon: TrendingUp },
+    { label: "Plus grosse vente nette", value: formatFCFA(d.totals.biggest), icon: Trophy },
     { label: "Candidats payants", value: `${d.totals.paidUsers} / ${d.totals.totalCandidates}`, icon: Users },
     { label: "Taux de conversion", value: `${d.totals.conversion.toFixed(1)} %`, icon: Percent },
   ];
@@ -246,15 +249,22 @@ function FinancePage() {
         <div>
           <h1 className="text-2xl font-bold">Finance</h1>
           <p className="text-sm text-muted-foreground">
-            Centre de pilotage des revenus, transactions et conversion.
+            Centre de pilotage des revenus nets, transactions et conversion.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={exportCSV}><Download className="mr-2 size-4" /> CSV</Button>
           <Button variant="outline" size="sm" onClick={exportJSON}><Download className="mr-2 size-4" /> JSON</Button>
           <Button variant="outline" size="sm" onClick={printPDF}><Download className="mr-2 size-4" /> PDF</Button>
         </div>
       </div>
+
+      <p className="text-xs text-muted-foreground">
+        Montants affichés nets de commission. Brut encaissé :{" "}
+        <span className="tabular-nums">{formatFCFA((d.totals as any).gross ?? 0)}</span>. Commission Chariow retenue (
+        {Math.round(CHARIOW_COMMISSION_RATE * 100)} %) :{" "}
+        <span className="tabular-nums">{formatFCFA((d.totals as any).commission ?? 0)}</span>.
+      </p>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c, i) => {
