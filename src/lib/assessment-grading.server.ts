@@ -3,14 +3,11 @@
  * Kept out of the server function module so the client graph never sees them.
  */
 
-type QueryBuilder = {
-  select: (columns: string) => QueryBuilder;
-  eq: (column: string, value: string) => QueryBuilder;
-  maybeSingle: () => Promise<{ data: Record<string, unknown> | null }>;
-};
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
 type GradingContextInput = {
-  supabase: { from: (table: string) => QueryBuilder };
+  supabase: SupabaseClient<Database>;
   userId: string;
 };
 
