@@ -187,7 +187,7 @@ function AuthPage() {
 
   async function handleEmailAuth(e: React.FormEvent) {
     e.preventDefault();
-    setTouched({ firstName: true, lastName: true, email: true, password: true, confirm: true });
+    setTouched({ firstName: true, lastName: true, email: true, password: true, confirm: true, phone: true });
     if (mode === "signup" && !canSignup) return;
     setLoading(true);
     try {
