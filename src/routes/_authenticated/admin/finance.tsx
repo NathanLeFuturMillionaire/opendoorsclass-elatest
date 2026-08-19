@@ -451,18 +451,18 @@ function FinancePage() {
                 {filteredRows.length} transaction{filteredRows.length > 1 ? "s" : ""} sur {rows.length}.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
               <div className="relative">
                 <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Rechercher..."
-                  className="h-9 w-[200px] pl-8"
+                  className="h-9 w-full pl-8 sm:w-[200px]"
                 />
               </div>
               <Select value={datePreset} onValueChange={setDatePreset}>
-                <SelectTrigger className="h-9 w-[160px]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-9 w-[48%] sm:w-[160px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Toutes les dates</SelectItem>
                   <SelectItem value="today">Aujourd'hui</SelectItem>
@@ -474,7 +474,7 @@ function FinancePage() {
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-9 w-[140px]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-9 w-[48%] sm:w-[140px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tous statuts</SelectItem>
                   <SelectItem value="success">Réussi</SelectItem>
@@ -487,7 +487,7 @@ function FinancePage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto rounded-lg border border-border/60">
+          <div className="hidden overflow-x-auto rounded-lg border border-border/60 md:block">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -496,7 +496,9 @@ function FinancePage() {
                   <TableHead>Email</TableHead>
                   <TableHead>Téléphone</TableHead>
                   <TableHead>Pays</TableHead>
-                  <TableHead className="text-right">Montant</TableHead>
+                  <TableHead className="text-right">Brut</TableHead>
+                  <TableHead className="text-right">Commission</TableHead>
+                  <TableHead className="text-right">Net</TableHead>
                   <TableHead className="text-right">Crédits</TableHead>
                   <TableHead>Produit</TableHead>
                   <TableHead>Moyen</TableHead>
@@ -510,7 +512,7 @@ function FinancePage() {
               <TableBody>
                 {filteredRows.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={14} className="py-8 text-center text-sm text-muted-foreground">
+                    <TableCell colSpan={16} className="py-8 text-center text-sm text-muted-foreground">
                       Aucune transaction correspondante.
                     </TableCell>
                   </TableRow>
@@ -531,6 +533,12 @@ function FinancePage() {
                       <TableCell className="text-xs">{r.country ?? "—"}</TableCell>
                       <TableCell className="text-right tabular-nums">
                         {new Intl.NumberFormat("fr-FR").format(r.amount)} {r.currency}
+                      </TableCell>
+                      <TableCell className="text-right text-xs tabular-nums text-muted-foreground">
+                        -{new Intl.NumberFormat("fr-FR").format(r.commission ?? chariowCommission(r.amount))}
+                      </TableCell>
+                      <TableCell className="text-right font-semibold tabular-nums">
+                        {new Intl.NumberFormat("fr-FR").format(r.net_amount ?? netRevenue(r.amount))} {r.currency}
                       </TableCell>
                       <TableCell className="text-right tabular-nums text-xs">
                         +{r.credits_added}
