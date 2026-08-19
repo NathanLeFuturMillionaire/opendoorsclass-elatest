@@ -26,7 +26,23 @@ export type TestLanguage = {
   ctaKey: string;
   /** Marks a recently launched assessment (discreet NEW badge). */
   isNew?: boolean;
+  /** Date de mise en ligne, sert à retirer automatiquement le badge NEW. */
+  launchDate?: string;
 };
+
+/** Durée d'affichage du badge NEW après la mise en ligne. */
+export const NEW_BADGE_DAYS = 7;
+
+/** Date de mise en ligne du test d'espagnol. */
+export const SPANISH_LAUNCH_DATE = "2026-08-19";
+
+/** Le badge NEW ne s'affiche que pendant 7 jours après la mise en ligne. */
+export function isNewBadgeVisible(lang: TestLanguage, now: Date = new Date()): boolean {
+  if (!lang.isNew || !lang.launchDate) return false;
+  const launched = Date.parse(`${lang.launchDate}T00:00:00Z`);
+  if (Number.isNaN(launched)) return false;
+  return now.getTime() - launched < NEW_BADGE_DAYS * 86400000;
+}
 
 export const TEST_LANGUAGES: TestLanguage[] = [
   {
@@ -42,11 +58,12 @@ export const TEST_LANGUAGES: TestLanguage[] = [
     code: "es",
     flag: "🇪🇸",
     label: "Spanish Level Test",
-    status: "coming-soon",
+    status: "available",
     titleKey: "testlang.es.title",
     descKey: "testlang.es.desc",
     ctaKey: "testlang.es.cta",
     isNew: true,
+    launchDate: SPANISH_LAUNCH_DATE,
   },
 ];
 
