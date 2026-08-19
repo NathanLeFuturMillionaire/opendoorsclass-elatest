@@ -918,7 +918,7 @@ export type Database = {
         Args: { _session_id: string }
         Returns: Json
       }
-      admin_dashboard_stats: { Args: never; Returns: Json }
+      admin_dashboard_stats: { Args: { _actor?: string }; Returns: Json }
       award_xp: {
         Args: {
           _amount: number
@@ -932,7 +932,7 @@ export type Database = {
       check_and_award_badges: { Args: { _user_id: string }; Returns: Json }
       compute_open_doors_level: { Args: { _xp: number }; Returns: number }
       get_gamification_admin_overview: {
-        Args: { _limit?: number }
+        Args: { _actor?: string; _limit?: number }
         Returns: Json
       }
       get_gamification_leaderboard: {
