@@ -148,6 +148,7 @@ function SpanishAssessmentPage() {
             onCompleted={() => {
               setPhase("done");
               queryClient.invalidateQueries({ queryKey: ["assessment-overview", "es"] });
+              navigate({ to: "/resultat/$id", params: { id: runningSessionId } });
             }}
           />
         </main>
