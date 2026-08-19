@@ -1,6 +1,7 @@
 // Client safe blueprints for the multilingual assessment engine.
 // Each language declares how many items are drawn per CEFR level and skill.
 import type { Cefr, Skill } from "@/lib/test-engine";
+import { buildBlueprint, type CategoryPlan } from "@/lib/assessment-difficulty";
 
 export type AssessmentQuestionType = "mcq" | "image-choice" | "writing" | "speaking";
 
