@@ -117,6 +117,14 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
     },
   });
 
+  // Replay queued answers as soon as the connection is back.
+  useEffect(() => {
+    const handler = () => void retryPending();
+    window.addEventListener("online", handler);
+    return () => window.removeEventListener("online", handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current]);
+
   // Warn before leaving while the assessment is running.
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
