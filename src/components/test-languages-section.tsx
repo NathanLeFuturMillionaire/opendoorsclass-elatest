@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useT } from "@/lib/i18n";
-import { TEST_LANGUAGES, type TestLanguageCode } from "@/lib/test-languages";
+import { TEST_LANGUAGES, isNewBadgeVisible, type TestLanguageCode } from "@/lib/test-languages";
 import type { ReactNode } from "react";
 
 /**
@@ -57,7 +57,7 @@ export function TestLanguagesSection() {
                     >
                       {lang.flag}
                     </span>
-                    {lang.isNew ? (
+                    {isNewBadgeVisible(lang) ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-brand-green-soft px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wide text-brand-green">
                         <Sparkles className="size-3" aria-hidden="true" />
                         {t("testlang.new")}
