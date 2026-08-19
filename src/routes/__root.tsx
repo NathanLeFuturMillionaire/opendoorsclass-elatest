@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { LanguageProvider } from "@/lib/i18n";
 import { notifySignIn } from "@/lib/notifications.functions";
-import { SITE_NAME, organizationLd, websiteLd } from "@/lib/seo";
+import { SITE_NAME, SITE_URL, organizationLd, websiteLd } from "@/lib/seo";
 
 function NotFoundComponent() {
   return (
