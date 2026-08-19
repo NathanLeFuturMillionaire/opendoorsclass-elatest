@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
+import { CompleteProfileDialog } from "@/components/complete-profile-dialog";
 import { LanguageProvider } from "@/lib/i18n";
 import { notifySignIn } from "@/lib/notifications.functions";
 import { SITE_NAME, SITE_URL, organizationLd, websiteLd } from "@/lib/seo";
