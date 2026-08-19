@@ -89,6 +89,7 @@ function CandidatesPage() {
                   <tr className="text-left">
                     <th className="p-3">Nom</th>
                     <th className="p-3">N° candidat</th>
+                    <th className="p-3">Téléphone</th>
                     <th className="p-3">Pays</th>
                     <th className="p-3">Inscription</th>
                     <th className="p-3">Crédits</th>
@@ -109,6 +110,20 @@ function CandidatesPage() {
                         </span>
                       </td>
                       <td className="p-3 font-mono text-xs">{c.candidate_number}</td>
+                      <td className="p-3 text-xs">
+                        {c.phone ? (
+                          <a
+                            className="font-medium text-primary hover:underline"
+                            href={`https://wa.me/${String(c.phone).replace(/\D/g, "")}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {c.phone}
+                          </a>
+                        ) : (
+                          <span className="text-muted-foreground">Non renseigné</span>
+                        )}
+                      </td>
                       <td className="p-3">{c.nationality ?? "-"}</td>
                       <td className="p-3 text-xs text-muted-foreground">
                         <RelativeTime value={c.created_at} />
@@ -139,7 +154,7 @@ function CandidatesPage() {
                     </tr>
                   ))}
                   {(data ?? []).length === 0 && (
-                    <tr><td colSpan={10} className="p-6 text-center text-muted-foreground">Aucun candidat.</td></tr>
+                    <tr><td colSpan={11} className="p-6 text-center text-muted-foreground">Aucun candidat.</td></tr>
                   )}
                 </tbody>
               </table>
