@@ -37,7 +37,8 @@ export const getTestQuestions = createServerFn({ method: "GET" })
       .select(
         "id, level, category, question_text, options, question_type, image_url, image_alt, audio_url, max_plays, order_hint",
       )
-      .eq("is_active", true);
+      .eq("is_active", true)
+      .eq("language", "en");
     if (error) throw new Error(error.message);
 
     // Questions already served to this candidate in previous attempts.
@@ -155,7 +156,7 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
     // Grade only the questions that were actually served for this attempt.
     const servedIds = ((session.question_ids as string[] | null) ?? []).filter(Boolean);
     let query = supabaseAdmin.from("questions").select("id, level, category, correct_answer");
-    query = servedIds.length ? query.in("id", servedIds) : query.eq("is_active", true);
+    query = servedIds.length ? query.in("id", servedIds) : query.eq("is_active", true).eq("language", "en");
     const { data: questions, error: qErr } = await query;
     if (qErr) throw new Error(qErr.message);
 
