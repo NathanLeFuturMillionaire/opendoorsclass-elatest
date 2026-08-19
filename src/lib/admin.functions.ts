@@ -441,6 +441,8 @@ export const getFinanceOverview = createServerFn({ method: "GET" })
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
 
     let totalRevenue = 0;
+    let totalGross = 0;
+    let totalCommission = 0;
     let todayCount = 0, todayAmount = 0;
     let weekCount = 0, weekAmount = 0;
     let monthCount = 0, monthAmount = 0;
@@ -452,7 +454,11 @@ export const getFinanceOverview = createServerFn({ method: "GET" })
 
     for (const p of success as any[]) {
       const t = new Date(p.confirmed_at ?? p.created_at).getTime();
-      const amt = Number(p.amount ?? 0);
+      const gross = Number(p.amount ?? 0);
+      const commission = chariowCommission(gross);
+      const amt = gross - commission;
+      totalGross += gross;
+      totalCommission += commission;
       totalRevenue += amt;
       if (amt > biggest) biggest = amt;
       if (t >= startOfDay) { todayCount++; todayAmount += amt; }
@@ -535,6 +541,9 @@ export const getFinanceOverview = createServerFn({ method: "GET" })
     return {
       totals: {
         revenue: totalRevenue,
+        gross: totalGross,
+        commission: totalCommission,
+        commissionRate: CHARIOW_COMMISSION_RATE,
         count: success.length,
         avgTicket: success.length ? Math.round(totalRevenue / success.length) : 0,
         biggest,
