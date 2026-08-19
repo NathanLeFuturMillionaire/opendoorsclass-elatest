@@ -1,7 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { ASSESSMENT_BLUEPRINTS } from "@/lib/assessment-engine";
+import {
+  ASSESSMENT_BLUEPRINTS,
+  ASSESSMENT_DURATION_SECONDS,
+  ASSESSMENT_LANGUAGE_LABELS,
+} from "@/lib/assessment-engine";
 import { LEVEL_ORDER, SKILL_ORDER, shuffle } from "@/lib/test-engine";
 
 /**
@@ -144,6 +148,10 @@ export type AssessmentQuestion = {
   options: string[];
   question_type: string;
   order_hint: number;
+  audio_url: string | null;
+  image_url: string | null;
+  image_alt: string | null;
+  max_plays: number;
 };
 
 /**
@@ -171,7 +179,9 @@ export const getAssessmentQuestions = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: pool, error } = await supabaseAdmin
       .from("questions")
-      .select("id, level, category, question_text, options, question_type, order_hint")
+      .select(
+        "id, level, category, question_text, options, question_type, order_hint, audio_url, image_url, image_alt, max_plays",
+      )
       .eq("is_active", true)
       .eq("language", language);
     if (error) throw new Error(error.message);
@@ -188,12 +198,12 @@ export const getAssessmentQuestions = createServerFn({ method: "GET" })
     } else {
       const byCell = new Map<string, Row[]>();
       for (const q of rows) {
-        const key = `${q.level}:${q.category}`;
+        const key = `${q.level}:${q.category}:${q.question_type ?? "mcq"}`;
         byCell.set(key, [...(byCell.get(key) ?? []), q]);
       }
       picked = [];
       for (const cell of blueprint) {
-        const bucket = byCell.get(`${cell.level}:${cell.skill}`) ?? [];
+        const bucket = byCell.get(`${cell.level}:${cell.skill}:${cell.type}`) ?? [];
         picked.push(...shuffle(bucket).slice(0, cell.count));
       }
       picked.sort((a, b) => {
@@ -216,6 +226,10 @@ export const getAssessmentQuestions = createServerFn({ method: "GET" })
       options: shuffle((q.options as string[]) ?? []),
       question_type: q.question_type ?? "mcq",
       order_hint: q.order_hint,
+      audio_url: q.audio_url ?? null,
+      image_url: q.image_url ?? null,
+      image_alt: q.image_alt ?? null,
+      max_plays: q.max_plays ?? 5,
     }));
   });
 
