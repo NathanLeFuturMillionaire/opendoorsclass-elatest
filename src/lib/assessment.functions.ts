@@ -218,33 +218,41 @@ export const getAssessmentQuestions = createServerFn({ method: "GET" })
       }
 
       const draw = drawAttempt(rows, blueprint, seen);
-      if (draw.shortfalls.length || draw.thinPools.length || draw.repeated) {
+      if (
+        draw.shortfalls.length ||
+        draw.thinPools.length ||
+        draw.levelFallbacks.length ||
+        draw.repeated
+      ) {
         // Never blocks the attempt: the candidate starts with what exists.
         console.warn("[assessment] bank coverage warning", {
           language,
           sessionId: session.id,
           shortfalls: draw.shortfalls,
           thinPools: draw.thinPools,
+          levelFallbacks: draw.levelFallbacks,
           repeatedItems: draw.repeated,
         });
       }
 
-      // Keep the A1 to C2 progression: order by level then by skill, and only
-      // shuffle inside a level plus skill group so difficulty still ramps up.
+      // Presentation order (part VI): the category order never changes, and
+      // inside each category the difficulty curve restarts at the easiest level
+      // available and climbs to the hardest. Only items sharing the exact same
+      // level are shuffled between themselves.
       const groups = new Map<string, Row[]>();
       for (const q of draw.picked) {
-        const key = `${q.level}:${q.category}`;
+        const key = `${q.category}:${q.level}`;
         const bucket = groups.get(key);
         if (bucket) bucket.push(q);
         else groups.set(key, [q]);
       }
       picked = [...groups.entries()]
         .sort((a, b) => {
-          const [la, ca] = a[0].split(":");
-          const [lb, cb] = b[0].split(":");
-          const l = LEVEL_ORDER.indexOf(la as never) - LEVEL_ORDER.indexOf(lb as never);
-          if (l !== 0) return l;
-          return SKILL_ORDER.indexOf(ca as never) - SKILL_ORDER.indexOf(cb as never);
+          const [ca, la] = a[0].split(":");
+          const [cb, lb] = b[0].split(":");
+          const c = SKILL_ORDER.indexOf(ca as never) - SKILL_ORDER.indexOf(cb as never);
+          if (c !== 0) return c;
+          return LEVEL_ORDER.indexOf(la as never) - LEVEL_ORDER.indexOf(lb as never);
         })
         .flatMap(([, bucket]) => secureShuffle(bucket));
       await supabaseAdmin
