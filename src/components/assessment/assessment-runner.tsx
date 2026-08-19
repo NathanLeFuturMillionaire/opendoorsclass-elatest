@@ -142,6 +142,12 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
     },
   });
 
+  // The attempt closes by itself when the clock reaches zero.
+  useEffect(() => {
+    if (timeLeft === 0 && !submit.isPending && !submit.isSuccess) submit.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft]);
+
   // Replay queued answers as soon as the connection is back.
   useEffect(() => {
     const handler = () => void retryPending();
