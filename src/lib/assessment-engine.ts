@@ -38,6 +38,13 @@ export const ASSESSMENT_BLUEPRINTS: Record<"es", BlueprintCell[]> = {
 /** Time budget of one assessment attempt, in seconds (30 minutes). */
 export const ASSESSMENT_DURATION_SECONDS = 30 * 60;
 
+/**
+ * Recommended pool depth for a credible randomisation: a cell should hold at
+ * least this many times the number of items it must serve in one attempt.
+ * Below that ratio, two consecutive attempts would draw almost the same items.
+ */
+export const MIN_POOL_PER_CELL = 3;
+
 /** Native language label used by the AI examiners and the certificates. */
 export const ASSESSMENT_LANGUAGE_LABELS: Record<string, { fr: string; en: string; es: string; examiner: string; prefix: string }> = {
   en: { fr: "Anglais", en: "English", es: "Inglés", examiner: "English", prefix: "ODC" },
