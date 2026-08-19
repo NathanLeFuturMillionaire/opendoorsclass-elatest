@@ -288,7 +288,10 @@ export const saveAssessmentAnswer = createServerFn({ method: "POST" })
     const served = ((session.question_ids as string[] | null) ?? []).filter(Boolean);
     if (served.length && !served.includes(data.questionId)) throw new Error("QUESTION_NOT_IN_SESSION");
 
-    const answers = { ...((session.answers ?? {}) as Record<string, unknown>) };
+    const answers: Record<string, string> = {};
+    for (const [k, v] of Object.entries((session.answers ?? {}) as Record<string, unknown>)) {
+      if (typeof v === "string") answers[k] = v;
+    }
     answers[data.questionId] = data.answer;
     const answered = Object.keys(answers).length;
 
