@@ -91,11 +91,17 @@ function ResultPage() {
   const r = state.data;
   // The certificate names the assessed language and carries its own numbering.
   const assessedLanguage = r?.language === "es" ? "Spanish" : "English";
-  const certPrefix = r?.language === "es" ? "ODC-ES" : "ODC";
+  const certPrefix = r?.language === "es" ? "ODC-ES" : "ODC-EN";
+  // Numero unique, prefixe par la langue evaluee: ODC-EN-2026-XXXXXX / ODC-ES-2026-XXXXXX.
+  const certYear = r?.completedAt
+    ? new Date(r.completedAt).getFullYear()
+    : new Date().getFullYear();
   const verifId = r
-    ? (r.language === "es"
-        ? `${certPrefix}-${r.sessionId.slice(0, 8).toUpperCase()}`
-        : (r.candidateNumber ?? `${certPrefix}-${r.sessionId.slice(0, 8).toUpperCase()}`))
+    ? `${certPrefix}-${
+        r.candidateNumber
+          ? r.candidateNumber.replace(/^ODC-(EN-|ES-)?/, "")
+          : `${certYear}-${r.sessionId.slice(0, 6).toUpperCase()}`
+      }`
     : "";
   const dateStr = r?.completedAt
     ? new Date(r.completedAt).toLocaleDateString("en-GB", {
