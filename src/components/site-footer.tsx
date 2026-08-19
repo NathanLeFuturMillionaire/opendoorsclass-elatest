@@ -6,7 +6,7 @@ export function SiteFooter() {
   return (
     <footer className="mt-16 border-t border-border bg-secondary/40">
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <div className="grid gap-8 md:grid-cols-3">
+        <div className="grid gap-8 md:grid-cols-4">
           <div>
             <div className="flex items-center gap-2 font-bold">
               <span className="grid size-8 place-items-center rounded-lg bg-brand-gradient text-primary-foreground text-sm font-black">
@@ -24,6 +24,45 @@ export function SiteFooter() {
               <li><Link to="/auth" className="hover:text-foreground">{t("footer.signup")}</Link></li>
               <li><a href="/#tarifs" className="hover:text-foreground">{t("nav.how")}</a></li>
               <li><a href="/#temoignages" className="hover:text-foreground">{t("nav.testimonials")}</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold text-foreground">Évaluations</h4>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+              <li>
+                <Link
+                  to="/leveltest/$lang"
+                  params={{ lang: "en" }}
+                  className="hover:text-foreground"
+                >
+                  Test de niveau d'anglais
+                </Link>
+              </li>
+              <li>
+                <Link to="/spanish-test" className="hover:text-foreground">
+                  Test de niveau d'espagnol
+                </Link>
+              </li>
+              <li>
+                <Link to="/formation-anglais-programme" className="hover:text-foreground">
+                  Formation anglais professionnel
+                </Link>
+              </li>
+              <li>
+                <Link to="/leaderboards" className="hover:text-foreground">
+                  Classements des candidats
+                </Link>
+              </li>
+              <li>
+                <Link to="/certifies" className="hover:text-foreground">
+                  Candidats certifiés
+                </Link>
+              </li>
+              <li>
+                <a href="/#a-propos" className="hover:text-foreground">
+                  À propos d'OpenDoorsClass
+                </a>
+              </li>
             </ul>
           </div>
           <div>
