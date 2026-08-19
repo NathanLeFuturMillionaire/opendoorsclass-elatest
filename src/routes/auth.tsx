@@ -389,6 +389,55 @@ function AuthPage() {
                     </div>
                   ) : null}
 
+                  <div className="space-y-1.5">
+                    <Label htmlFor="signup-phone">
+                      {isFr ? "Numéro de téléphone" : "Phone number"}
+                    </Label>
+                    <div className="grid gap-2 sm:grid-cols-[minmax(0,9.5rem)_1fr]">
+                      <PhoneCountrySelect
+                        value={phoneCountry}
+                        onChange={setPhoneCountry}
+                        locale={isFr ? "fr" : "en"}
+                      />
+                      <Input
+                        id="signup-phone"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        placeholder="74825725"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        onBlur={() => markTouched("phone")}
+                        aria-invalid={touched['phone'] && !phoneE164}
+                        required
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {isFr
+                        ? "Veuillez indiquer un numéro WhatsApp valide, il sera utilisé pour vous contacter."
+                        : "Please provide a valid WhatsApp number, it will be used to contact you."}
+                    </p>
+                    <p className="min-h-4 text-xs">
+                      {phone.replace(/\D/g, "") ? (
+                        phoneE164 ? (
+                          <span className="text-brand-green">
+                            {isFr ? "Format international" : "International format"} :{" "}
+                            <span className="font-semibold">{phoneE164}</span>
+                          </span>
+                        ) : (
+                          <span className="text-destructive">
+                            {isFr
+                              ? "Numéro invalide pour le pays sélectionné."
+                              : "Invalid number for the selected country."}
+                          </span>
+                        )
+                      ) : touched['phone'] ? (
+                        <span className="text-destructive">
+                          {isFr ? "Le numéro de téléphone est requis." : "Phone number is required."}
+                        </span>
+                      ) : null}
+                    </p>
+                  </div>
+
                   <div className="text-xs text-muted-foreground">
                     {countryLoading ? (
                       t("authx.country.detecting")
