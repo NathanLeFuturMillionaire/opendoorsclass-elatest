@@ -180,23 +180,6 @@ function SpanishAssessmentPage() {
     );
   }
 
-  if (false && runningSessionId) {
-    return (
-      <div className="flex min-h-screen flex-col bg-background">
-        <main className="flex-1 py-6">
-          <AssessmentRunner
-            sessionId={runningSessionId}
-            onCompleted={() => {
-              setPhase("done");
-              queryClient.invalidateQueries({ queryKey: ["assessment-overview", "es"] });
-              navigate({ to: "/resultat/$id", params: { id: runningSessionId } });
-            }}
-          />
-        </main>
-      </div>
-    );
-  }
-
   if (phase === "done") {
     return (
       <div className="flex min-h-screen flex-col bg-background">
