@@ -68,7 +68,7 @@ export const listCandidates = createServerFn({ method: "GET" })
     requireRole(roles, ["owner", "admin", "moderator"]);
     let q = context.supabase
       .from("profiles")
-      .select("id, first_name, last_name, candidate_number, nationality, credits_remaining, created_at")
+      .select("id, first_name, last_name, candidate_number, nationality, credits_remaining, created_at, phone, phone_country")
       .order("created_at", { ascending: false })
       .limit(data.limit ?? 100);
     if (data.search) {
@@ -234,18 +234,36 @@ export const moderateReview = createServerFn({ method: "POST" })
 const questionSchema = z.object({
   id: z.string().optional(),
   level: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]),
-  category: z.enum(["grammar", "vocabulary", "reading", "listening", "speaking"]),
+  category: z.enum([
+    "grammar",
+    "vocabulary",
+    "reading",
+    "listening",
+    "speaking",
+    "writing",
+    "orthography",
+  ]),
+  language: z.enum(["en", "es"]).default("en"),
+  question_type: z.enum(["mcq", "image_choice", "audio", "open_text", "speaking"]).default("mcq"),
   question_text: z.string().min(3),
-  options: z.array(z.string().min(1)).min(2).max(6),
-  correct_answer: z.string().min(1),
+  options: z.array(z.string().min(1)).max(6).default([]),
+  correct_answer: z.string().default(""),
   audio_url: z.string().url().nullable().optional(),
+  image_url: z.string().url().nullable().optional(),
+  image_alt: z.string().max(200).nullable().optional(),
+  explanation: z.string().max(1000).nullable().optional(),
+  points: z.number().int().min(1).max(20).optional(),
+  max_plays: z.number().int().min(1).max(10).optional(),
   order_hint: z.number().int().optional(),
   is_active: z.boolean().optional(),
 });
 
 export const listQuestions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((v: unknown) =>
+    z.object({ language: z.enum(["en", "es"]).default("en") }).parse(v ?? {}),
+  )
+  .handler(async ({ context, data }) => {
     const roles = await getRoles(context.supabase, context.userId);
     requireRole(roles, ["owner", "admin"]);
     const { data, error } = await context.supabase
@@ -266,10 +284,17 @@ export const upsertQuestion = createServerFn({ method: "POST" })
     const payload = {
       level: data.level,
       category: data.category,
+      language: data.language,
+      question_type: data.question_type,
       question_text: data.question_text,
       options: data.options,
       correct_answer: data.correct_answer,
       audio_url: data.audio_url ?? null,
+      image_url: data.image_url ?? null,
+      image_alt: data.image_alt ?? null,
+      explanation: data.explanation ?? null,
+      points: data.points ?? 1,
+      max_plays: data.max_plays ?? 5,
       order_hint: data.order_hint ?? 0,
       is_active: data.is_active ?? true,
     };
