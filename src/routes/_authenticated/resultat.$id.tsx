@@ -191,13 +191,20 @@ function ResultPage() {
               style={{ height: 794 * certScale }}
             >
               <div
+                className="certificate-scaler"
+                style={{
+                  width: 1123,
+                  height: 794,
+                  transform: `scale(${certScale})`,
+                  transformOrigin: "top left",
+                }}
+              >
+              <div
                 ref={certRef}
                 className="certificate-sheet"
                 style={{
                   width: "1123px",
                   height: "794px",
-                  transform: `scale(${certScale})`,
-                  transformOrigin: "top left",
                   background:
                     "linear-gradient(135deg, #FDFBF3 0%, #FFFFFF 40%, #F5EFDF 100%)",
                   color: "#0B1F3A",
