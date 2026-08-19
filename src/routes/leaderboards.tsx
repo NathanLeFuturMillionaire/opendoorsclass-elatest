@@ -20,24 +20,27 @@ import {
 } from "@/lib/leaderboards.functions";
 import { detectRegion } from "@/lib/geo-price";
 import { useI18n } from "@/lib/i18n";
+import { socialMeta, canonicalLink, breadcrumbLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/leaderboards")({
   head: () => ({
-    meta: [
-      { title: "Leaderboards | OpenDoorsClass English Level Test" },
+    meta: socialMeta({
+      title: "Classements des candidats | OpenDoorsClass",
+      description:
+        "Classement général et classements par compétence des candidats au test de niveau OpenDoorsClass, en Afrique et dans le monde.",
+      path: "/leaderboards",
+    }),
+    links: canonicalLink("/leaderboards"),
+    scripts: [
       {
-        name: "description",
-        content:
-          "Explore the OpenDoorsClass leaderboards: overall ranking and skill rankings for learners across Africa and beyond.",
+        type: "application/ld+json",
+        children: JSON.stringify(
+          breadcrumbLd([
+            { name: "OpenDoorsClass", path: "/" },
+            { name: "Classements", path: "/leaderboards" },
+          ]),
+        ),
       },
-      { property: "og:title", content: "OpenDoorsClass Leaderboards" },
-      {
-        property: "og:description",
-        content:
-          "Overall and skill based rankings of candidates who completed the OpenDoorsClass English Level Test.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: LeaderboardsPage,
