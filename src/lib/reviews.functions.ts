@@ -1,8 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { Database } from "@/integrations/supabase/types";
+import { getPublicRole } from "@/lib/founders";
 
 const ReviewInput = z.object({
   rating: z.number().int().min(1).max(5),
@@ -70,21 +69,8 @@ export const getMyReview = createServerFn({ method: "GET" })
 
 // Public: approved reviews for the landing carousel.
 export const listPublicReviews = createServerFn({ method: "GET" }).handler(async () => {
-  const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
-  const client = createClient<Database>(process.env.SUPABASE_URL!, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-    global: {
-      fetch: (input, init) => {
-        const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) {
-          h.delete("Authorization");
-        }
-        h.set("apikey", key);
-        return fetch(input, { ...init, headers: h });
-      },
-    },
-  });
-  const { data } = await client
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
     .from("reviews")
     .select("id, user_id, rating, title, comment, country, display_name, level_achieved, created_at")
     .eq("status", "approved")
@@ -93,7 +79,6 @@ export const listPublicReviews = createServerFn({ method: "GET" }).handler(async
   const reviews = data ?? [];
   if (reviews.length === 0) return [];
   const userIds = Array.from(new Set(reviews.map((r) => r.user_id).filter(Boolean))) as string[];
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: profs } = await supabaseAdmin
     .from("profiles")
     .select("id, avatar_url")
@@ -101,7 +86,7 @@ export const listPublicReviews = createServerFn({ method: "GET" }).handler(async
   const avatarByUser = new Map((profs ?? []).map((p: any) => [p.id, p.avatar_url as string | null]));
   return reviews.map((r) => ({
     id: r.id,
-    user_id: r.user_id,
+    public_role: getPublicRole({ userId: r.user_id }),
     rating: r.rating,
     title: r.title,
     comment: r.comment,

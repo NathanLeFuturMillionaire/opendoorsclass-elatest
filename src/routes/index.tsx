@@ -221,7 +221,7 @@ function TestimonialsSection() {
   const reviews =
     data && data.length > 0
       ? data.map((r) => ({
-          user_id: (r as { user_id?: string | null }).user_id ?? null,
+          public_role: (r as { public_role?: "founder" | "cofounder" | null }).public_role ?? null,
           display_name: r.display_name ?? "Candidat",
           level_achieved: r.level_achieved ?? "",
           rating: r.rating,
@@ -328,7 +328,9 @@ function TestimonialsSection() {
                     <div>
                       <p className="flex flex-wrap items-center gap-1.5 text-sm font-semibold">
                         {t.display_name}
-                        <FounderBadge userId={(t as { user_id?: string | null }).user_id ?? null} />
+                        <FounderBadge
+                          role={(t as { public_role?: "founder" | "cofounder" | null }).public_role ?? null}
+                        />
                       </p>
                       {t.country ? <p className="text-xs text-muted-foreground">{t.country}</p> : null}
                     </div>
