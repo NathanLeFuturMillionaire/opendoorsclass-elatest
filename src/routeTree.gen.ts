@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CecrNiveauxAnglaisRouteImport } from './routes/cecr-niveaux-anglais'
 import { Route as CertifiesRouteImport } from './routes/certifies'
 import { Route as FormationAnglaisProgrammeRouteImport } from './routes/formation-anglais-programme'
 import { Route as LeaderboardsRouteImport } from './routes/leaderboards'
@@ -54,6 +55,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CecrNiveauxAnglaisRoute = CecrNiveauxAnglaisRouteImport.update({
+  id: '/cecr-niveaux-anglais',
+  path: '/cecr-niveaux-anglais',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CertifiesRoute = CertifiesRouteImport.update({
@@ -218,6 +224,7 @@ const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cecr-niveaux-anglais': typeof CecrNiveauxAnglaisRoute
   '/certifies': typeof CertifiesRoute
   '/formation-anglais-programme': typeof FormationAnglaisProgrammeRoute
   '/leaderboards': typeof LeaderboardsRoute
@@ -251,6 +258,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cecr-niveaux-anglais': typeof CecrNiveauxAnglaisRoute
   '/certifies': typeof CertifiesRoute
   '/formation-anglais-programme': typeof FormationAnglaisProgrammeRoute
   '/leaderboards': typeof LeaderboardsRoute
@@ -285,6 +293,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/cecr-niveaux-anglais': typeof CecrNiveauxAnglaisRoute
   '/certifies': typeof CertifiesRoute
   '/formation-anglais-programme': typeof FormationAnglaisProgrammeRoute
   '/leaderboards': typeof LeaderboardsRoute
@@ -320,6 +329,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/cecr-niveaux-anglais'
     | '/certifies'
     | '/formation-anglais-programme'
     | '/leaderboards'
@@ -353,6 +363,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/cecr-niveaux-anglais'
     | '/certifies'
     | '/formation-anglais-programme'
     | '/leaderboards'
@@ -386,6 +397,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/cecr-niveaux-anglais'
     | '/certifies'
     | '/formation-anglais-programme'
     | '/leaderboards'
@@ -421,6 +433,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CecrNiveauxAnglaisRoute: typeof CecrNiveauxAnglaisRoute
   CertifiesRoute: typeof CertifiesRoute
   FormationAnglaisProgrammeRoute: typeof FormationAnglaisProgrammeRoute
   LeaderboardsRoute: typeof LeaderboardsRoute
@@ -455,6 +468,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cecr-niveaux-anglais': {
+      id: '/cecr-niveaux-anglais'
+      path: '/cecr-niveaux-anglais'
+      fullPath: '/cecr-niveaux-anglais'
+      preLoaderRoute: typeof CecrNiveauxAnglaisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/certifies': {
@@ -724,6 +744,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CecrNiveauxAnglaisRoute: CecrNiveauxAnglaisRoute,
   CertifiesRoute: CertifiesRoute,
   FormationAnglaisProgrammeRoute: FormationAnglaisProgrammeRoute,
   LeaderboardsRoute: LeaderboardsRoute,
