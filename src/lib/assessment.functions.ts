@@ -241,6 +241,10 @@ export type AssessmentSessionState = {
   answers: Record<string, string>;
   startedAt: string;
   completedAt: string | null;
+  /** Absolute deadline of the attempt, ISO string. */
+  deadlineAt: string;
+  /** Seconds left when the server answered. Negative means already expired. */
+  remainingSeconds: number;
 };
 
 /** Reads the candidate own session, its saved answers and its position. */
@@ -269,6 +273,15 @@ export const getAssessmentSessionState = createServerFn({ method: "GET" })
       answers,
       startedAt: session.started_at,
       completedAt: session.completed_at,
+      deadlineAt: new Date(
+        new Date(session.started_at).getTime() + ASSESSMENT_DURATION_SECONDS * 1000,
+      ).toISOString(),
+      remainingSeconds: Math.round(
+        (new Date(session.started_at).getTime() +
+          ASSESSMENT_DURATION_SECONDS * 1000 -
+          Date.now()) /
+          1000,
+      ),
     };
   });
 
@@ -290,7 +303,7 @@ export const saveAssessmentAnswer = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: session, error } = await context.supabase
       .from("test_sessions")
-      .select("id, status, answers, question_ids")
+      .select("id, status, answers, question_ids, started_at")
       .eq("id", data.sessionId)
       .eq("user_id", context.userId)
       .maybeSingle();
@@ -298,6 +311,9 @@ export const saveAssessmentAnswer = createServerFn({ method: "POST" })
     if (!session) throw new Error("SESSION_NOT_FOUND");
     if (session.status === "completed") throw new Error("SESSION_ALREADY_COMPLETED");
     if (session.status !== "in_progress") throw new Error("SESSION_NOT_ACTIVE");
+    const elapsed = (Date.now() - new Date(session.started_at).getTime()) / 1000;
+    // A 15 second grace period absorbs clock drift and the last request in flight.
+    if (elapsed > ASSESSMENT_DURATION_SECONDS + 15) throw new Error("SESSION_TIME_OVER");
 
     const served = ((session.question_ids as string[] | null) ?? []).filter(Boolean);
     if (served.length && !served.includes(data.questionId)) throw new Error("QUESTION_NOT_IN_SESSION");
