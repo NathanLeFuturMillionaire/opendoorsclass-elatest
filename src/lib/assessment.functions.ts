@@ -218,33 +218,41 @@ export const getAssessmentQuestions = createServerFn({ method: "GET" })
       }
 
       const draw = drawAttempt(rows, blueprint, seen);
-      if (draw.shortfalls.length || draw.thinPools.length || draw.repeated) {
+      if (
+        draw.shortfalls.length ||
+        draw.thinPools.length ||
+        draw.levelFallbacks.length ||
+        draw.repeated
+      ) {
         // Never blocks the attempt: the candidate starts with what exists.
         console.warn("[assessment] bank coverage warning", {
           language,
           sessionId: session.id,
           shortfalls: draw.shortfalls,
           thinPools: draw.thinPools,
+          levelFallbacks: draw.levelFallbacks,
           repeatedItems: draw.repeated,
         });
       }
 
-      // Keep the A1 to C2 progression: order by level then by skill, and only
-      // shuffle inside a level plus skill group so difficulty still ramps up.
+      // Presentation order (part VI): the category order never changes, and
+      // inside each category the difficulty curve restarts at the easiest level
+      // available and climbs to the hardest. Only items sharing the exact same
+      // level are shuffled between themselves.
       const groups = new Map<string, Row[]>();
       for (const q of draw.picked) {
-        const key = `${q.level}:${q.category}`;
+        const key = `${q.category}:${q.level}`;
         const bucket = groups.get(key);
         if (bucket) bucket.push(q);
         else groups.set(key, [q]);
       }
       picked = [...groups.entries()]
         .sort((a, b) => {
-          const [la, ca] = a[0].split(":");
-          const [lb, cb] = b[0].split(":");
-          const l = LEVEL_ORDER.indexOf(la as never) - LEVEL_ORDER.indexOf(lb as never);
-          if (l !== 0) return l;
-          return SKILL_ORDER.indexOf(ca as never) - SKILL_ORDER.indexOf(cb as never);
+          const [ca, la] = a[0].split(":");
+          const [cb, lb] = b[0].split(":");
+          const c = SKILL_ORDER.indexOf(ca as never) - SKILL_ORDER.indexOf(cb as never);
+          if (c !== 0) return c;
+          return LEVEL_ORDER.indexOf(la as never) - LEVEL_ORDER.indexOf(lb as never);
         })
         .flatMap(([, bucket]) => secureShuffle(bucket));
       await supabaseAdmin
@@ -430,9 +438,16 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
       .select("id, level, category, correct_answer")
       .in("id", served.length ? served : ["00000000-0000-0000-0000-000000000000"]);
 
+    // Weighted scoring (part VI): an item counts as much as its CEFR weight,
+    // A1 = 1 up to C2 = 6. Deterministic, no randomness, no adaptive logic.
+    const { levelWeight } = await import("@/lib/assessment-difficulty");
     const perLevel: Record<string, { correct: number; total: number; percent: number }> = {};
     const perCategory: Record<string, { correct: number; total: number; percent: number }> = {};
+    // Weighted numerator and denominator per category, used for the percent.
+    const catWeights: Record<string, { correct: number; total: number }> = {};
     let totalCorrect = 0;
+    let weightedCorrect = 0;
+    let weightedTotal = 0;
     const totalGraded = graded?.length ?? 0;
 
     for (const q of graded ?? []) {
@@ -450,21 +465,33 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
       }
       const lvl = q.level as string;
       const cat = q.category as string;
+      const weight = levelWeight(lvl);
+      weightedTotal += weight;
       perLevel[lvl] ??= { correct: 0, total: 0, percent: 0 };
       perCategory[cat] ??= { correct: 0, total: 0, percent: 0 };
+      catWeights[cat] ??= { correct: 0, total: 0 };
+      catWeights[cat].total += weight;
       perLevel[lvl].total++;
       perCategory[cat].total++;
       if (isCorrect) {
         totalCorrect++;
+        weightedCorrect += weight;
+        catWeights[cat].correct += weight;
         perLevel[lvl].correct++;
         perCategory[cat].correct++;
       }
     }
-    for (const cell of [...Object.values(perLevel), ...Object.values(perCategory)]) {
+    for (const cell of Object.values(perLevel)) {
       cell.percent = cell.total ? Math.round((cell.correct / cell.total) * 100) : 0;
     }
+    for (const [cat, cell] of Object.entries(perCategory)) {
+      const w = catWeights[cat];
+      cell.percent = w && w.total ? Math.round((w.correct / w.total) * 100) : 0;
+    }
 
-    // CEFR: highest consecutive level reaching 70 percent, starting at A1.
+    // CEFR ceiling: the highest level mastered without a break in the ladder.
+    // A candidate strong on A1 to B1 but failing B2 stays at B1, whatever the
+    // raw percentage of correct answers looks like.
     let levelResult: string = "A1";
     for (const lvl of LEVEL_ORDER) {
       const cell = perLevel[lvl];
@@ -472,7 +499,13 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
       if (cell.percent >= 70) levelResult = lvl;
       else break;
     }
-    const scorePercent = totalGraded ? Math.round((totalCorrect / totalGraded) * 100) : 0;
+    // Score reported to the candidate: weighted by level, so a C2 item won
+    // weighs six times an A1 item. Falls back to the flat ratio if no weight.
+    const scorePercent = weightedTotal
+      ? Math.round((weightedCorrect / weightedTotal) * 100)
+      : totalGraded
+        ? Math.round((totalCorrect / totalGraded) * 100)
+        : 0;
 
     // Single conditional write: two parallel submissions cannot both succeed.
     const { data: updated, error: updateError } = await context.supabase
