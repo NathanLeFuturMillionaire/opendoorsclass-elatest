@@ -569,3 +569,51 @@ export const getFinanceOverview = createServerFn({ method: "GET" })
       rows,
     };
   });
+/**
+ * Bank coverage for the multilingual assessment: per blueprint cell, how many
+ * items exist versus how many an attempt needs, plus the randomisation depth.
+ */
+export const getAssessmentPoolCoverage = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v: unknown) => z.object({ language: z.enum(["es"]) }).parse(v))
+  .handler(async ({ context, data }) => {
+    const roles = await getRoles(context.supabase, context.userId);
+    requireRole(roles, ["owner", "admin"]);
+    const { ASSESSMENT_BLUEPRINTS, MIN_POOL_PER_CELL } = await import("@/lib/assessment-engine");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
+      .from("questions")
+      .select("id, level, category, question_type")
+      .eq("is_active", true)
+      .eq("language", data.language);
+    if (error) throw new Error(error.message);
+
+    const counts = new Map<string, number>();
+    for (const r of rows ?? []) {
+      const key = `${r.level}:${r.category}:${r.question_type ?? "mcq"}`;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+
+    const cells = (ASSESSMENT_BLUEPRINTS[data.language] ?? []).map((cell) => {
+      const key = `${cell.level}:${cell.skill}:${cell.type}`;
+      const available = counts.get(key) ?? 0;
+      const recommended = cell.count * MIN_POOL_PER_CELL;
+      return {
+        level: cell.level,
+        skill: cell.skill,
+        type: cell.type,
+        required: cell.count,
+        available,
+        recommended,
+        status: available < cell.count ? "critical" : available < recommended ? "thin" : "ok",
+      };
+    });
+
+    return {
+      language: data.language,
+      minPoolRatio: MIN_POOL_PER_CELL,
+      cells,
+      criticalCount: cells.filter((c) => c.status === "critical").length,
+      thinCount: cells.filter((c) => c.status === "thin").length,
+    };
+  });
