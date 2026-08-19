@@ -174,13 +174,14 @@ function FinancePage() {
   if (q.isLoading || !d) return <div className="text-muted-foreground">Chargement des données financières...</div>;
 
   const exportCSV = () => {
-    const headers = ["Date", "Nom", "Prénom", "Email", "Téléphone", "Pays", "Montant", "Devise", "Moyen", "Statut", "Référence", "Transaction", "Niveau"];
+    const headers = ["Date", "Nom", "Prénom", "Email", "Téléphone", "Pays", "Montant brut", "Commission Chariow", "Montant net", "Devise", "Moyen", "Statut", "Référence", "Transaction", "Niveau"];
     const lines = [headers.join(",")];
     for (const r of filteredRows) {
       const vals = [
         r.created_at, r.last_name ?? "", r.first_name ?? "", r.email ?? "",
         r.phone ? toInternational(r.phone_country ?? "", r.phone) : "", r.country ?? "",
-        r.amount, r.currency, r.method, r.status, r.reference ?? "", r.transaction_id ?? "", r.level ?? "",
+        r.amount, r.commission ?? chariowCommission(r.amount), r.net_amount ?? netRevenue(r.amount),
+        r.currency, r.method, r.status, r.reference ?? "", r.transaction_id ?? "", r.level ?? "",
       ].map((v) => `"${String(v).replace(/"/g, '""')}"`);
       lines.push(vals.join(","));
     }
@@ -322,7 +323,7 @@ function FinancePage() {
         <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
           <div>
             <CardTitle>Évolution des revenus</CardTitle>
-            <p className="mt-1 text-xs text-muted-foreground">Montants encaissés sur la période sélectionnée.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Revenus nets de commission sur la période sélectionnée.</p>
           </div>
           <Select value={range} onValueChange={(v: any) => setRange(v)}>
             <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
