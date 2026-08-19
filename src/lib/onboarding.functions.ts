@@ -40,7 +40,7 @@ export const syncIdentityProfile = createServerFn({ method: "POST" })
     }
 
     if (Object.keys(patch).length > 0) {
-      await context.supabase.from("profiles").update(patch).eq("id", context.userId);
+      await context.supabase.from("profiles").update(patch as any).eq("id", context.userId);
     }
 
     const phone = (patch['phone'] as string | undefined) ?? profile?.phone ?? null;
