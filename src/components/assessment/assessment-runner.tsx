@@ -202,6 +202,14 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
     void persist(q.id, value, current);
   };
 
+  // Navigator sections follow the order in which the skills appear in the attempt.
+  const groups: Array<{ skill: string; indexes: number[] }> = [];
+  items.forEach((item, index) => {
+    const last = groups[groups.length - 1];
+    if (last && last.skill === item.category) last.indexes.push(index);
+    else groups.push({ skill: item.category, indexes: [index] });
+  });
+
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pb-16 sm:px-6">
       {/* Assessment header */}
