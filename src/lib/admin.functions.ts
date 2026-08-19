@@ -266,13 +266,14 @@ export const listQuestions = createServerFn({ method: "GET" })
   .handler(async ({ context, data }) => {
     const roles = await getRoles(context.supabase, context.userId);
     requireRole(roles, ["owner", "admin"]);
-    const { data, error } = await context.supabase
+    const { data: rows, error } = await context.supabase
       .from("questions")
       .select("*")
+      .eq("language", data.language)
       .order("level")
       .order("order_hint");
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return (rows ?? []) as any[];
   });
 
 export const upsertQuestion = createServerFn({ method: "POST" })
