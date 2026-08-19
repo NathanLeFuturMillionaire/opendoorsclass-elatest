@@ -12,24 +12,25 @@ export type BlueprintCell = {
   count: number;
 };
 
-// Spanish A1 and A2: full skill coverage, written, illustrated, oral and productive.
-export const ES_BLUEPRINT: BlueprintCell[] = [
-  { level: "A1", skill: "grammar", type: "mcq", count: 5 },
-  { level: "A1", skill: "vocabulary", type: "mcq", count: 4 },
-  { level: "A1", skill: "vocabulary", type: "image-choice", count: 3 },
-  { level: "A1", skill: "orthography", type: "mcq", count: 2 },
-  { level: "A1", skill: "reading", type: "mcq", count: 2 },
-  { level: "A1", skill: "listening", type: "mcq", count: 2 },
-
-  { level: "A2", skill: "grammar", type: "mcq", count: 5 },
-  { level: "A2", skill: "vocabulary", type: "mcq", count: 4 },
-  { level: "A2", skill: "vocabulary", type: "image-choice", count: 2 },
-  { level: "A2", skill: "orthography", type: "mcq", count: 2 },
-  { level: "A2", skill: "reading", type: "mcq", count: 2 },
-  { level: "A2", skill: "listening", type: "mcq", count: 3 },
-  { level: "A2", skill: "writing", type: "writing", count: 1 },
-  { level: "A2", skill: "speaking", type: "speaking", count: 1 },
+/**
+ * Spanish attempt plan (part VI): each category keeps its total number of items
+ * and spreads it over the CEFR ladder with a decreasing share, so the candidate
+ * climbs from A1 to C2 inside every section. Tuning a category is a one line
+ * change here, the draw engine and the ordering follow automatically.
+ */
+export const ES_CATEGORY_PLAN: CategoryPlan[] = [
+  { skill: "grammar", type: "mcq", count: 10 },
+  { skill: "vocabulary", type: "mcq", count: 8 },
+  // Illustrated items stay on the concrete levels of the ladder.
+  { skill: "vocabulary", type: "image-choice", count: 5, share: { A1: 2, A2: 2, B1: 1, B2: 0, C1: 0, C2: 0 } },
+  { skill: "orthography", type: "mcq", count: 4 },
+  { skill: "reading", type: "mcq", count: 4 },
+  { skill: "listening", type: "mcq", count: 5 },
+  { skill: "writing", type: "writing", count: 1, share: { A1: 0, A2: 1, B1: 0, B2: 0, C1: 0, C2: 0 } },
+  { skill: "speaking", type: "speaking", count: 1, share: { A1: 0, A2: 1, B1: 0, B2: 0, C1: 0, C2: 0 } },
 ];
+
+export const ES_BLUEPRINT: BlueprintCell[] = buildBlueprint(ES_CATEGORY_PLAN);
 
 export const ASSESSMENT_BLUEPRINTS: Record<"es", BlueprintCell[]> = {
   es: ES_BLUEPRINT,
