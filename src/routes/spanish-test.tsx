@@ -11,7 +11,6 @@ import {
   Loader2,
   Mic,
   PenLine,
-  ShieldCheck,
   SpellCheck,
   Wallet,
 } from "lucide-react";
