@@ -2,7 +2,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, CloudOff, Loader2, RefreshCw } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  CheckCircle2,
+  CloudOff,
+  Loader2,
+  RefreshCw,
+  Timer,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,6 +32,11 @@ import {
 import { useT } from "@/lib/i18n";
 import { SKILL_LABELS, type Skill } from "@/lib/test-engine";
 import { useI18n } from "@/lib/i18n";
+import {
+  AssessmentAudio,
+  AssessmentSpeaking,
+  AssessmentWriting,
+} from "@/components/assessment/assessment-media";
 import {
   completeAssessmentSession,
   getAssessmentQuestions,
@@ -45,6 +59,7 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
   const [current, setCurrent] = useState(0);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [remaining, setRemaining] = useState<number | null>(null);
   const hydrated = useRef(false);
   // Answers awaiting a confirmed server write, replayed on retry.
   const pending = useRef<Record<string, string>>({});
@@ -74,6 +89,16 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
     setAnswers(state.data.answers);
     setCurrent(Math.min(Math.max(state.data.currentQuestion, 0), total - 1));
   }, [state.data, total]);
+
+  // Exam clock, seeded by the server so a page reload cannot buy extra time.
+  useEffect(() => {
+    if (!state.data) return;
+    const deadline = new Date(state.data.deadlineAt).getTime();
+    const sync = () => setRemaining(Math.max(0, Math.round((deadline - Date.now()) / 1000)));
+    sync();
+    const id = setInterval(sync, 1000);
+    return () => clearInterval(id);
+  }, [state.data]);
 
   const persist = async (questionId: string, answer: string, index: number) => {
     setSaveState("saving");
