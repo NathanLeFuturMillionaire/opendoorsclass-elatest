@@ -93,7 +93,7 @@ function ProgramPage() {
                 `${TRAINING_OFFER.sessionsPerWeek} séances par semaine`,
                 `${TRAINING_OFFER.hoursPerSession} h par cours`,
                 TRAINING_OFFER.format,
-                `${TRAINING_OFFER.priceMonthly.toLocaleString("fr-FR")} ${TRAINING_OFFER.currency} / mois (négociable)`,
+                `${TRAINING_OFFER.priceMonthly.toLocaleString("fr-FR")} ${TRAINING_OFFER.currency} / mois`,
               ].map((chip) => (
                 <span key={chip} className="rounded-full border border-border/60 bg-card/70 px-3 py-1 font-medium backdrop-blur">
                   {chip}
