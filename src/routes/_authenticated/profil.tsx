@@ -64,8 +64,16 @@ import { BadgeGrid } from "@/components/gamification/badge-grid";
 import { XpBadge } from "@/components/gamification/xp-badge";
 import { MyClubCard } from "@/components/my-club-card";
 import { Link as RLink } from "@tanstack/react-router";
+import { NOINDEX } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/profil")({
+  head: () => ({
+    meta: [
+      { title: "Mon profil candidat | OpenDoorsClass" },
+      { name: "description", content: "Gérez vos informations personnelles, votre photo et vos statistiques de progression OpenDoorsClass." },
+      NOINDEX,
+    ],
+  }),
   component: ProfilePage,
 });
 

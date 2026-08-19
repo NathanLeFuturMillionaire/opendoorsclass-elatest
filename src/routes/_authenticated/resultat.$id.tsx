@@ -10,8 +10,16 @@ import { Button } from "@/components/ui/button";
 import { getSessionResult } from "@/lib/test.functions";
 import { LevelGuidanceCard } from "@/components/level-guidance-card";
 import { ClubRecommendationCard } from "@/components/club-recommendation-card";
+import { NOINDEX } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/resultat/$id")({
+  head: () => ({
+    meta: [
+      { title: "Résultat de votre test de niveau | OpenDoorsClass" },
+      { name: "description", content: "Consultez votre niveau CECRL, votre score par compétence et téléchargez votre attestation OpenDoorsClass." },
+      NOINDEX,
+    ],
+  }),
   component: ResultPage,
 });
 

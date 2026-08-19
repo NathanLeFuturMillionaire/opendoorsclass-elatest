@@ -8,8 +8,16 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { getGamificationLeaderboard } from "@/lib/gamification.functions";
 import { useT } from "@/lib/i18n";
+import { NOINDEX } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/classement")({
+  head: () => ({
+    meta: [
+      { title: "Mon classement | OpenDoorsClass" },
+      { name: "description", content: "Comparez votre score aux autres candidats du test de niveau OpenDoorsClass." },
+      NOINDEX,
+    ],
+  }),
   component: LeaderboardPage,
 });
 

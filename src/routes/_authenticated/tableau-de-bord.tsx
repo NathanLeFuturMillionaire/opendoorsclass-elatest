@@ -15,8 +15,16 @@ import { BadgeGrid } from "@/components/gamification/badge-grid";
 import { WeeklyChallengesCard } from "@/components/gamification/weekly-challenges-card";
 import { Trophy, Flame, Sparkles } from "lucide-react";
 import { useT, useI18n } from "@/lib/i18n";
+import { NOINDEX } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/tableau-de-bord")({
+  head: () => ({
+    meta: [
+      { title: "Tableau de bord candidat | OpenDoorsClass" },
+      { name: "description", content: "Suivez vos tests de niveau, vos crédits et votre progression dans votre espace candidat OpenDoorsClass." },
+      NOINDEX,
+    ],
+  }),
   component: DashboardPage,
 });
 

@@ -9,6 +9,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { checkPaymentStatus } from "@/lib/payments.functions";
 import { useT } from "@/lib/i18n";
+import { NOINDEX } from "@/lib/seo";
 
 const searchSchema = z.object({
   payment_id: z.string().uuid().optional(),
@@ -16,6 +17,13 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute("/_authenticated/paiement-retour")({
+  head: () => ({
+    meta: [
+      { title: "Confirmation de paiement | OpenDoorsClass" },
+      { name: "description", content: "Suivi de votre paiement et attribution de vos crédits de test OpenDoorsClass." },
+      NOINDEX,
+    ],
+  }),
   validateSearch: (s) => searchSchema.parse(s),
   component: PaymentReturnPage,
 });
