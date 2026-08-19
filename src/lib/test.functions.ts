@@ -382,12 +382,12 @@ export const getTestHistory = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("test_sessions")
-      .select("id, started_at, completed_at, score, level_result")
+      .select("id, started_at, completed_at, score, level_result, language")
       .eq("user_id", context.userId)
       .order("started_at", { ascending: false })
       .limit(50);
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return (data ?? []).map((s) => ({ ...s, language: s.language ?? "en" }));
   });
 
 const SpeakingInput = z.object({
