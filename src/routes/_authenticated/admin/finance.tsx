@@ -597,6 +597,81 @@ function FinancePage() {
               </TableBody>
             </Table>
           </div>
+
+          {/* Vue carte, petits écrans */}
+          <div className="space-y-3 md:hidden">
+            {filteredRows.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">Aucune transaction correspondante.</p>
+            ) : (
+              filteredRows.slice(0, 300).map((r) => (
+                <div key={r.id} className="rounded-xl border border-border/60 p-4 text-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="truncate font-medium">{r.first_name ?? "—"} {r.last_name ?? ""}</div>
+                      <div className="truncate text-xs text-muted-foreground">{r.email ?? r.candidate_number ?? "—"}</div>
+                    </div>
+                    <Badge
+                      variant={r.status === "success" ? "default" : r.status === "pending" ? "secondary" : "destructive"}
+                      className="shrink-0 capitalize"
+                    >
+                      {r.status}
+                    </Badge>
+                  </div>
+                  <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                    <dt className="text-muted-foreground">Date</dt>
+                    <dd className="text-right tabular-nums">{formatDateTime(r.confirmed_at ?? r.created_at)}</dd>
+                    <dt className="text-muted-foreground">Brut</dt>
+                    <dd className="text-right tabular-nums">{new Intl.NumberFormat("fr-FR").format(r.amount)} {r.currency}</dd>
+                    <dt className="text-muted-foreground">Commission</dt>
+                    <dd className="text-right tabular-nums">-{new Intl.NumberFormat("fr-FR").format(r.commission ?? chariowCommission(r.amount))}</dd>
+                    <dt className="text-muted-foreground">Net</dt>
+                    <dd className="text-right font-semibold tabular-nums">{new Intl.NumberFormat("fr-FR").format(r.net_amount ?? netRevenue(r.amount))} {r.currency}</dd>
+                    <dt className="text-muted-foreground">Crédits</dt>
+                    <dd className="text-right tabular-nums">+{r.credits_added}</dd>
+                    <dt className="text-muted-foreground">Produit</dt>
+                    <dd className="truncate text-right">{productLabel(r.offer_code, r.credits_added)}</dd>
+                    <dt className="text-muted-foreground">Téléphone</dt>
+                    <dd className="text-right tabular-nums">{r.phone ? toInternational(r.phone_country ?? "", r.phone) : "—"}</dd>
+                    <dt className="text-muted-foreground">Pays</dt>
+                    <dd className="text-right">{r.country ?? "—"}</dd>
+                    <dt className="text-muted-foreground">Moyen</dt>
+                    <dd className="text-right capitalize">{r.method}</dd>
+                    <dt className="text-muted-foreground">Niveau</dt>
+                    <dd className="text-right">{r.level ?? "—"}</dd>
+                    <dt className="text-muted-foreground">Transaction</dt>
+                    <dd className="truncate text-right text-muted-foreground">{r.transaction_id ?? "—"}</dd>
+                    <dt className="text-muted-foreground">Référence</dt>
+                    <dd className="truncate text-right text-muted-foreground">{r.reference ?? "—"}</dd>
+                  </dl>
+                  {UNPAID_STATUSES.has(r.status) ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="mt-3 w-full"
+                      onClick={() =>
+                        setFollowUp({
+                          id: r.id,
+                          first_name: r.first_name,
+                          last_name: r.last_name,
+                          phone: r.phone,
+                          phone_country: r.phone_country,
+                          amount: r.amount,
+                          currency: r.currency,
+                          credits_added: r.credits_added,
+                          status: r.status,
+                          offer_code: r.offer_code,
+                          created_at: r.created_at,
+                        })
+                      }
+                    >
+                      <MessageCircle className="mr-1.5 size-3.5" />
+                      Relancer
+                    </Button>
+                  ) : null}
+                </div>
+              ))
+            )}
+          </div>
           {filteredRows.length > 300 && (
             <p className="mt-2 text-xs text-muted-foreground">
               Affichage des 300 premières lignes. Exportez pour voir la totalité.
