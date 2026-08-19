@@ -16,7 +16,7 @@ import {
 } from "@/lib/training-program";
 import { socialMeta, canonicalLink, breadcrumbLd, courseLd } from "@/lib/seo";
 
-const TITLE = "Programme complet | Formation Anglais Professionnel OpenDoorsClass";
+const TITLE = "Formation anglais professionnel | OpenDoorsClass";
 const DESC =
   "Le programme officiel OpenDoorsClass de Mr Nathan : progression du niveau A1 au niveau C2, méthode, séances et certification.";
 
