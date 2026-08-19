@@ -461,6 +461,7 @@ export type Database = {
           category: Database["public"]["Enums"]["question_category"]
           correct_answer: string
           created_at: string
+          explanation: string | null
           id: string
           image_alt: string | null
           image_url: string | null
@@ -470,6 +471,7 @@ export type Database = {
           max_plays: number
           options: Json
           order_hint: number
+          points: number
           question_text: string
           question_type: string
           speech_rate: string | null
@@ -482,6 +484,7 @@ export type Database = {
           category: Database["public"]["Enums"]["question_category"]
           correct_answer: string
           created_at?: string
+          explanation?: string | null
           id?: string
           image_alt?: string | null
           image_url?: string | null
@@ -491,6 +494,7 @@ export type Database = {
           max_plays?: number
           options: Json
           order_hint?: number
+          points?: number
           question_text: string
           question_type?: string
           speech_rate?: string | null
@@ -503,6 +507,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["question_category"]
           correct_answer?: string
           created_at?: string
+          explanation?: string | null
           id?: string
           image_alt?: string | null
           image_url?: string | null
@@ -512,6 +517,7 @@ export type Database = {
           max_plays?: number
           options?: Json
           order_hint?: number
+          points?: number
           question_text?: string
           question_type?: string
           speech_rate?: string | null

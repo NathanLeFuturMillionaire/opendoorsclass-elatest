@@ -330,7 +330,7 @@ export const getSessionResult = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: session, error } = await context.supabase
       .from("test_sessions")
-      .select("id, score, level_result, per_category_scores, completed_at, started_at")
+      .select("id, score, level_result, per_category_scores, completed_at, started_at, language")
       .eq("id", data.sessionId)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -357,6 +357,7 @@ export const getSessionResult = createServerFn({ method: "GET" })
 
     return {
       sessionId: session.id,
+      language: session.language ?? "en",
       score: session.score,
       levelResult: session.level_result,
       perCategory: (session.per_category_scores ?? {}) as Record<

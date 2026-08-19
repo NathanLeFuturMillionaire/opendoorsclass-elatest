@@ -2,7 +2,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, CloudOff, Loader2, RefreshCw } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  CheckCircle2,
+  CloudOff,
+  Loader2,
+  RefreshCw,
+  Timer,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,6 +32,11 @@ import {
 import { useT } from "@/lib/i18n";
 import { SKILL_LABELS, type Skill } from "@/lib/test-engine";
 import { useI18n } from "@/lib/i18n";
+import {
+  AssessmentAudio,
+  AssessmentSpeaking,
+  AssessmentWriting,
+} from "@/components/assessment/assessment-media";
 import {
   completeAssessmentSession,
   getAssessmentQuestions,
@@ -45,6 +59,7 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
   const [current, setCurrent] = useState(0);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const hydrated = useRef(false);
   // Answers awaiting a confirmed server write, replayed on retry.
   const pending = useRef<Record<string, string>>({});
@@ -74,6 +89,16 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
     setAnswers(state.data.answers);
     setCurrent(Math.min(Math.max(state.data.currentQuestion, 0), total - 1));
   }, [state.data, total]);
+
+  // Exam clock, seeded by the server so a page reload cannot buy extra time.
+  useEffect(() => {
+    if (!state.data) return;
+    const deadline = new Date(state.data.deadlineAt).getTime();
+    const sync = () => setTimeLeft(Math.max(0, Math.round((deadline - Date.now()) / 1000)));
+    sync();
+    const id = setInterval(sync, 1000);
+    return () => clearInterval(id);
+  }, [state.data]);
 
   const persist = async (questionId: string, answer: string, index: number) => {
     setSaveState("saving");
@@ -116,6 +141,12 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
       props.onCompleted();
     },
   });
+
+  // The attempt closes by itself when the clock reaches zero.
+  useEffect(() => {
+    if (timeLeft === 0 && !submit.isPending && !submit.isSuccess) submit.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft]);
 
   // Replay queued answers as soon as the connection is back.
   useEffect(() => {
@@ -171,6 +202,14 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
     void persist(q.id, value, current);
   };
 
+  // Navigator sections follow the order in which the skills appear in the attempt.
+  const groups: Array<{ skill: string; indexes: number[] }> = [];
+  items.forEach((item, index) => {
+    const last = groups[groups.length - 1];
+    if (last && last.skill === item.category) last.indexes.push(index);
+    else groups.push({ skill: item.category, indexes: [index] });
+  });
+
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pb-16 sm:px-6">
       {/* Assessment header */}
@@ -182,7 +221,10 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
               <span aria-hidden="true">🇪🇸</span> {t("sa.subtitle")}
             </p>
           </div>
-          <SaveIndicator state={saveState} onRetry={() => void retryPending()} />
+          <div className="flex items-center gap-3">
+            <TimerChip seconds={timeLeft} />
+            <SaveIndicator state={saveState} onRetry={() => void retryPending()} />
+          </div>
         </div>
         <div className="mt-3 flex items-center justify-between text-xs font-medium text-muted-foreground">
           <span>
@@ -193,31 +235,49 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
         <Progress value={percent} className="mt-2 h-2" aria-label={t("sa.question")} />
       </header>
 
-      {/* Question navigator */}
-      <nav aria-label={t("sa.nav.title")} className="mt-6 flex flex-wrap gap-1.5">
-        {items.map((item, index) => {
-          const done = (answers[item.id] ?? "").trim().length > 0;
-          const isCurrent = index === current;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setCurrent(index)}
-              aria-current={isCurrent ? "step" : undefined}
-              aria-label={`${t("sa.question")} ${index + 1}`}
-              className={[
-                "grid size-8 place-items-center rounded-lg border text-xs font-semibold transition-colors",
-                isCurrent
-                  ? "border-brand-blue bg-brand-blue text-primary-foreground"
-                  : done
-                    ? "border-brand-green/40 bg-brand-green/10 text-brand-green"
-                    : "border-border/70 bg-card text-muted-foreground hover:bg-secondary",
-              ].join(" ")}
-            >
-              {done && !isCurrent ? <Check className="size-3.5" aria-hidden="true" /> : index + 1}
-            </button>
-          );
-        })}
+      {/* Question navigator, grouped by skill */}
+      <nav aria-label={t("sa.nav.title")} className="mt-6 space-y-3">
+        {groups.map((group) => (
+          <div key={group.skill}>
+            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {SKILL_LABELS[group.skill as Skill]
+                ? locale === "fr"
+                  ? SKILL_LABELS[group.skill as Skill].fr
+                  : SKILL_LABELS[group.skill as Skill].en
+                : group.skill}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {group.indexes.map((index) => {
+                const item = items[index];
+                const done = (answers[item.id] ?? "").trim().length > 0;
+                const isCurrent = index === current;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setCurrent(index)}
+                    aria-current={isCurrent ? "step" : undefined}
+                    aria-label={`${t("sa.question")} ${index + 1}`}
+                    className={[
+                      "grid size-8 place-items-center rounded-lg border text-xs font-semibold transition-colors",
+                      isCurrent
+                        ? "border-brand-blue bg-brand-blue text-primary-foreground"
+                        : done
+                          ? "border-brand-green/40 bg-brand-green/10 text-brand-green"
+                          : "border-border/70 bg-card text-muted-foreground hover:bg-secondary",
+                    ].join(" ")}
+                  >
+                    {done && !isCurrent ? (
+                      <Check className="size-3.5" aria-hidden="true" />
+                    ) : (
+                      index + 1
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       {/* Question */}
@@ -242,7 +302,35 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
                 {q.question_text}
               </h1>
 
-              {q.options.length ? (
+              {q.image_url ? (
+                <img
+                  src={q.image_url}
+                  alt={q.image_alt ?? ""}
+                  loading="lazy"
+                  width={768}
+                  height={576}
+                  className="mx-auto w-full max-w-sm rounded-xl border border-border/60 bg-muted/30 object-contain"
+                />
+              ) : null}
+
+              {q.audio_url ? <AssessmentAudio url={q.audio_url} maxPlays={q.max_plays} /> : null}
+
+              {q.category === "writing" ? (
+                <AssessmentWriting
+                  sessionId={props.sessionId}
+                  questionId={q.id}
+                  value={answers[q.id]}
+                  onGraded={setAnswer}
+                />
+              ) : q.category === "speaking" ? (
+                <AssessmentSpeaking
+                  sessionId={props.sessionId}
+                  questionId={q.id}
+                  value={answers[q.id]}
+                  onGraded={setAnswer}
+                  onSkip={() => setCurrent((c) => Math.min(total - 1, c + 1))}
+                />
+              ) : q.options.length ? (
                 <RadioGroup
                   value={answers[q.id] ?? ""}
                   onValueChange={setAnswer}
@@ -385,5 +473,29 @@ function SaveIndicator({ state, onRetry }: { state: SaveState; onRetry: () => vo
       <CloudOff className="size-3.5" aria-hidden="true" />
       {t("sa.savefail.final")}
     </button>
+  );
+}
+
+/** Exam countdown. Turns red in the final five minutes. */
+function TimerChip({ seconds }: { seconds: number | null }) {
+  const t = useT();
+  if (seconds === null) return null;
+  const urgent = seconds <= 300;
+  const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const ss = String(seconds % 60).padStart(2, "0");
+  return (
+    <span
+      aria-live="polite"
+      title={seconds === 0 ? t("sa.timer.over") : t("sa.timer.left")}
+      className={[
+        "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold tabular-nums",
+        urgent
+          ? "border-destructive/40 bg-destructive/10 text-destructive"
+          : "border-border/70 bg-secondary text-foreground",
+      ].join(" ")}
+    >
+      <Timer className="size-3.5" aria-hidden="true" />
+      {mm}:{ss}
+    </span>
   );
 }

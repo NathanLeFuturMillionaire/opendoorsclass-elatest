@@ -1,7 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { ASSESSMENT_BLUEPRINTS } from "@/lib/assessment-engine";
+import {
+  ASSESSMENT_BLUEPRINTS,
+  ASSESSMENT_DURATION_SECONDS,
+  ASSESSMENT_LANGUAGE_LABELS,
+} from "@/lib/assessment-engine";
 import { LEVEL_ORDER, SKILL_ORDER, shuffle } from "@/lib/test-engine";
 
 /**
@@ -144,6 +148,10 @@ export type AssessmentQuestion = {
   options: string[];
   question_type: string;
   order_hint: number;
+  audio_url: string | null;
+  image_url: string | null;
+  image_alt: string | null;
+  max_plays: number;
 };
 
 /**
@@ -171,7 +179,9 @@ export const getAssessmentQuestions = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: pool, error } = await supabaseAdmin
       .from("questions")
-      .select("id, level, category, question_text, options, question_type, order_hint")
+      .select(
+        "id, level, category, question_text, options, question_type, order_hint, audio_url, image_url, image_alt, max_plays",
+      )
       .eq("is_active", true)
       .eq("language", language);
     if (error) throw new Error(error.message);
@@ -188,17 +198,16 @@ export const getAssessmentQuestions = createServerFn({ method: "GET" })
     } else {
       const byCell = new Map<string, Row[]>();
       for (const q of rows) {
-        const key = `${q.level}:${q.category}`;
+        const key = `${q.level}:${q.category}:${q.question_type ?? "mcq"}`;
         byCell.set(key, [...(byCell.get(key) ?? []), q]);
       }
       picked = [];
       for (const cell of blueprint) {
-        const bucket = byCell.get(`${cell.level}:${cell.skill}`) ?? [];
+        const bucket = byCell.get(`${cell.level}:${cell.skill}:${cell.type}`) ?? [];
         picked.push(...shuffle(bucket).slice(0, cell.count));
       }
       picked.sort((a, b) => {
-        const l =
-          LEVEL_ORDER.indexOf(a.level as never) - LEVEL_ORDER.indexOf(b.level as never);
+        const l = LEVEL_ORDER.indexOf(a.level as never) - LEVEL_ORDER.indexOf(b.level as never);
         if (l !== 0) return l;
         return SKILL_ORDER.indexOf(a.category as never) - SKILL_ORDER.indexOf(b.category as never);
       });
@@ -216,6 +225,10 @@ export const getAssessmentQuestions = createServerFn({ method: "GET" })
       options: shuffle((q.options as string[]) ?? []),
       question_type: q.question_type ?? "mcq",
       order_hint: q.order_hint,
+      audio_url: q.audio_url ?? null,
+      image_url: q.image_url ?? null,
+      image_alt: q.image_alt ?? null,
+      max_plays: q.max_plays ?? 5,
     }));
   });
 
@@ -227,6 +240,10 @@ export type AssessmentSessionState = {
   answers: Record<string, string>;
   startedAt: string;
   completedAt: string | null;
+  /** Absolute deadline of the attempt, ISO string. */
+  deadlineAt: string;
+  /** Seconds left when the server answered. Negative means already expired. */
+  remainingSeconds: number;
 };
 
 /** Reads the candidate own session, its saved answers and its position. */
@@ -255,6 +272,13 @@ export const getAssessmentSessionState = createServerFn({ method: "GET" })
       answers,
       startedAt: session.started_at,
       completedAt: session.completed_at,
+      deadlineAt: new Date(
+        new Date(session.started_at).getTime() + ASSESSMENT_DURATION_SECONDS * 1000,
+      ).toISOString(),
+      remainingSeconds: Math.round(
+        (new Date(session.started_at).getTime() + ASSESSMENT_DURATION_SECONDS * 1000 - Date.now()) /
+          1000,
+      ),
     };
   });
 
@@ -276,7 +300,7 @@ export const saveAssessmentAnswer = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: session, error } = await context.supabase
       .from("test_sessions")
-      .select("id, status, answers, question_ids")
+      .select("id, status, answers, question_ids, started_at")
       .eq("id", data.sessionId)
       .eq("user_id", context.userId)
       .maybeSingle();
@@ -284,9 +308,13 @@ export const saveAssessmentAnswer = createServerFn({ method: "POST" })
     if (!session) throw new Error("SESSION_NOT_FOUND");
     if (session.status === "completed") throw new Error("SESSION_ALREADY_COMPLETED");
     if (session.status !== "in_progress") throw new Error("SESSION_NOT_ACTIVE");
+    const elapsed = (Date.now() - new Date(session.started_at).getTime()) / 1000;
+    // A 15 second grace period absorbs clock drift and the last request in flight.
+    if (elapsed > ASSESSMENT_DURATION_SECONDS + 15) throw new Error("SESSION_TIME_OVER");
 
     const served = ((session.question_ids as string[] | null) ?? []).filter(Boolean);
-    if (served.length && !served.includes(data.questionId)) throw new Error("QUESTION_NOT_IN_SESSION");
+    if (served.length && !served.includes(data.questionId))
+      throw new Error("QUESTION_NOT_IN_SESSION");
 
     const answers: Record<string, string> = {};
     for (const [k, v] of Object.entries((session.answers ?? {}) as Record<string, unknown>)) {
@@ -319,6 +347,8 @@ export type CompleteAssessmentResult = {
   alreadyCompleted: boolean;
   answered: number;
   total: number;
+  score: number;
+  levelResult: string;
 };
 
 /**
@@ -331,7 +361,7 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<CompleteAssessmentResult> => {
     const { data: session, error } = await context.supabase
       .from("test_sessions")
-      .select("id, status, answers, question_ids, started_at")
+      .select("id, status, answers, question_ids, started_at, language, score, level_result")
       .eq("id", data.sessionId)
       .eq("user_id", context.userId)
       .maybeSingle();
@@ -339,15 +369,74 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
     if (!session) throw new Error("SESSION_NOT_FOUND");
 
     const served = ((session.question_ids as string[] | null) ?? []).filter(Boolean);
-    const answered = Object.keys((session.answers ?? {}) as Record<string, unknown>).length;
+    const answers = (session.answers ?? {}) as Record<string, string>;
+    const answered = Object.keys(answers).length;
 
     if (session.status === "completed") {
-      return { sessionId: session.id, alreadyCompleted: true, answered, total: served.length };
+      return {
+        sessionId: session.id,
+        alreadyCompleted: true,
+        answered,
+        total: served.length,
+        score: session.score ?? 0,
+        levelResult: session.level_result ?? "A1",
+      };
     }
     if (session.status !== "in_progress") throw new Error("SESSION_NOT_ACTIVE");
 
     const startedAt = new Date(session.started_at).getTime();
     const duration = Math.max(0, Math.round((Date.now() - startedAt) / 1000));
+
+    // Server side grading. Correct answers never leave the server.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: graded } = await supabaseAdmin
+      .from("questions")
+      .select("id, level, category, correct_answer")
+      .in("id", served.length ? served : ["00000000-0000-0000-0000-000000000000"]);
+
+    const perLevel: Record<string, { correct: number; total: number; percent: number }> = {};
+    const perCategory: Record<string, { correct: number; total: number; percent: number }> = {};
+    let totalCorrect = 0;
+    const totalGraded = graded?.length ?? 0;
+
+    for (const q of graded ?? []) {
+      const raw = answers[q.id];
+      let isCorrect = false;
+      if (q.category === "speaking" || q.category === "writing") {
+        try {
+          const parsed = raw ? JSON.parse(raw) : null;
+          if (parsed && typeof parsed.score === "number" && parsed.score >= 60) isCorrect = true;
+        } catch {
+          isCorrect = false;
+        }
+      } else {
+        isCorrect = raw === q.correct_answer;
+      }
+      const lvl = q.level as string;
+      const cat = q.category as string;
+      perLevel[lvl] ??= { correct: 0, total: 0, percent: 0 };
+      perCategory[cat] ??= { correct: 0, total: 0, percent: 0 };
+      perLevel[lvl].total++;
+      perCategory[cat].total++;
+      if (isCorrect) {
+        totalCorrect++;
+        perLevel[lvl].correct++;
+        perCategory[cat].correct++;
+      }
+    }
+    for (const cell of [...Object.values(perLevel), ...Object.values(perCategory)]) {
+      cell.percent = cell.total ? Math.round((cell.correct / cell.total) * 100) : 0;
+    }
+
+    // CEFR: highest consecutive level reaching 70 percent, starting at A1.
+    let levelResult: string = "A1";
+    for (const lvl of LEVEL_ORDER) {
+      const cell = perLevel[lvl];
+      if (!cell || cell.total === 0) continue;
+      if (cell.percent >= 70) levelResult = lvl;
+      else break;
+    }
+    const scorePercent = totalGraded ? Math.round((totalCorrect / totalGraded) * 100) : 0;
 
     // Single conditional write: two parallel submissions cannot both succeed.
     const { data: updated, error: updateError } = await context.supabase
@@ -356,6 +445,10 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
         status: "completed",
         completed_at: new Date().toISOString(),
         duration_seconds: duration,
+        score: scorePercent,
+        level_result: levelResult as never,
+        per_category_scores: perCategory,
+        skill_scores: perLevel,
         progress: {
           answered,
           total: served.length,
@@ -369,10 +462,86 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
       .maybeSingle();
     if (updateError) throw new Error("SESSION_COMPLETION_FAILED");
 
+    if (updated) {
+      // Gamification and notifications must never block the result.
+      try {
+        await supabaseAdmin.rpc("process_test_completion", { _session_id: session.id });
+      } catch {
+        // ignore
+      }
+      try {
+        const { pushNotification, NotificationTemplates } =
+          await import("@/lib/notifications.server");
+        await pushNotification(NotificationTemplates.testCompleted(context.userId, session.id));
+        await pushNotification(
+          NotificationTemplates.certificateAvailable(context.userId, session.id),
+        );
+      } catch {
+        // ignore
+      }
+    }
+
     return {
       sessionId: session.id,
       alreadyCompleted: !updated,
       answered,
       total: served.length,
+      score: scorePercent,
+      levelResult,
     };
   });
+
+/** Shared AI grading endpoint for the productive skills of any assessed language. */
+const GradeTextInput = z.object({
+  sessionId: z.string().uuid(),
+  questionId: z.string().uuid(),
+  text: z.string().min(1).max(4000),
+});
+
+export const scoreAssessmentWriting = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => GradeTextInput.parse(input))
+  .handler(async ({ data, context }): Promise<{ score: number; feedback: string }> => {
+    const { gradeProduction, loadGradingContext } = await import("@/lib/assessment-grading.server");
+    const ctx = await loadGradingContext(context, data.sessionId, data.questionId, "writing");
+    const result = await gradeProduction({
+      kind: "writing",
+      examinerLanguage: ASSESSMENT_LANGUAGE_LABELS[ctx.language]?.examiner ?? "Spanish",
+      level: ctx.level,
+      prompt: ctx.prompt,
+      content: data.text,
+    });
+    await ctx.persist({ text: data.text, ...result });
+    return result;
+  });
+
+const GradeAudioInput = z.object({
+  sessionId: z.string().uuid(),
+  questionId: z.string().uuid(),
+  audioBase64: z.string().min(100),
+  mimeType: z.string().default("audio/webm"),
+});
+
+export const scoreAssessmentSpeaking = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => GradeAudioInput.parse(input))
+  .handler(
+    async ({ data, context }): Promise<{ transcript: string; score: number; feedback: string }> => {
+      const { gradeProduction, loadGradingContext, transcribeAudio } =
+        await import("@/lib/assessment-grading.server");
+      const ctx = await loadGradingContext(context, data.sessionId, data.questionId, "speaking");
+      const transcript = await transcribeAudio(data.audioBase64, data.mimeType);
+      const examinerLanguage = ASSESSMENT_LANGUAGE_LABELS[ctx.language]?.examiner ?? "Spanish";
+      const result = transcript
+        ? await gradeProduction({
+            kind: "speaking",
+            examinerLanguage,
+            level: ctx.level,
+            prompt: ctx.prompt,
+            content: transcript,
+          })
+        : { score: 0, feedback: "" };
+      await ctx.persist({ transcript, ...result });
+      return { transcript, ...result };
+    },
+  );
