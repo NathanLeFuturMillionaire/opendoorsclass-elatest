@@ -3,10 +3,14 @@
  * Kept out of the server function module so the client graph never sees them.
  */
 
+type QueryBuilder = {
+  select: (columns: string) => QueryBuilder;
+  eq: (column: string, value: string) => QueryBuilder;
+  maybeSingle: () => Promise<{ data: Record<string, unknown> | null }>;
+};
+
 type GradingContextInput = {
-  supabase: {
-    from: (table: string) => any;
-  };
+  supabase: { from: (table: string) => QueryBuilder };
   userId: string;
 };
 

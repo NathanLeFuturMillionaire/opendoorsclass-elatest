@@ -313,9 +313,7 @@ export function AssessmentRunner(props: { sessionId: string; onCompleted: () => 
                 />
               ) : null}
 
-              {q.audio_url ? (
-                <AssessmentAudio url={q.audio_url} maxPlays={q.max_plays} />
-              ) : null}
+              {q.audio_url ? <AssessmentAudio url={q.audio_url} maxPlays={q.max_plays} /> : null}
 
               {q.category === "writing" ? (
                 <AssessmentWriting

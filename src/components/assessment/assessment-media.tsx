@@ -54,7 +54,11 @@ export function AssessmentAudio({ url, maxPlays }: { url: string; maxPlays: numb
           disabled={remaining <= 0 || playing}
         >
           <Play className="mr-2 size-4" aria-hidden="true" />
-          {playing ? t("sa.audio.playing") : remaining > 0 ? t("sa.audio.listen") : t("sa.audio.none")}
+          {playing
+            ? t("sa.audio.playing")
+            : remaining > 0
+              ? t("sa.audio.listen")
+              : t("sa.audio.none")}
         </Button>
       </div>
       <p className="mt-2 text-center text-[11px] text-muted-foreground">{t("sa.audio.tip")}</p>
@@ -86,9 +90,7 @@ function GradeSummary({ graded }: { graded: NonNullable<Graded> }) {
           {graded.score >= 60 ? t("sa.grade.ok") : t("sa.grade.ko")}
         </Badge>
       </div>
-      {graded.feedback ? (
-        <p className="text-xs text-muted-foreground">{graded.feedback}</p>
-      ) : null}
+      {graded.feedback ? <p className="text-xs text-muted-foreground">{graded.feedback}</p> : null}
       {typeof graded.transcript === "string" ? (
         <details className="text-xs text-muted-foreground">
           <summary className="cursor-pointer">{t("sa.speaking.transcript")}</summary>

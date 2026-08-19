@@ -207,8 +207,7 @@ export const getAssessmentQuestions = createServerFn({ method: "GET" })
         picked.push(...shuffle(bucket).slice(0, cell.count));
       }
       picked.sort((a, b) => {
-        const l =
-          LEVEL_ORDER.indexOf(a.level as never) - LEVEL_ORDER.indexOf(b.level as never);
+        const l = LEVEL_ORDER.indexOf(a.level as never) - LEVEL_ORDER.indexOf(b.level as never);
         if (l !== 0) return l;
         return SKILL_ORDER.indexOf(a.category as never) - SKILL_ORDER.indexOf(b.category as never);
       });
@@ -277,9 +276,7 @@ export const getAssessmentSessionState = createServerFn({ method: "GET" })
         new Date(session.started_at).getTime() + ASSESSMENT_DURATION_SECONDS * 1000,
       ).toISOString(),
       remainingSeconds: Math.round(
-        (new Date(session.started_at).getTime() +
-          ASSESSMENT_DURATION_SECONDS * 1000 -
-          Date.now()) /
+        (new Date(session.started_at).getTime() + ASSESSMENT_DURATION_SECONDS * 1000 - Date.now()) /
           1000,
       ),
     };
@@ -316,7 +313,8 @@ export const saveAssessmentAnswer = createServerFn({ method: "POST" })
     if (elapsed > ASSESSMENT_DURATION_SECONDS + 15) throw new Error("SESSION_TIME_OVER");
 
     const served = ((session.question_ids as string[] | null) ?? []).filter(Boolean);
-    if (served.length && !served.includes(data.questionId)) throw new Error("QUESTION_NOT_IN_SESSION");
+    if (served.length && !served.includes(data.questionId))
+      throw new Error("QUESTION_NOT_IN_SESSION");
 
     const answers: Record<string, string> = {};
     for (const [k, v] of Object.entries((session.answers ?? {}) as Record<string, unknown>)) {
@@ -472,9 +470,8 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
         // ignore
       }
       try {
-        const { pushNotification, NotificationTemplates } = await import(
-          "@/lib/notifications.server"
-        );
+        const { pushNotification, NotificationTemplates } =
+          await import("@/lib/notifications.server");
         await pushNotification(NotificationTemplates.testCompleted(context.userId, session.id));
         await pushNotification(
           NotificationTemplates.certificateAvailable(context.userId, session.id),
@@ -530,9 +527,8 @@ export const scoreAssessmentSpeaking = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => GradeAudioInput.parse(input))
   .handler(
     async ({ data, context }): Promise<{ transcript: string; score: number; feedback: string }> => {
-      const { gradeProduction, loadGradingContext, transcribeAudio } = await import(
-        "@/lib/assessment-grading.server"
-      );
+      const { gradeProduction, loadGradingContext, transcribeAudio } =
+        await import("@/lib/assessment-grading.server");
       const ctx = await loadGradingContext(context, data.sessionId, data.questionId, "speaking");
       const transcript = await transcribeAudio(data.audioBase64, data.mimeType);
       const examinerLanguage = ASSESSMENT_LANGUAGE_LABELS[ctx.language]?.examiner ?? "Spanish";
