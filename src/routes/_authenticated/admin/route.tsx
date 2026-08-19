@@ -1,8 +1,11 @@
 import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
 import { getAdminContext } from "@/lib/admin.functions";
-import { LayoutDashboard, Users, MessageSquareText, HelpCircle, Award, Shield, ScrollText, ArrowLeft, Wallet } from "lucide-react";
+import { LayoutDashboard, Users, MessageSquareText, HelpCircle, Award, Shield, ScrollText, ArrowLeft, Wallet, Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -11,6 +14,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 function AdminLayout() {
   const fetchCtx = useServerFn(getAdminContext);
+  const [navOpen, setNavOpen] = useState(false);
   const { data, isLoading, error } = useQuery({
     queryKey: ["admin-context"],
     queryFn: () => fetchCtx(),
@@ -46,43 +50,68 @@ function AdminLayout() {
     { to: "/admin/journal", label: "Journal", icon: ScrollText, adminOnly: true },
   ];
 
+  const navLinks = (onNavigate?: () => void) => (
+    <>
+      {nav.map((item) => {
+        if (item.adminOnly && !data.isAdmin) return null;
+        if (item.ownerOnly && !data.isOwner) return null;
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.to}
+            to={item.to as any}
+            onClick={onNavigate}
+            activeOptions={{ exact: item.exact }}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+            )}
+            activeProps={{ className: "!bg-primary/10 !text-primary" }}
+          >
+            <Icon className="size-4" />
+            {item.label}
+          </Link>
+        );
+      })}
+      <Link
+        to="/"
+        onClick={onNavigate}
+        className="mt-6 flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted"
+      >
+        <ArrowLeft className="size-3.5" /> Retour au site
+      </Link>
+    </>
+  );
+
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-7xl gap-6 px-4 py-8 sm:px-6">
+    <div className="mx-auto flex min-h-screen w-full max-w-7xl gap-6 px-4 py-6 sm:px-6 sm:py-8">
       <aside className="hidden w-60 shrink-0 lg:block">
         <div className="sticky top-24 space-y-1">
           <div className="mb-4 flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2 text-primary">
             <Shield className="size-4" />
             <span className="text-sm font-semibold">Administration</span>
           </div>
-          {nav.map((item) => {
-            if (item.adminOnly && !data.isAdmin) return null;
-            if (item.ownerOnly && !data.isOwner) return null;
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.to}
-                to={item.to as any}
-                activeOptions={{ exact: item.exact }}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-                )}
-                activeProps={{ className: "!bg-primary/10 !text-primary" }}
-              >
-                <Icon className="size-4" />
-                {item.label}
-              </Link>
-            );
-          })}
-          <Link
-            to="/"
-            className="mt-6 flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted"
-          >
-            <ArrowLeft className="size-3.5" /> Retour au site
-          </Link>
+          {navLinks()}
         </div>
       </aside>
 
       <div className="min-w-0 flex-1">
+        <div className="mb-4 flex items-center gap-3 lg:hidden">
+          <Sheet open={navOpen} onOpenChange={setNavOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" aria-label="Ouvrir le menu d'administration">
+                <Menu className="size-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-72 overflow-y-auto p-4">
+              <div className="mb-4 flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2 text-primary">
+                <Shield className="size-4" />
+                <span className="text-sm font-semibold">Administration</span>
+              </div>
+              <div className="space-y-1">{navLinks(() => setNavOpen(false))}</div>
+            </SheetContent>
+          </Sheet>
+          <span className="text-sm font-semibold">Administration</span>
+        </div>
         <Outlet />
       </div>
     </div>

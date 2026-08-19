@@ -18,7 +18,7 @@ export const Route = createFileRoute("/leveltest/$lang")({
       ? "Spanish Level Test | OpenDoorsClass"
       : "English Level Test | OpenDoorsClass";
     const description = isEs
-      ? "Spanish proficiency assessment by OpenDoorsClass, structured on the CEFR scale from A1 to C2. Launching soon."
+      ? "Spanish proficiency assessment by OpenDoorsClass, structured on the CEFR scale from A1 to C2, with an official certificate."
       : "English proficiency assessment by OpenDoorsClass, aligned with the CEFR scale from A1 to C2, with an official certificate.";
     return {
       meta: [

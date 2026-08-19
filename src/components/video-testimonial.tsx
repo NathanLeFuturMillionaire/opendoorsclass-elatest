@@ -61,10 +61,10 @@ export function VideoTestimonial({ candidateNumber, videoUrl, posterUrl }: Props
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.5 }}
-      className="mx-auto mt-10 max-w-5xl overflow-hidden rounded-3xl border border-border bg-card shadow-sm"
+      className="h-full overflow-hidden rounded-3xl border border-border bg-card shadow-sm"
     >
-      <div className="grid gap-0 md:grid-cols-[minmax(0,340px)_1fr]">
-        <div className="relative aspect-[9/16] w-full bg-black md:aspect-auto md:min-h-[420px]">
+      <div className="grid h-full gap-0 sm:grid-cols-[minmax(0,240px)_1fr]">
+        <div className="relative aspect-[9/16] w-full bg-black sm:aspect-auto sm:min-h-[360px]">
           <video
             ref={videoRef}
             src={videoUrl}

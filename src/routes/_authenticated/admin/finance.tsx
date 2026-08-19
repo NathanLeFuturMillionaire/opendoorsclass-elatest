@@ -29,6 +29,7 @@ import {
   type FollowUpPayment,
 } from "@/components/admin/payment-followup-dialog";
 import { toInternational } from "@/lib/phone-countries";
+import { CHARIOW_COMMISSION_RATE, chariowCommission, netRevenue } from "@/lib/finance";
 
 export const Route = createFileRoute("/_authenticated/admin/finance")({
   component: FinancePage,
@@ -79,6 +80,8 @@ type PaymentRow = {
   phone: string | null;
   phone_country: string | null;
   amount: number;
+  commission?: number;
+  net_amount?: number;
   currency: string;
   credits_added: number;
   method: string;
@@ -171,13 +174,14 @@ function FinancePage() {
   if (q.isLoading || !d) return <div className="text-muted-foreground">Chargement des données financières...</div>;
 
   const exportCSV = () => {
-    const headers = ["Date", "Nom", "Prénom", "Email", "Téléphone", "Pays", "Montant", "Devise", "Moyen", "Statut", "Référence", "Transaction", "Niveau"];
+    const headers = ["Date", "Nom", "Prénom", "Email", "Téléphone", "Pays", "Montant brut", "Commission Chariow", "Montant net", "Devise", "Moyen", "Statut", "Référence", "Transaction", "Niveau"];
     const lines = [headers.join(",")];
     for (const r of filteredRows) {
       const vals = [
         r.created_at, r.last_name ?? "", r.first_name ?? "", r.email ?? "",
         r.phone ? toInternational(r.phone_country ?? "", r.phone) : "", r.country ?? "",
-        r.amount, r.currency, r.method, r.status, r.reference ?? "", r.transaction_id ?? "", r.level ?? "",
+        r.amount, r.commission ?? chariowCommission(r.amount), r.net_amount ?? netRevenue(r.amount),
+        r.currency, r.method, r.status, r.reference ?? "", r.transaction_id ?? "", r.level ?? "",
       ].map((v) => `"${String(v).replace(/"/g, '""')}"`);
       lines.push(vals.join(","));
     }
@@ -204,7 +208,7 @@ function FinancePage() {
 
   const cards = [
     {
-      label: "Chiffre d'affaires total",
+      label: "Chiffre d'affaires net",
       value: d.totals.revenue,
       sub: formatUSD(d.totals.revenue),
       icon: Wallet,
@@ -234,8 +238,8 @@ function FinancePage() {
   ];
 
   const kpis = [
-    { label: "Panier moyen", value: formatFCFA(d.totals.avgTicket), icon: TrendingUp },
-    { label: "Plus grosse vente", value: formatFCFA(d.totals.biggest), icon: Trophy },
+    { label: "Panier moyen net", value: formatFCFA(d.totals.avgTicket), icon: TrendingUp },
+    { label: "Plus grosse vente nette", value: formatFCFA(d.totals.biggest), icon: Trophy },
     { label: "Candidats payants", value: `${d.totals.paidUsers} / ${d.totals.totalCandidates}`, icon: Users },
     { label: "Taux de conversion", value: `${d.totals.conversion.toFixed(1)} %`, icon: Percent },
   ];
@@ -246,15 +250,22 @@ function FinancePage() {
         <div>
           <h1 className="text-2xl font-bold">Finance</h1>
           <p className="text-sm text-muted-foreground">
-            Centre de pilotage des revenus, transactions et conversion.
+            Centre de pilotage des revenus nets, transactions et conversion.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={exportCSV}><Download className="mr-2 size-4" /> CSV</Button>
           <Button variant="outline" size="sm" onClick={exportJSON}><Download className="mr-2 size-4" /> JSON</Button>
           <Button variant="outline" size="sm" onClick={printPDF}><Download className="mr-2 size-4" /> PDF</Button>
         </div>
       </div>
+
+      <p className="text-xs text-muted-foreground">
+        Montants affichés nets de commission. Brut encaissé :{" "}
+        <span className="tabular-nums">{formatFCFA((d.totals as any).gross ?? 0)}</span>. Commission Chariow retenue (
+        {Math.round(CHARIOW_COMMISSION_RATE * 100)} %) :{" "}
+        <span className="tabular-nums">{formatFCFA((d.totals as any).commission ?? 0)}</span>.
+      </p>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c, i) => {
@@ -312,7 +323,7 @@ function FinancePage() {
         <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
           <div>
             <CardTitle>Évolution des revenus</CardTitle>
-            <p className="mt-1 text-xs text-muted-foreground">Montants encaissés sur la période sélectionnée.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Revenus nets de commission sur la période sélectionnée.</p>
           </div>
           <Select value={range} onValueChange={(v: any) => setRange(v)}>
             <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
@@ -440,18 +451,18 @@ function FinancePage() {
                 {filteredRows.length} transaction{filteredRows.length > 1 ? "s" : ""} sur {rows.length}.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
               <div className="relative">
                 <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Rechercher..."
-                  className="h-9 w-[200px] pl-8"
+                  className="h-9 w-full pl-8 sm:w-[200px]"
                 />
               </div>
               <Select value={datePreset} onValueChange={setDatePreset}>
-                <SelectTrigger className="h-9 w-[160px]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-9 w-[48%] sm:w-[160px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Toutes les dates</SelectItem>
                   <SelectItem value="today">Aujourd'hui</SelectItem>
@@ -463,7 +474,7 @@ function FinancePage() {
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-9 w-[140px]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-9 w-[48%] sm:w-[140px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tous statuts</SelectItem>
                   <SelectItem value="success">Réussi</SelectItem>
@@ -476,7 +487,7 @@ function FinancePage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto rounded-lg border border-border/60">
+          <div className="hidden overflow-x-auto rounded-lg border border-border/60 md:block">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -485,7 +496,9 @@ function FinancePage() {
                   <TableHead>Email</TableHead>
                   <TableHead>Téléphone</TableHead>
                   <TableHead>Pays</TableHead>
-                  <TableHead className="text-right">Montant</TableHead>
+                  <TableHead className="text-right">Brut</TableHead>
+                  <TableHead className="text-right">Commission</TableHead>
+                  <TableHead className="text-right">Net</TableHead>
                   <TableHead className="text-right">Crédits</TableHead>
                   <TableHead>Produit</TableHead>
                   <TableHead>Moyen</TableHead>
@@ -499,7 +512,7 @@ function FinancePage() {
               <TableBody>
                 {filteredRows.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={14} className="py-8 text-center text-sm text-muted-foreground">
+                    <TableCell colSpan={16} className="py-8 text-center text-sm text-muted-foreground">
                       Aucune transaction correspondante.
                     </TableCell>
                   </TableRow>
@@ -520,6 +533,12 @@ function FinancePage() {
                       <TableCell className="text-xs">{r.country ?? "—"}</TableCell>
                       <TableCell className="text-right tabular-nums">
                         {new Intl.NumberFormat("fr-FR").format(r.amount)} {r.currency}
+                      </TableCell>
+                      <TableCell className="text-right text-xs tabular-nums text-muted-foreground">
+                        -{new Intl.NumberFormat("fr-FR").format(r.commission ?? chariowCommission(r.amount))}
+                      </TableCell>
+                      <TableCell className="text-right font-semibold tabular-nums">
+                        {new Intl.NumberFormat("fr-FR").format(r.net_amount ?? netRevenue(r.amount))} {r.currency}
                       </TableCell>
                       <TableCell className="text-right tabular-nums text-xs">
                         +{r.credits_added}
@@ -577,6 +596,81 @@ function FinancePage() {
                 )}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Vue carte, petits écrans */}
+          <div className="space-y-3 md:hidden">
+            {filteredRows.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">Aucune transaction correspondante.</p>
+            ) : (
+              filteredRows.slice(0, 300).map((r) => (
+                <div key={r.id} className="rounded-xl border border-border/60 p-4 text-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="truncate font-medium">{r.first_name ?? "—"} {r.last_name ?? ""}</div>
+                      <div className="truncate text-xs text-muted-foreground">{r.email ?? r.candidate_number ?? "—"}</div>
+                    </div>
+                    <Badge
+                      variant={r.status === "success" ? "default" : r.status === "pending" ? "secondary" : "destructive"}
+                      className="shrink-0 capitalize"
+                    >
+                      {r.status}
+                    </Badge>
+                  </div>
+                  <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                    <dt className="text-muted-foreground">Date</dt>
+                    <dd className="text-right tabular-nums">{formatDateTime(r.confirmed_at ?? r.created_at)}</dd>
+                    <dt className="text-muted-foreground">Brut</dt>
+                    <dd className="text-right tabular-nums">{new Intl.NumberFormat("fr-FR").format(r.amount)} {r.currency}</dd>
+                    <dt className="text-muted-foreground">Commission</dt>
+                    <dd className="text-right tabular-nums">-{new Intl.NumberFormat("fr-FR").format(r.commission ?? chariowCommission(r.amount))}</dd>
+                    <dt className="text-muted-foreground">Net</dt>
+                    <dd className="text-right font-semibold tabular-nums">{new Intl.NumberFormat("fr-FR").format(r.net_amount ?? netRevenue(r.amount))} {r.currency}</dd>
+                    <dt className="text-muted-foreground">Crédits</dt>
+                    <dd className="text-right tabular-nums">+{r.credits_added}</dd>
+                    <dt className="text-muted-foreground">Produit</dt>
+                    <dd className="truncate text-right">{productLabel(r.offer_code, r.credits_added)}</dd>
+                    <dt className="text-muted-foreground">Téléphone</dt>
+                    <dd className="text-right tabular-nums">{r.phone ? toInternational(r.phone_country ?? "", r.phone) : "—"}</dd>
+                    <dt className="text-muted-foreground">Pays</dt>
+                    <dd className="text-right">{r.country ?? "—"}</dd>
+                    <dt className="text-muted-foreground">Moyen</dt>
+                    <dd className="text-right capitalize">{r.method}</dd>
+                    <dt className="text-muted-foreground">Niveau</dt>
+                    <dd className="text-right">{r.level ?? "—"}</dd>
+                    <dt className="text-muted-foreground">Transaction</dt>
+                    <dd className="truncate text-right text-muted-foreground">{r.transaction_id ?? "—"}</dd>
+                    <dt className="text-muted-foreground">Référence</dt>
+                    <dd className="truncate text-right text-muted-foreground">{r.reference ?? "—"}</dd>
+                  </dl>
+                  {UNPAID_STATUSES.has(r.status) ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="mt-3 w-full"
+                      onClick={() =>
+                        setFollowUp({
+                          id: r.id,
+                          first_name: r.first_name,
+                          last_name: r.last_name,
+                          phone: r.phone,
+                          phone_country: r.phone_country,
+                          amount: r.amount,
+                          currency: r.currency,
+                          credits_added: r.credits_added,
+                          status: r.status,
+                          offer_code: r.offer_code,
+                          created_at: r.created_at,
+                        })
+                      }
+                    >
+                      <MessageCircle className="mr-1.5 size-3.5" />
+                      Relancer
+                    </Button>
+                  ) : null}
+                </div>
+              ))
+            )}
           </div>
           {filteredRows.length > 300 && (
             <p className="mt-2 text-xs text-muted-foreground">

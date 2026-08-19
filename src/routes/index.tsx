@@ -16,7 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import { listPublicReviews } from "@/lib/reviews.functions";
 import { useT } from "@/lib/i18n";
 import { WorldReachSection } from "@/components/world-reach-section";
-import { CommunityLeaderboardSection } from "@/components/community-leaderboard-section";
 import { HomePricingSection } from "@/components/home-pricing-section";
 import { ClubsSection } from "@/components/clubs-section";
 import { PaymentTutorialSection } from "@/components/payment-tutorial-section";
@@ -182,8 +181,6 @@ function HomePage() {
 
         <TestLanguagesSection />
 
-        <CommunityLeaderboardSection />
-
         <HomePricingSection />
 
         <PaymentTutorialSection />
@@ -273,17 +270,22 @@ function TestimonialsSection() {
         <h2 className="text-3xl font-bold sm:text-4xl">{t("tm.title")}</h2>
         <p className="mt-3 text-muted-foreground">{t("tm.desc")}</p>
       </div>
-      <div className="space-y-8">
-        <VideoTestimonial
-          candidateNumber="ODC-2026-62E98E"
-          videoUrl={raichaVideo.url}
-          posterUrl={raichaPoster.url}
-        />
-        <VideoTestimonial
-          candidateNumber="ODC-2026-DA455D"
-          videoUrl={oumarVideo.url}
-          posterUrl={oumarPoster.url}
-        />
+      <div
+        className="mt-8 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-3 sm:-mx-6 sm:px-6 [scrollbar-width:thin]"
+        role="region"
+        aria-label={t("tm.title")}
+      >
+        {[
+          { n: "ODC-2026-62E98E", v: raichaVideo.url, p: raichaPoster.url },
+          { n: "ODC-2026-DA455D", v: oumarVideo.url, p: oumarPoster.url },
+        ].map((item) => (
+          <div
+            key={item.n}
+            className="w-[88vw] max-w-[560px] shrink-0 snap-center sm:w-[80%] lg:w-[62%]"
+          >
+            <VideoTestimonial candidateNumber={item.n} videoUrl={item.v} posterUrl={item.p} />
+          </div>
+        ))}
       </div>
       <div
         ref={scrollerRef}
