@@ -84,10 +84,10 @@ export function TestLanguagesSection() {
                     ) : (
                       <>
                         <Button asChild variant="outline" className="rounded-xl">
-                          <Link to="/leveltest/$lang" params={{ lang: lang.code }}>
+                          <TestLanguageLink code={lang.code}>
                             {t(lang.ctaKey)}
                             <ArrowRight className="ml-1.5 size-4" aria-hidden="true" />
-                          </Link>
+                          </TestLanguageLink>
                         </Button>
                         <span className="text-xs font-medium text-muted-foreground">
                           {t("testlang.soon")}
