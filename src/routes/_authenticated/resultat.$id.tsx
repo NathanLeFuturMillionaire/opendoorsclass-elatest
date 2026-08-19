@@ -590,6 +590,7 @@ function ResultPage() {
                   </div>
                 </div>
               </div>
+              </div>
             </div>
 
             {/* Recommendation, outside the certificate */}
