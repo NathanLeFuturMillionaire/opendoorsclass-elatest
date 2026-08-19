@@ -82,10 +82,18 @@ export const organizationLd = {
   image: OG_IMAGE,
   description:
     "OpenDoorsClass est une plateforme d'évaluation et d'apprentissage des langues, anglais et espagnol, alignée sur le CECRL, de A1 à C2.",
-  founder: {
-    "@type": "Person",
-    name: "MAYUKWA Nathan Harysthote",
-  },
+  founder: [
+    {
+      "@type": "Person",
+      name: "MAYUKWA Nathan Harysthote",
+      jobTitle: "Fondateur",
+    },
+    {
+      "@type": "Person",
+      name: "IBALA BISSELO Hulda Christ Girelle",
+      jobTitle: "Co-fondatrice",
+    },
+  ],
   areaServed: "Worldwide",
   address: {
     "@type": "PostalAddress",

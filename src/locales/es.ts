@@ -22,7 +22,7 @@ const es: Dict = {
   "hero.title.b": "Tu nivel real",
   "hero.title.c": " en menos de treinta minutos.",
   "hero.desc":
-    "Una evaluación completa, estrictamente alineada con el MCER (de A1 a C2), diseñada por Mr Nathan para estudiantes de África y de todo el mundo. Exigente, cercana, inmediatamente útil.",
+    "Una evaluación completa, estrictamente alineada con el MCER (de A1 a C2), diseñada por Mr Nathan y Miss IBALA para estudiantes de África y de todo el mundo. Exigente, cercana, inmediatamente útil.",
   "hero.cta.start": "Hacer el test ahora",
   "hero.cta.how": "Descubrir el metodo",
   "hero.tag.instant": "Resultado inmediato",

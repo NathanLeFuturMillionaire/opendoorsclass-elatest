@@ -88,7 +88,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Évaluez votre niveau d'anglais ou d'espagnol de A1 à C2 avec OpenDoorsClass : test en ligne, résultat détaillé et attestation officielle.",
       },
-      { name: "author", content: "MAYUKWA Nathan Harysthote" },
+      {
+        name: "author",
+        content: "MAYUKWA Nathan Harysthote et IBALA BISSELO Hulda Christ Girelle",
+      },
       { property: "og:site_name", content: SITE_NAME },
       { property: "og:url", content: SITE_URL + "/" },
       { property: "og:title", content: "OpenDoorsClass, Test de niveau d'anglais CECRL" },
