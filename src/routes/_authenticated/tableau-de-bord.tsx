@@ -227,6 +227,79 @@ function DashboardPage() {
 }
 
 const LEVEL_ORDER = ["A1", "A2", "B1", "B2", "C1", "C2"];
+
+type HistoryRow = {
+  id: string;
+  started_at: string;
+  completed_at: string | null;
+  score: number | null;
+  level_result: string | null;
+  language: string;
+};
+
+/** Bloc dedie a une langue evaluee. Les deux tests ne sont jamais fusionnes. */
+function AssessmentBlock({
+  language,
+  history,
+  locale,
+}: {
+  language: "en" | "es";
+  history: HistoryRow[] | undefined;
+  locale: string;
+}) {
+  const rows = (history ?? []).filter((h) => (h.language ?? "en") === language);
+  const completed = rows.filter((r) => r.completed_at);
+  const last = completed[0] ?? null;
+  const label = language === "es" ? "🇪🇸 Spanish Assessment" : "🇬🇧 English Assessment";
+  const startTo = language === "es" ? "/spanish-test" : "/test";
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-6">
+      <h3 className="text-lg font-semibold">{label}</h3>
+      {last ? (
+        <>
+          <p className="mt-3 text-sm text-muted-foreground">
+            {locale === "en" ? "Level" : "Niveau"} :{" "}
+            <span className="text-base font-bold text-foreground">
+              {last.level_result ?? "—"}
+            </span>
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Date :{" "}
+            {new Date(last.completed_at as string).toLocaleDateString(
+              locale === "fr" ? "fr-FR" : locale === "es" ? "es-ES" : "en-US",
+              { month: "long", year: "numeric" },
+            )}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button asChild size="sm" variant="outline">
+              <Link to="/resultat/$id" params={{ id: last.id }}>
+                {locale === "en" ? "View detailed result" : "Voir résultat détaillé"}
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="ghost">
+              <Link to="/resultat/$id" params={{ id: last.id }}>
+                {locale === "en" ? "Certificate" : "Certificat"}
+              </Link>
+            </Button>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="mt-3 text-sm text-muted-foreground">
+            {locale === "en" ? "Not started" : "Non commencé"}
+          </p>
+          <Button asChild size="sm" className="mt-4 bg-brand-gradient text-primary-foreground">
+            <Link to={startTo}>
+              {locale === "en" ? "Start this assessment" : "Démarrer cette évaluation"}
+            </Link>
+          </Button>
+        </>
+      )}
+    </div>
+  );
+}
+
 function bestLevel(history: { level_result: string | null }[] | undefined) {
   if (!history) return null;
   let best: string | null = null;
