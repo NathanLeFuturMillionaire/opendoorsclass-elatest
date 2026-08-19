@@ -550,6 +550,41 @@ function ProfilePage() {
                     <ClipboardList className="size-5 text-primary" />
                     <h2 className="text-lg font-semibold">Historique</h2>
                   </div>
+                  <div className="mb-6 grid gap-3 sm:grid-cols-2">
+                    {(["en", "es"] as const).map((lang) => {
+                      const last = (profile.recentSessions ?? []).find(
+                        (s) => (s.language ?? "en") === lang,
+                      );
+                      return (
+                        <div key={lang} className="rounded-2xl border border-border p-4">
+                          <div className="text-sm font-semibold">
+                            {lang === "es" ? "🇪🇸 Spanish Assessment" : "🇬🇧 English Assessment"}
+                          </div>
+                          {last ? (
+                            <>
+                              <div className="mt-1 text-xs text-muted-foreground">
+                                Niveau {last.level_result ?? "—"} , {fmtDate(last.completed_at)}
+                              </div>
+                              <Button asChild size="sm" variant="outline" className="mt-3">
+                                <Link to="/resultat/$id" params={{ id: last.id }}>
+                                  Voir résultat détaillé
+                                </Link>
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <div className="mt-1 text-xs text-muted-foreground">Non commencé</div>
+                              <Button asChild size="sm" variant="outline" className="mt-3">
+                                <Link to={lang === "es" ? "/spanish-test" : "/test"}>
+                                  Démarrer cette évaluation
+                                </Link>
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                   {(profile.recentSessions ?? []).length === 0 ? (
                     <p className="text-sm text-muted-foreground">
                       Vos tests apparaîtront ici.
