@@ -21,6 +21,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SiteHeader } from "@/components/site-header";
 import { AuthSidePanel } from "@/components/auth/auth-side-panel";
+import { PhoneCountrySelect } from "@/components/phone-country-select";
+import { toE164 } from "@/lib/phone-countries";
 import { countryByCode } from "@/lib/countries";
 import { detectVisitorCountry } from "@/lib/geo.functions";
 import { useI18n } from "@/lib/i18n";
@@ -112,6 +114,8 @@ function AuthPage() {
   const [lastName, setLastName] = useState("");
   const [gender, setGender] = useState("");
   const [genderOther, setGenderOther] = useState("");
+  const [phone, setPhone] = useState("");
+  const [phoneCountry, setPhoneCountry] = useState("GA");
   const [remember, setRemember] = useState(true);
   const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -132,6 +136,12 @@ function AuthPage() {
   });
   const country = countryData?.country ?? null;
   const detectedCountry = countryByCode(country ?? undefined);
+  const phoneE164 = toE164(phoneCountry, phone);
+
+  useEffect(() => {
+    if (country) setPhoneCountry((c) => (c === "GA" && !phone ? country : c));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [country]);
 
   const checks = useMemo(() => passwordChecks(password), [password]);
   const strength = Object.values(checks).filter(Boolean).length;
@@ -171,6 +181,7 @@ function AuthPage() {
     EMAIL_RE.test(email) &&
     gender.length > 0 &&
     (gender !== "other" || genderOther.trim().length > 0) &&
+    !!phoneE164 &&
     strength === 5 &&
     passwordsMatch;
 
@@ -191,6 +202,8 @@ function AuthPage() {
               last_name: lastName.trim(),
               sex: gender,
               sex_other: gender === "other" ? genderOther.trim() : null,
+              phone: phoneE164,
+              phone_country: phoneCountry,
               country,
             },
             emailRedirectTo: `${window.location.origin}/tableau-de-bord`,
@@ -211,6 +224,8 @@ function AuthPage() {
               last_name: lastName.trim(),
               sex: gender,
               sex_other: gender === "other" ? genderOther.trim() : null,
+              phone: phoneE164,
+              phone_country: phoneCountry,
               country,
             })
             .eq("id", data.session.user.id);
