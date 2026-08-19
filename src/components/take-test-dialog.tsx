@@ -18,7 +18,7 @@ import { getMyProfile } from "@/lib/payments.functions";
 import { TEST_LANGUAGES, type TestLanguageCode } from "@/lib/test-languages";
 import { useI18n } from "@/lib/i18n";
 
-/** Route d'entree de chaque evaluation, pilotee par configuration. */
+/** Route d'entrée de chaque évaluation, pilotée par configuration. */
 const TEST_ROUTES: Record<TestLanguageCode, string> = {
   en: "/test",
   es: "/spanish-test",
@@ -30,8 +30,8 @@ const NAMES: Record<TestLanguageCode, string> = {
 };
 
 /**
- * Point d'entree unique pour demarrer une evaluation depuis l'espace candidat.
- * Reutilise a l'identique sur Mon Profil et Mon Espace.
+ * Point d'entrée unique pour démarrer une évaluation depuis l'espace candidat.
+ * Réutilisé à l'identique sur Mon Profil et Mon Espace.
  */
 export function TakeTestDialog({ trigger }: { trigger: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -58,13 +58,13 @@ export function TakeTestDialog({ trigger }: { trigger: ReactNode }) {
   const desc = en
     ? "Choose the assessment you want to start."
     : es
-      ? "Elige la evaluacion que quieres iniciar."
-      : "Choisissez l'evaluation que vous souhaitez demarrer.";
+      ? "Elige la evaluación que quieres iniciar."
+      : "Choisissez l'évaluation que vous souhaitez démarrer.";
   const durationLine = en
     ? "Level A1 to C2 · 30 minutes"
     : es
       ? "Nivel A1 a C2 · 30 minutos"
-      : "Niveau A1 a C2 · 30 minutes";
+      : "Niveau A1 à C2 · 30 minutes";
 
   const launch = (code: TestLanguageCode) => {
     setOpen(false);
@@ -90,14 +90,14 @@ export function TakeTestDialog({ trigger }: { trigger: ReactNode }) {
             );
             const last = rows[0] ?? null;
             const statusLabel = last
-              ? `${en ? "Already taken" : es ? "Ya realizada" : "Deja passe"}${
+              ? `${en ? "Already taken" : es ? "Ya realizada" : "Déjà passé"}${
                   last.level_result ? ` · ${last.level_result}` : ""
                 }`
               : en
                 ? "Never taken"
                 : es
                   ? "Nunca realizada"
-                  : "Jamais passe";
+                  : "Jamais passé";
             const cta = last
               ? en
                 ? "Retake the test"
@@ -149,8 +149,8 @@ export function TakeTestDialog({ trigger }: { trigger: ReactNode }) {
             {en
               ? "No credit available: you will be redirected to the purchase page."
               : es
-                ? "Sin credito disponible: te llevaremos a la pagina de compra."
-                : "Aucun credit disponible : vous serez redirige vers la page d'achat."}
+                ? "Sin crédito disponible: te llevaremos a la página de compra."
+                : "Aucun crédit disponible : vous serez redirigé vers la page d'achat."}
           </p>
         ) : null}
       </DialogContent>
