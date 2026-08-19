@@ -18,6 +18,7 @@ import { flagFor } from "@/components/leaderboard/shared";
 import { getPublicProfile, type PublicProfile } from "@/lib/public-profile.functions";
 import { useI18n } from "@/lib/i18n";
 import { FounderBadge } from "@/components/founder-badge";
+import { NOINDEX } from "@/lib/seo";
 
 const SKILL_LABELS: Record<string, { fr: string; en: string }> = {
   grammar: { fr: "Grammaire", en: "Grammar" },
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/profile/$id")({
       meta: [
         { title },
         { name: "description", content: description },
+        NOINDEX,
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "profile" },
