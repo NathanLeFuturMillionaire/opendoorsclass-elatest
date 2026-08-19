@@ -936,7 +936,7 @@ export type Database = {
         Returns: Json
       }
       get_gamification_leaderboard: {
-        Args: { _limit?: number; _scope: string }
+        Args: { _limit?: number; _scope?: string }
         Returns: {
           cefr_level: string
           country: string
