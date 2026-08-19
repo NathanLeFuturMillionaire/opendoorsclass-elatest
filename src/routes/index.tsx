@@ -23,6 +23,8 @@ import { CertifiedLearnersCard } from "@/components/certified-learners-card";
 import { HeroTestPreview } from "@/components/hero-test-preview";
 import { FounderBadge } from "@/components/founder-badge";
 import { VideoTestimonial } from "@/components/video-testimonial";
+import { SeoAboutSection, seoFaqLd } from "@/components/seo-about-section";
+import { socialMeta, canonicalLink } from "@/lib/seo";
 import raichaVideo from "@/assets/testimonial-raicha.mp4.asset.json";
 import raichaPoster from "@/assets/testimonial-raicha-poster.jpg.asset.json";
 import oumarVideo from "@/assets/testimonial-oumar.mp4.asset.json";
@@ -31,27 +33,16 @@ import oumarPoster from "@/assets/testimonial-oumar-poster.jpg.asset.json";
 export const Route = createFileRoute("/")({
   component: HomePage,
   head: () => ({
-    meta: [
-      { title: "OpenDoorsClass Level Test | English & Spanish Assessment" },
-      {
-        name: "description",
-        content:
-          "Measure your English or Spanish proficiency with the OpenDoorsClass Level Test: a structured CEFR language assessment from A1 to C2, with an official certificate.",
-      },
-      {
-        property: "og:title",
-        content: "OpenDoorsClass Level Test | English & Spanish Assessment",
-      },
-      {
-        property: "og:description",
-        content:
-          "English Level Test and Spanish Level Test by OpenDoorsClass: structured CEFR language assessment, instant result and official certificate.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://opendoorsclass-elatest.lovable.app/" },
-      { name: "twitter:card", content: "summary_large_image" },
+    meta: socialMeta({
+      title: "OpenDoorsClass, test de niveau d'anglais et d'espagnol en ligne",
+      description:
+        "OpenDoorsClass évalue votre niveau réel d'anglais et d'espagnol sur l'échelle CECRL, de A1 à C2, en moins de trente minutes, avec résultat détaillé et attestation officielle.",
+      path: "/",
+    }),
+    links: canonicalLink("/"),
+    scripts: [
+      { type: "application/ld+json", children: JSON.stringify(seoFaqLd("fr")) },
     ],
-    links: [{ rel: "canonical", href: "https://opendoorsclass-elatest.lovable.app/" }],
   }),
 });
 
@@ -123,6 +114,9 @@ function HomePage() {
                 </span>
               </div>
               <h1 className="max-w-xl text-[2.35rem] font-extrabold leading-[1.08] tracking-tight text-balance sm:text-[2.9rem] md:text-[3.15rem]">
+                <span className="mb-2 block text-sm font-bold uppercase tracking-[0.2em] text-brand-green">
+                  OpenDoorsClass
+                </span>
                 {t("hero.title.a")} <span className="text-brand-gradient">{t("hero.title.b")}</span>{t("hero.title.c")}
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
@@ -187,6 +181,8 @@ function HomePage() {
         <PaymentTutorialSection />
 
         <TestimonialsSection />
+
+        <SeoAboutSection />
 
         {/* Fondateurs */}
         <FoundersSection />
