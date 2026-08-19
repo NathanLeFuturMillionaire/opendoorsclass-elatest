@@ -2,7 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { listQuestions, upsertQuestion, deleteQuestion } from "@/lib/admin.functions";
+import {
+  listQuestions,
+  upsertQuestion,
+  deleteQuestion,
+  getAssessmentPoolCoverage,
+} from "@/lib/admin.functions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,11 +34,16 @@ function QuestionsPage() {
   const list = useServerFn(listQuestions);
   const upsert = useServerFn(upsertQuestion);
   const del = useServerFn(deleteQuestion);
+  const coverageFn = useServerFn(getAssessmentPoolCoverage);
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Q | null>(null);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<string>("all");
   const { data, isLoading } = useQuery({ queryKey: ["admin-questions"], queryFn: () => list() });
+  const coverage = useQuery({
+    queryKey: ["admin-pool-coverage", "es"],
+    queryFn: () => coverageFn({ data: { language: "es" as const } }),
+  });
 
   function openNew() { setEditing({ ...EMPTY }); setOpen(true); }
   function openEdit(q: any) { setEditing({ ...q, audio_url: q.audio_url ?? "" }); setOpen(true); }
@@ -74,6 +84,7 @@ function QuestionsPage() {
           <Button key={l} size="sm" variant={filter === l ? "default" : "outline"} onClick={() => setFilter(l)}>{l}</Button>
         ))}
       </div>
+      <PoolCoverage data={coverage.data} />
       {isLoading ? <p className="text-muted-foreground">Chargement...</p> : (
         <Card>
           <CardContent className="p-0">
@@ -138,5 +149,45 @@ function QuestionsPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+type Coverage = Awaited<ReturnType<typeof getAssessmentPoolCoverage>>;
+
+/** Randomisation depth of the Spanish bank, per level and skill. */
+function PoolCoverage({ data }: { data?: Coverage }) {
+  if (!data) return null;
+  const alerts = data.cells.filter((c) => c.status !== "ok");
+  return (
+    <Card>
+      <CardContent className="space-y-3 p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-sm font-semibold">Profondeur de tirage (Espagnol)</h2>
+          <Badge variant={data.criticalCount ? "destructive" : alerts.length ? "outline" : "secondary"}>
+            {data.criticalCount
+              ? `${data.criticalCount} catégorie(s) insuffisante(s)`
+              : alerts.length
+                ? `${alerts.length} pool(s) trop mince(s)`
+                : "Randomisation optimale"}
+          </Badge>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Seuil recommandé : au moins {data.minPoolRatio} fois le quota par niveau et compétence, pour
+          que deux tentatives successives ne retombent pas sur les mêmes questions.
+        </p>
+        {alerts.length ? (
+          <ul className="grid gap-1 text-xs sm:grid-cols-2">
+            {alerts.map((c) => (
+              <li key={`${c.level}-${c.skill}-${c.type}`} className="flex items-center gap-2">
+                <Badge variant={c.status === "critical" ? "destructive" : "outline"}>{c.level}</Badge>
+                <span className="text-muted-foreground">
+                  {c.skill} ({c.type}) : {c.available} disponible(s), {c.required} servie(s) par test,
+                  {" "}{c.recommended} recommandée(s)
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </CardContent>
+    </Card>
   );
 }

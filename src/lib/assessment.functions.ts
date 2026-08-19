@@ -200,21 +200,53 @@ export const getAssessmentQuestions = createServerFn({ method: "GET" })
       const byId = new Map(rows.map((q) => [q.id, q]));
       picked = existing.map((id) => byId.get(id)).filter(Boolean) as Row[];
     } else {
-      const byCell = new Map<string, Row[]>();
-      for (const q of rows) {
-        const key = `${q.level}:${q.category}:${q.question_type ?? "mcq"}`;
-        byCell.set(key, [...(byCell.get(key) ?? []), q]);
+      // Brand new attempt: draw a fresh set, server side, favouring items this
+      // candidate has never seen. The draw is never exposed to the client.
+      const { drawAttempt, secureShuffle } = await import("@/lib/assessment-draw.server");
+
+      const { data: history } = await supabaseAdmin
+        .from("test_sessions")
+        .select("question_ids")
+        .eq("user_id", context.userId)
+        .eq("language", language)
+        .neq("id", session.id)
+        .order("started_at", { ascending: false })
+        .limit(20);
+      const seen = new Set<string>();
+      for (const row of history ?? []) {
+        for (const id of ((row.question_ids as string[] | null) ?? [])) seen.add(id);
       }
-      picked = [];
-      for (const cell of blueprint) {
-        const bucket = byCell.get(`${cell.level}:${cell.skill}:${cell.type}`) ?? [];
-        picked.push(...shuffle(bucket).slice(0, cell.count));
+
+      const draw = drawAttempt(rows, blueprint, seen);
+      if (draw.shortfalls.length || draw.thinPools.length || draw.repeated) {
+        // Never blocks the attempt: the candidate starts with what exists.
+        console.warn("[assessment] bank coverage warning", {
+          language,
+          sessionId: session.id,
+          shortfalls: draw.shortfalls,
+          thinPools: draw.thinPools,
+          repeatedItems: draw.repeated,
+        });
       }
-      picked.sort((a, b) => {
-        const l = LEVEL_ORDER.indexOf(a.level as never) - LEVEL_ORDER.indexOf(b.level as never);
-        if (l !== 0) return l;
-        return SKILL_ORDER.indexOf(a.category as never) - SKILL_ORDER.indexOf(b.category as never);
-      });
+
+      // Keep the A1 to C2 progression: order by level then by skill, and only
+      // shuffle inside a level plus skill group so difficulty still ramps up.
+      const groups = new Map<string, Row[]>();
+      for (const q of draw.picked) {
+        const key = `${q.level}:${q.category}`;
+        const bucket = groups.get(key);
+        if (bucket) bucket.push(q);
+        else groups.set(key, [q]);
+      }
+      picked = [...groups.entries()]
+        .sort((a, b) => {
+          const [la, ca] = a[0].split(":");
+          const [lb, cb] = b[0].split(":");
+          const l = LEVEL_ORDER.indexOf(la as never) - LEVEL_ORDER.indexOf(lb as never);
+          if (l !== 0) return l;
+          return SKILL_ORDER.indexOf(ca as never) - SKILL_ORDER.indexOf(cb as never);
+        })
+        .flatMap(([, bucket]) => secureShuffle(bucket));
       await supabaseAdmin
         .from("test_sessions")
         .update({ question_ids: picked.map((q) => q.id) })
