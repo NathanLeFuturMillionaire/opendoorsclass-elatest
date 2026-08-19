@@ -68,6 +68,23 @@ function ResultPage() {
   const [qr, setQr] = useState<string>("");
   const [downloading, setDownloading] = useState(false);
   const certRef = useRef<HTMLDivElement | null>(null);
+  const certWrapRef = useRef<HTMLDivElement | null>(null);
+  // Le certificat garde ses proportions A4 paysage et est mis a l'echelle
+  // pour tenir dans le conteneur, sans jamais deborder ni etre coupe.
+  const [certScale, setCertScale] = useState(1);
+
+  useEffect(() => {
+    const el = certWrapRef.current;
+    if (!el) return;
+    const update = () => {
+      const w = el.clientWidth;
+      if (w > 0) setCertScale(Math.min(1, w / 1123));
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [state.loading]);
 
   useEffect(() => {
     let cancelled = false;
@@ -133,6 +150,10 @@ function ResultPage() {
         scale: 2,
         backgroundColor: "#ffffff",
         useCORS: true,
+        width: 1123,
+        height: 794,
+        windowWidth: 1123,
+        windowHeight: 794,
       });
       const img = canvas.toDataURL("image/jpeg", 0.95);
       const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
@@ -164,10 +185,23 @@ function ResultPage() {
           </CardContent></Card>
         ) : (
           <div className="space-y-6 animate-fade-in">
-            <div className="mx-auto overflow-auto">
+            <div
+              ref={certWrapRef}
+              className="certificate-frame mx-auto w-full overflow-hidden"
+              style={{ height: 794 * certScale }}
+            >
+              <div
+                className="certificate-scaler"
+                style={{
+                  width: 1123,
+                  height: 794,
+                  transform: `scale(${certScale})`,
+                  transformOrigin: "top left",
+                }}
+              >
               <div
                 ref={certRef}
-                className="mx-auto"
+                className="certificate-sheet"
                 style={{
                   width: "1123px",
                   height: "794px",
@@ -555,6 +589,7 @@ function ResultPage() {
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
             </div>
 

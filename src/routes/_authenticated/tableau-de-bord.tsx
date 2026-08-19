@@ -15,6 +15,7 @@ import { BadgeGrid } from "@/components/gamification/badge-grid";
 import { WeeklyChallengesCard } from "@/components/gamification/weekly-challenges-card";
 import { Trophy, Flame, Sparkles } from "lucide-react";
 import { useT, useI18n } from "@/lib/i18n";
+import { TakeTestDialog } from "@/components/take-test-dialog";
 import { NOINDEX } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/tableau-de-bord")({
@@ -127,15 +128,13 @@ function DashboardPage() {
           <div className="animate-fade-up rounded-2xl border border-border bg-card p-6">
             <h2 className="text-lg font-semibold">{t("dash.take.title")}</h2>
             <p className="mt-2 text-sm text-muted-foreground">{t("dash.take.desc")}</p>
-            {hasCredits ? (
-              <Button asChild className="mt-4 bg-brand-gradient text-primary-foreground transition-transform hover:scale-[1.02]">
-                <Link to="/test">{t("dash.start")}</Link>
-              </Button>
-            ) : (
-              <Button asChild variant="outline" className="mt-4">
-                <Link to="/achat-credits">{t("dash.buy.one")}</Link>
-              </Button>
-            )}
+            <TakeTestDialog
+              trigger={
+                <Button className="mt-4 bg-brand-gradient text-primary-foreground transition-transform hover:scale-[1.02]">
+                  {hasCredits ? t("dash.start") : t("dash.buy.one")}
+                </Button>
+              }
+            />
           </div>
           <div className="animate-fade-up rounded-2xl border border-border bg-card p-6">
             <div className="flex items-center gap-2">

@@ -64,6 +64,7 @@ import { BadgeGrid } from "@/components/gamification/badge-grid";
 import { XpBadge } from "@/components/gamification/xp-badge";
 import { MyClubCard } from "@/components/my-club-card";
 import { Link as RLink } from "@tanstack/react-router";
+import { TakeTestDialog } from "@/components/take-test-dialog";
 import { NOINDEX } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/profil")({
@@ -375,12 +376,13 @@ function ProfilePage() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Button
-                    asChild
-                    className="bg-brand-gradient text-primary-foreground"
-                  >
-                    <Link to="/test">Passer un test</Link>
-                  </Button>
+                  <TakeTestDialog
+                    trigger={
+                      <Button className="bg-brand-gradient text-primary-foreground">
+                        Passer un test
+                      </Button>
+                    }
+                  />
                   <Button asChild variant="outline">
                     <Link to="/achat-credits">Acheter un nouveau crédit</Link>
                   </Button>
