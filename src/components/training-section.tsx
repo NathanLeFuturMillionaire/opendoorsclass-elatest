@@ -68,9 +68,6 @@ export function TrainingSection() {
                   {TRAINING_OFFER.currency} / mois
                 </span>
               </div>
-              <Badge className="mt-3 bg-brand-yellow-soft text-brand-yellow-foreground hover:bg-brand-yellow-soft">
-                Négociable
-              </Badge>
 
               <div className="mt-6 flex flex-col gap-3">
                 <Button
