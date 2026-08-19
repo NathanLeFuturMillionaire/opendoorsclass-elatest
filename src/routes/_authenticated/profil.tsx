@@ -375,12 +375,13 @@ function ProfilePage() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Button
-                    asChild
-                    className="bg-brand-gradient text-primary-foreground"
-                  >
-                    <Link to="/test">Passer un test</Link>
-                  </Button>
+                  <TakeTestDialog
+                    trigger={
+                      <Button className="bg-brand-gradient text-primary-foreground">
+                        Passer un test
+                      </Button>
+                    }
+                  />
                   <Button asChild variant="outline">
                     <Link to="/achat-credits">Acheter un nouveau crédit</Link>
                   </Button>
