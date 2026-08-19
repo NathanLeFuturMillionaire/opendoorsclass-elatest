@@ -562,6 +562,9 @@ function ProfilePage() {
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <div>
                               <div className="text-sm font-semibold">
+                                {s.language === "es" ? "🇪🇸 Spanish Assessment" : "🇬🇧 English Assessment"}
+                              </div>
+                              <div className="text-sm">
                                 {fmtDate(s.completed_at)} , Niveau{" "}
                                 {s.level_result ?? "—"}
                               </div>
