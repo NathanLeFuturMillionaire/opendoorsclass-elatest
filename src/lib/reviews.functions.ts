@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { getPublicRole } from "@/lib/founders";
 
 const ReviewInput = z.object({
   rating: z.number().int().min(1).max(5),
@@ -85,6 +86,7 @@ export const listPublicReviews = createServerFn({ method: "GET" }).handler(async
   const avatarByUser = new Map((profs ?? []).map((p: any) => [p.id, p.avatar_url as string | null]));
   return reviews.map((r) => ({
     id: r.id,
+    public_role: getPublicRole({ userId: r.user_id }),
     rating: r.rating,
     title: r.title,
     comment: r.comment,
