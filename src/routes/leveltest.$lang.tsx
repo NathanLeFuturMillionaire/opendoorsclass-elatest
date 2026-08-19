@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { CheckCircle2, Clock, MessageCircle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -9,6 +9,7 @@ import { getTestLanguage, isTestLanguageCode } from "@/lib/test-languages";
 
 export const Route = createFileRoute("/leveltest/$lang")({
   beforeLoad: ({ params }) => {
+    if (params.lang === "es") throw redirect({ to: "/spanish-test" });
     if (!isTestLanguageCode(params.lang)) throw notFound();
   },
   head: ({ params }) => {

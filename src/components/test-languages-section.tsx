@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useT } from "@/lib/i18n";
-import { TEST_LANGUAGES } from "@/lib/test-languages";
+import { TEST_LANGUAGES, type TestLanguageCode } from "@/lib/test-languages";
+import type { ReactNode } from "react";
 
 /**
  * Lets the visitor pick the language they want to be ASSESSED in.
@@ -75,10 +76,10 @@ export function TestLanguagesSection() {
                         asChild
                         className="rounded-xl bg-brand-gradient text-primary-foreground shadow-md transition-transform duration-300 group-hover:translate-x-0.5"
                       >
-                        <Link to="/leveltest/$lang" params={{ lang: lang.code }}>
+                        <TestLanguageLink code={lang.code}>
                           {t(lang.ctaKey)}
                           <ArrowRight className="ml-1.5 size-4" aria-hidden="true" />
-                        </Link>
+                        </TestLanguageLink>
                       </Button>
                     ) : (
                       <>
@@ -101,5 +102,21 @@ export function TestLanguagesSection() {
         </div>
       </div>
     </section>
+  );
+}
+
+/** Routes each assessed language to its own entry point. */
+function TestLanguageLink({
+  code,
+  children,
+}: {
+  code: TestLanguageCode;
+  children: ReactNode;
+}) {
+  if (code === "es") return <Link to="/spanish-test">{children}</Link>;
+  return (
+    <Link to="/leveltest/$lang" params={{ lang: code }}>
+      {children}
+    </Link>
   );
 }
