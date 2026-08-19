@@ -438,9 +438,14 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
       .select("id, level, category, correct_answer")
       .in("id", served.length ? served : ["00000000-0000-0000-0000-000000000000"]);
 
+    // Weighted scoring (part VI): an item counts as much as its CEFR weight,
+    // A1 = 1 up to C2 = 6. Deterministic, no randomness, no adaptive logic.
+    const { levelWeight } = await import("@/lib/assessment-difficulty");
     const perLevel: Record<string, { correct: number; total: number; percent: number }> = {};
     const perCategory: Record<string, { correct: number; total: number; percent: number }> = {};
     let totalCorrect = 0;
+    let weightedCorrect = 0;
+    let weightedTotal = 0;
     const totalGraded = graded?.length ?? 0;
 
     for (const q of graded ?? []) {
@@ -458,12 +463,15 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
       }
       const lvl = q.level as string;
       const cat = q.category as string;
+      const weight = levelWeight(lvl);
+      weightedTotal += weight;
       perLevel[lvl] ??= { correct: 0, total: 0, percent: 0 };
       perCategory[cat] ??= { correct: 0, total: 0, percent: 0 };
       perLevel[lvl].total++;
       perCategory[cat].total++;
       if (isCorrect) {
         totalCorrect++;
+        weightedCorrect += weight;
         perLevel[lvl].correct++;
         perCategory[cat].correct++;
       }
@@ -472,7 +480,9 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
       cell.percent = cell.total ? Math.round((cell.correct / cell.total) * 100) : 0;
     }
 
-    // CEFR: highest consecutive level reaching 70 percent, starting at A1.
+    // CEFR ceiling: the highest level mastered without a break in the ladder.
+    // A candidate strong on A1 to B1 but failing B2 stays at B1, whatever the
+    // raw percentage of correct answers looks like.
     let levelResult: string = "A1";
     for (const lvl of LEVEL_ORDER) {
       const cell = perLevel[lvl];
@@ -480,7 +490,13 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
       if (cell.percent >= 70) levelResult = lvl;
       else break;
     }
-    const scorePercent = totalGraded ? Math.round((totalCorrect / totalGraded) * 100) : 0;
+    // Score reported to the candidate: weighted by level, so a C2 item won
+    // weighs six times an A1 item. Falls back to the flat ratio if no weight.
+    const scorePercent = weightedTotal
+      ? Math.round((weightedCorrect / weightedTotal) * 100)
+      : totalGraded
+        ? Math.round((totalCorrect / totalGraded) * 100)
+        : 0;
 
     // Single conditional write: two parallel submissions cannot both succeed.
     const { data: updated, error: updateError } = await context.supabase
