@@ -64,6 +64,7 @@ import { BadgeGrid } from "@/components/gamification/badge-grid";
 import { XpBadge } from "@/components/gamification/xp-badge";
 import { MyClubCard } from "@/components/my-club-card";
 import { Link as RLink } from "@tanstack/react-router";
+import { TakeTestDialog } from "@/components/take-test-dialog";
 import { NOINDEX } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/profil")({
