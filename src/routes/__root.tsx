@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { LanguageProvider } from "@/lib/i18n";
 import { notifySignIn } from "@/lib/notifications.functions";
+import { SITE_NAME, organizationLd, websiteLd } from "@/lib/seo";
 
 function NotFoundComponent() {
   return (
@@ -88,6 +89,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Évaluez votre niveau d'anglais (A1 à C2) avec OpenDoorsClass, la plateforme du professeur Nathan Harysthote. Test rapide, résultat visuel, recommandation de parcours.",
       },
       { name: "author", content: "MAYUKWA Nathan Harysthote" },
+      { property: "og:site_name", content: SITE_NAME },
       { property: "og:title", content: "OpenDoorsClass, Test de niveau d'anglais CECRL" },
       {
         property: "og:description",
@@ -103,6 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/favicon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -116,6 +119,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:wght@600;700&display=swap",
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(organizationLd),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(websiteLd),
       },
     ],
   }),

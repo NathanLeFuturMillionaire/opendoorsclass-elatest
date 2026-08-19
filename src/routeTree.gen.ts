@@ -16,6 +16,7 @@ import { Route as CertifiesRouteImport } from './routes/certifies'
 import { Route as FormationAnglaisProgrammeRouteImport } from './routes/formation-anglais-programme'
 import { Route as LeaderboardsRouteImport } from './routes/leaderboards'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SpanishTestRouteImport } from './routes/spanish-test'
 import { Route as AuthenticatedAccomplissementsRouteImport } from './routes/_authenticated/accomplissements'
 import { Route as AuthenticatedAchatCreditsRouteImport } from './routes/_authenticated/achat-credits'
@@ -74,6 +75,11 @@ const LeaderboardsRoute = LeaderboardsRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SpanishTestRoute = SpanishTestRouteImport.update({
@@ -216,6 +222,7 @@ export interface FileRoutesByFullPath {
   '/formation-anglais-programme': typeof FormationAnglaisProgrammeRoute
   '/leaderboards': typeof LeaderboardsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/spanish-test': typeof SpanishTestRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/accomplissements': typeof AuthenticatedAccomplissementsRoute
@@ -248,6 +255,7 @@ export interface FileRoutesByTo {
   '/formation-anglais-programme': typeof FormationAnglaisProgrammeRoute
   '/leaderboards': typeof LeaderboardsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/spanish-test': typeof SpanishTestRoute
   '/accomplissements': typeof AuthenticatedAccomplissementsRoute
   '/achat-credits': typeof AuthenticatedAchatCreditsRoute
@@ -281,6 +289,7 @@ export interface FileRoutesById {
   '/formation-anglais-programme': typeof FormationAnglaisProgrammeRoute
   '/leaderboards': typeof LeaderboardsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/spanish-test': typeof SpanishTestRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/accomplissements': typeof AuthenticatedAccomplissementsRoute
@@ -315,6 +324,7 @@ export interface FileRouteTypes {
     | '/formation-anglais-programme'
     | '/leaderboards'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/spanish-test'
     | '/admin'
     | '/accomplissements'
@@ -347,6 +357,7 @@ export interface FileRouteTypes {
     | '/formation-anglais-programme'
     | '/leaderboards'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/spanish-test'
     | '/accomplissements'
     | '/achat-credits'
@@ -379,6 +390,7 @@ export interface FileRouteTypes {
     | '/formation-anglais-programme'
     | '/leaderboards'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/spanish-test'
     | '/_authenticated/admin'
     | '/_authenticated/accomplissements'
@@ -413,6 +425,7 @@ export interface RootRouteChildren {
   FormationAnglaisProgrammeRoute: typeof FormationAnglaisProgrammeRoute
   LeaderboardsRoute: typeof LeaderboardsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SpanishTestRoute: typeof SpanishTestRoute
   LeveltestLangRoute: typeof LeveltestLangRoute
   ProfileIdRoute: typeof ProfileIdRoute
@@ -470,6 +483,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/spanish-test': {
@@ -708,6 +728,7 @@ const rootRouteChildren: RootRouteChildren = {
   FormationAnglaisProgrammeRoute: FormationAnglaisProgrammeRoute,
   LeaderboardsRoute: LeaderboardsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SpanishTestRoute: SpanishTestRoute,
   LeveltestLangRoute: LeveltestLangRoute,
   ProfileIdRoute: ProfileIdRoute,

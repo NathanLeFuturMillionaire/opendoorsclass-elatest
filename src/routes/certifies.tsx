@@ -3,24 +3,28 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/lib/i18n";
+import { socialMeta, canonicalLink, breadcrumbLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/certifies")({
   component: CertifiedPage,
   head: () => ({
-    meta: [
-      { title: "Certified Learners | OpenDoorsClass Level Test" },
+    meta: socialMeta({
+      title: "Candidats certifiés | OpenDoorsClass",
+      description:
+        "Découvrez les candidats qui ont passé le test de niveau OpenDoorsClass et obtenu leur attestation officielle alignée sur le CECRL.",
+      path: "/certifies",
+    }),
+    links: canonicalLink("/certifies"),
+    scripts: [
       {
-        name: "description",
-        content:
-          "Discover the professionals who completed the OpenDoorsClass English Level Test and earned their official CEFR certificate.",
+        type: "application/ld+json",
+        children: JSON.stringify(
+          breadcrumbLd([
+            { name: "OpenDoorsClass", path: "/" },
+            { name: "Candidats certifiés", path: "/certifies" },
+          ]),
+        ),
       },
-      { property: "og:title", content: "Certified Learners | OpenDoorsClass" },
-      {
-        property: "og:description",
-        content: "Professionals certified through the OpenDoorsClass English Level Test.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
 });

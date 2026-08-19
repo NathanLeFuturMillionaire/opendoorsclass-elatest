@@ -24,6 +24,7 @@ import { AuthSidePanel } from "@/components/auth/auth-side-panel";
 import { countryByCode } from "@/lib/countries";
 import { detectVisitorCountry } from "@/lib/geo.functions";
 import { useI18n } from "@/lib/i18n";
+import { NOINDEX } from "@/lib/seo";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Connexion et inscription, OpenDoorsClass" },
+      NOINDEX,
       {
         name: "description",
         content:

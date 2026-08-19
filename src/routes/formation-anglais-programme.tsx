@@ -14,6 +14,7 @@ import {
   PROGRAM_SESSION_STRUCTURE,
   TRAINING_OFFER,
 } from "@/lib/training-program";
+import { socialMeta, canonicalLink, breadcrumbLd, courseLd } from "@/lib/seo";
 
 const TITLE = "Programme complet | Formation Anglais Professionnel OpenDoorsClass";
 const DESC =
@@ -22,13 +23,34 @@ const DESC =
 export const Route = createFileRoute("/formation-anglais-programme")({
   component: ProgramPage,
   head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESC },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESC },
-      { property: "og:type", content: "article" },
-      { name: "twitter:card", content: "summary_large_image" },
+    meta: socialMeta({
+      title: TITLE,
+      description: DESC,
+      path: "/formation-anglais-programme",
+      type: "article",
+    }),
+    links: canonicalLink("/formation-anglais-programme"),
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(
+          courseLd({
+            name: "Formation Anglais Professionnel OpenDoorsClass",
+            description: DESC,
+            path: "/formation-anglais-programme",
+            inLanguage: "fr",
+          }),
+        ),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(
+          breadcrumbLd([
+            { name: "OpenDoorsClass", path: "/" },
+            { name: "Formation anglais professionnel", path: "/formation-anglais-programme" },
+          ]),
+        ),
+      },
     ],
   }),
 });

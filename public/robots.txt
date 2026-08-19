@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /admin
+Disallow: /tableau-de-bord
+Disallow: /profil
+Disallow: /achat-credits
+Disallow: /paiement-retour
+Disallow: /resultat
+Disallow: /test
+Disallow: /notifications
+Disallow: /accomplissements
+Disallow: /classement
+Disallow: /profile/
+Disallow: /api/
+Disallow: /lovable/
+
+Sitemap: https://opendoorsclass-elatest.lovable.app/sitemap.xml
