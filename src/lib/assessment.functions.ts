@@ -349,6 +349,8 @@ export type CompleteAssessmentResult = {
   alreadyCompleted: boolean;
   answered: number;
   total: number;
+  score: number;
+  levelResult: string;
 };
 
 /**
@@ -361,7 +363,7 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<CompleteAssessmentResult> => {
     const { data: session, error } = await context.supabase
       .from("test_sessions")
-      .select("id, status, answers, question_ids, started_at")
+      .select("id, status, answers, question_ids, started_at, language, score, level_result")
       .eq("id", data.sessionId)
       .eq("user_id", context.userId)
       .maybeSingle();
@@ -369,15 +371,74 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
     if (!session) throw new Error("SESSION_NOT_FOUND");
 
     const served = ((session.question_ids as string[] | null) ?? []).filter(Boolean);
-    const answered = Object.keys((session.answers ?? {}) as Record<string, unknown>).length;
+    const answers = (session.answers ?? {}) as Record<string, string>;
+    const answered = Object.keys(answers).length;
 
     if (session.status === "completed") {
-      return { sessionId: session.id, alreadyCompleted: true, answered, total: served.length };
+      return {
+        sessionId: session.id,
+        alreadyCompleted: true,
+        answered,
+        total: served.length,
+        score: session.score ?? 0,
+        levelResult: session.level_result ?? "A1",
+      };
     }
     if (session.status !== "in_progress") throw new Error("SESSION_NOT_ACTIVE");
 
     const startedAt = new Date(session.started_at).getTime();
     const duration = Math.max(0, Math.round((Date.now() - startedAt) / 1000));
+
+    // Server side grading. Correct answers never leave the server.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: graded } = await supabaseAdmin
+      .from("questions")
+      .select("id, level, category, correct_answer")
+      .in("id", served.length ? served : ["00000000-0000-0000-0000-000000000000"]);
+
+    const perLevel: Record<string, { correct: number; total: number; percent: number }> = {};
+    const perCategory: Record<string, { correct: number; total: number; percent: number }> = {};
+    let totalCorrect = 0;
+    const totalGraded = graded?.length ?? 0;
+
+    for (const q of graded ?? []) {
+      const raw = answers[q.id];
+      let isCorrect = false;
+      if (q.category === "speaking" || q.category === "writing") {
+        try {
+          const parsed = raw ? JSON.parse(raw) : null;
+          if (parsed && typeof parsed.score === "number" && parsed.score >= 60) isCorrect = true;
+        } catch {
+          isCorrect = false;
+        }
+      } else {
+        isCorrect = raw === q.correct_answer;
+      }
+      const lvl = q.level as string;
+      const cat = q.category as string;
+      perLevel[lvl] ??= { correct: 0, total: 0, percent: 0 };
+      perCategory[cat] ??= { correct: 0, total: 0, percent: 0 };
+      perLevel[lvl].total++;
+      perCategory[cat].total++;
+      if (isCorrect) {
+        totalCorrect++;
+        perLevel[lvl].correct++;
+        perCategory[cat].correct++;
+      }
+    }
+    for (const cell of [...Object.values(perLevel), ...Object.values(perCategory)]) {
+      cell.percent = cell.total ? Math.round((cell.correct / cell.total) * 100) : 0;
+    }
+
+    // CEFR: highest consecutive level reaching 70 percent, starting at A1.
+    let levelResult: string = "A1";
+    for (const lvl of LEVEL_ORDER) {
+      const cell = perLevel[lvl];
+      if (!cell || cell.total === 0) continue;
+      if (cell.percent >= 70) levelResult = lvl;
+      else break;
+    }
+    const scorePercent = totalGraded ? Math.round((totalCorrect / totalGraded) * 100) : 0;
 
     // Single conditional write: two parallel submissions cannot both succeed.
     const { data: updated, error: updateError } = await context.supabase
@@ -386,6 +447,10 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
         status: "completed",
         completed_at: new Date().toISOString(),
         duration_seconds: duration,
+        score: scorePercent,
+        level_result: levelResult as never,
+        per_category_scores: perCategory,
+        skill_scores: perLevel,
         progress: {
           answered,
           total: served.length,
@@ -399,10 +464,88 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
       .maybeSingle();
     if (updateError) throw new Error("SESSION_COMPLETION_FAILED");
 
+    if (updated) {
+      // Gamification and notifications must never block the result.
+      try {
+        await supabaseAdmin.rpc("process_test_completion", { _session_id: session.id });
+      } catch {
+        // ignore
+      }
+      try {
+        const { pushNotification, NotificationTemplates } = await import(
+          "@/lib/notifications.server"
+        );
+        await pushNotification(NotificationTemplates.testCompleted(context.userId, session.id));
+        await pushNotification(
+          NotificationTemplates.certificateAvailable(context.userId, session.id),
+        );
+      } catch {
+        // ignore
+      }
+    }
+
     return {
       sessionId: session.id,
       alreadyCompleted: !updated,
       answered,
       total: served.length,
+      score: scorePercent,
+      levelResult,
     };
   });
+
+/** Shared AI grading endpoint for the productive skills of any assessed language. */
+const GradeTextInput = z.object({
+  sessionId: z.string().uuid(),
+  questionId: z.string().uuid(),
+  text: z.string().min(1).max(4000),
+});
+
+export const scoreAssessmentWriting = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => GradeTextInput.parse(input))
+  .handler(async ({ data, context }): Promise<{ score: number; feedback: string }> => {
+    const { gradeProduction, loadGradingContext } = await import("@/lib/assessment-grading.server");
+    const ctx = await loadGradingContext(context, data.sessionId, data.questionId, "writing");
+    const result = await gradeProduction({
+      kind: "writing",
+      examinerLanguage: ASSESSMENT_LANGUAGE_LABELS[ctx.language]?.examiner ?? "Spanish",
+      level: ctx.level,
+      prompt: ctx.prompt,
+      content: data.text,
+    });
+    await ctx.persist({ text: data.text, ...result });
+    return result;
+  });
+
+const GradeAudioInput = z.object({
+  sessionId: z.string().uuid(),
+  questionId: z.string().uuid(),
+  audioBase64: z.string().min(100),
+  mimeType: z.string().default("audio/webm"),
+});
+
+export const scoreAssessmentSpeaking = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => GradeAudioInput.parse(input))
+  .handler(
+    async ({ data, context }): Promise<{ transcript: string; score: number; feedback: string }> => {
+      const { gradeProduction, loadGradingContext, transcribeAudio } = await import(
+        "@/lib/assessment-grading.server"
+      );
+      const ctx = await loadGradingContext(context, data.sessionId, data.questionId, "speaking");
+      const transcript = await transcribeAudio(data.audioBase64, data.mimeType);
+      const examinerLanguage = ASSESSMENT_LANGUAGE_LABELS[ctx.language]?.examiner ?? "Spanish";
+      const result = transcript
+        ? await gradeProduction({
+            kind: "speaking",
+            examinerLanguage,
+            level: ctx.level,
+            prompt: ctx.prompt,
+            content: transcript,
+          })
+        : { score: 0, feedback: "" };
+      await ctx.persist({ transcript, ...result });
+      return { transcript, ...result };
+    },
+  );
