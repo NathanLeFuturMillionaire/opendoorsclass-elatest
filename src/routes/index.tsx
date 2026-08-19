@@ -16,7 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import { listPublicReviews } from "@/lib/reviews.functions";
 import { useT } from "@/lib/i18n";
 import { WorldReachSection } from "@/components/world-reach-section";
-import { CommunityLeaderboardSection } from "@/components/community-leaderboard-section";
 import { HomePricingSection } from "@/components/home-pricing-section";
 import { ClubsSection } from "@/components/clubs-section";
 import { PaymentTutorialSection } from "@/components/payment-tutorial-section";
@@ -181,8 +180,6 @@ function HomePage() {
         </section>
 
         <TestLanguagesSection />
-
-        <CommunityLeaderboardSection />
 
         <HomePricingSection />
 
