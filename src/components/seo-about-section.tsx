@@ -262,7 +262,7 @@ export function SeoAboutSection() {
   const c = CONTENT[locale] ?? CONTENT.fr;
 
   return (
-    <section id="a-propos" className="border-t border-border/60 bg-secondary/20">
+    <section id="a-propos" className="scroll-mt-24 border-t border-border/60 bg-secondary/20">
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-brand-green">{c.lead}</p>
         <h2 className="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl">{c.title}</h2>
