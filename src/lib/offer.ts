@@ -1,9 +1,12 @@
 export const OFFER_CODE = "standard" as const;
 
 export const OFFER_NAME = "OpenDoorsClass Level Test";
-export const OFFER_PRICE_XAF = 3600;
-export const OFFER_PRICE_USD = 6;
-export const OFFER_CREDITS = 1;
+
+/** Configuration centrale du produit payant (source de vérité applicative). */
+export const TEST_PRICE_XAF = 1500;
+export const TEST_CURRENCY = "XAF";
+export const TEST_CREDITS = 1;
+export const TEST_PRODUCT_ID = "prd_nl9p1w31";
 
 export const OFFER_FEATURES_EN = [
   "Grammar Assessment",
