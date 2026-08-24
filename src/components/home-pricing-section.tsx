@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { usePricing } from "@/hooks/use-pricing";
-import { PromoCountdown } from "@/components/pricing/promo-countdown";
 import {
   OFFER_CTA_EN,
   OFFER_CTA_FR,
