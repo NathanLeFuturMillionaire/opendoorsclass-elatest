@@ -14,7 +14,6 @@ import { phoneCountryByCode, toE164 } from "@/lib/phone-countries";
 import { createCheckout, getMyProfile } from "@/lib/payments.functions";
 import { useT, useI18n } from "@/lib/i18n";
 import { usePricing } from "@/hooks/use-pricing";
-import { PromoCountdown } from "@/components/pricing/promo-countdown";
 import {
   OFFER_CTA_EN,
   OFFER_CTA_FR,
@@ -218,11 +217,6 @@ function BuyCreditsPage() {
                   <h2 className="text-xl font-bold">{OFFER_NAME}</h2>
                 </div>
                 <div className="mt-4">
-                  {pricing.promoActive && pricing.normalPrice ? (
-                    <div className="text-base font-semibold text-muted-foreground line-through">
-                      {pricing.formatXaf(pricing.normalPrice)}
-                    </div>
-                  ) : null}
                   <div className="text-4xl font-extrabold text-brand-gradient">
                     {pricing.formatXaf(price)}
                   </div>
@@ -231,15 +225,15 @@ function BuyCreditsPage() {
                       ≈ {pricing.localPrice(price)}
                     </div>
                   ) : null}
+                  <p className="mt-1 text-sm font-medium text-muted-foreground">
+                    {isFr ? "Test de niveau linguistique, 1 crédit = 1 test" : "Language level test, 1 credit = 1 test"}
+                  </p>
                   <p className="mt-2 text-xs text-muted-foreground">
                     {isFr
                       ? `${credits} crédit ajouté à votre compte, soit un test complet`
                       : `${credits} credit added to your account, one full test`}
                   </p>
                 </div>
-                {pricing.promoActive ? (
-                  <PromoCountdown remaining={pricing.remaining} isFr={isFr} className="mt-5" />
-                ) : null}
                 <ul className="mt-6 grid gap-2 text-sm sm:grid-cols-2">
                   {features.map((f) => (
                     <li key={f} className="flex items-start gap-2">

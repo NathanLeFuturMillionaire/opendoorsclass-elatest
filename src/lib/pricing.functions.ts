@@ -7,7 +7,7 @@ export const getPricingState = createServerFn({ method: "GET" }).handler(
     const { currencyForCountry } = await import("@/lib/currency-map");
     const { detectCountryFromRequest } = await import("@/lib/geo.server");
 
-    const { row, promoActive, price, credits, currency } = await resolveCurrentOffer();
+    const { price, credits, currency } = await resolveCurrentOffer();
 
     const normalized = detectCountryFromRequest();
 
@@ -16,12 +16,7 @@ export const getPricingState = createServerFn({ method: "GET" }).handler(
     const rate = displayCurrency === "XAF" ? 1 : (rates[displayCurrency] ?? 0);
 
     return {
-      promoActive,
       price,
-      promoPrice: row.promo_price,
-      normalPrice: row.normal_price,
-      startsAt: new Date(row.starts_at).toISOString(),
-      endsAt: new Date(row.ends_at).toISOString(),
       serverNow: new Date().toISOString(),
       credits,
       currency,

@@ -75,7 +75,7 @@ const CONTENT: Record<
       },
       {
         q: "Combien coûte le test ?",
-        a: "L'accès se fait par crédits. Le prix du pack en vigueur, ainsi que les éventuelles promotions, sont affichés en temps réel dans la section tarifs de la page d'accueil et sur la page d'achat de crédits.",
+        a: "L'accès se fait par crédits. Le test de niveau coûte 1 500 FCFA, soit 1 crédit pour un test complet. Le prix est affiché en temps réel dans la section tarifs de la page d'accueil et sur la page d'achat de crédits.",
       },
       {
         q: "Comment recevoir mon certificat ?",
@@ -150,7 +150,7 @@ const CONTENT: Record<
       },
       {
         q: "How much does the test cost?",
-        a: "Access works with credits. The current pack price, including any promotion, is displayed in real time in the pricing section of the homepage and on the credit purchase page.",
+        a: "Access works with credits. The level test costs 1,500 FCFA, that is 1 credit for one full test. The price is displayed in real time in the pricing section of the homepage and on the credit purchase page.",
       },
       {
         q: "How do I get my certificate?",
@@ -225,7 +225,7 @@ const CONTENT: Record<
       },
       {
         q: "¿Cuánto cuesta el test?",
-        a: "El acceso funciona con créditos. El precio vigente del paquete, incluidas las promociones, se muestra en tiempo real en la sección de tarifas de la página de inicio y en la página de compra de créditos.",
+        a: "El acceso funciona con créditos. La prueba de nivel cuesta 1 500 FCFA, es decir 1 crédito por una prueba completa. El precio se muestra en tiempo real en la sección de tarifas de la página de inicio y en la página de compra de créditos.",
       },
       {
         q: "¿Cómo recibo mi certificado?",
