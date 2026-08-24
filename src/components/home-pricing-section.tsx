@@ -72,23 +72,16 @@ export function HomePricingSection() {
           <div className="flex items-center gap-2">
             <Sparkles className="size-4 text-brand-green" aria-hidden />
             <h3 className="font-display text-xl font-bold">{OFFER_NAME}</h3>
-            {pricing.promoActive ? (
-              <Badge className="bg-brand-green text-primary-foreground">
-                {isFr ? "Promotion" : "Promo"}
-              </Badge>
-            ) : null}
           </div>
 
           {price === null ? (
             <div className="mt-4 h-20 animate-shimmer rounded-xl bg-muted" />
           ) : (
             <div className="mt-4">
-              {pricing.promoActive && pricing.normalPrice ? (
-                <p className="text-base font-semibold text-muted-foreground line-through">
-                  {pricing.formatXaf(pricing.normalPrice)}
-                </p>
-              ) : null}
               <p className="text-4xl font-extrabold tracking-tight">{pricing.formatXaf(price)}</p>
+              <p className="mt-1 text-sm font-medium text-muted-foreground">
+                {isFr ? "Test de niveau linguistique" : "Language level test"}
+              </p>
               {pricing.localPrice(price) ? (
                 <p className="mt-1 text-sm text-muted-foreground">
                   ≈ {pricing.localPrice(price)}
@@ -102,9 +95,6 @@ export function HomePricingSection() {
             </div>
           )}
 
-          {pricing.promoActive ? (
-            <PromoCountdown remaining={pricing.remaining} isFr={isFr} className="mt-5" />
-          ) : null}
 
           <ul className="mt-6 grid gap-2.5 sm:grid-cols-2">
             {features.map((f) => (
