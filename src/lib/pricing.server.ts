@@ -1,42 +1,46 @@
-import type { PromotionRow, ResolvedOffer } from "@/lib/pricing";
-import { resolveOffer } from "@/lib/pricing";
+import type { ResolvedOffer } from "@/lib/pricing";
+import {
+  OFFER_CODE,
+  TEST_CREDITS,
+  TEST_CURRENCY,
+  TEST_PRICE_XAF,
+  TEST_PRODUCT_ID,
+} from "@/lib/offer";
 
-const FALLBACK: PromotionRow = {
-  is_enabled: false,
-  promo_price: 3600,
-  promo_product_id: "prd_inqj69el",
-  normal_price: 12000,
-  normal_product_id: "prd_00p1bi7x",
-  currency: "XAF",
-  credits_included: 1,
-  starts_at: new Date(0).toISOString(),
-  ends_at: new Date(0).toISOString(),
+const FALLBACK: ResolvedOffer = {
+  price: TEST_PRICE_XAF,
+  productId: TEST_PRODUCT_ID,
+  credits: TEST_CREDITS,
+  currency: TEST_CURRENCY,
 };
 
-let rowCache: { row: PromotionRow; at: number } | null = null;
-const ROW_TTL = 60_000;
+let offerCache: { offer: ResolvedOffer; at: number } | null = null;
+const OFFER_TTL = 60_000;
 
-export async function loadPromotionRow(): Promise<PromotionRow> {
+/**
+ * Tarif applicable. Prix fixe, sans promotion.
+ * La table `test_access_plan` peut surcharger la configuration centrale.
+ */
+export async function resolveCurrentOffer(): Promise<ResolvedOffer> {
   const now = Date.now();
-  if (rowCache && now - rowCache.at < ROW_TTL) return rowCache.row;
+  if (offerCache && now - offerCache.at < OFFER_TTL) return offerCache.offer;
+
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin
-    .from("pricing_promotion")
-    .select(
-      "is_enabled, promo_price, promo_product_id, normal_price, normal_product_id, currency, credits_included, starts_at, ends_at",
-    )
-    .order("created_at", { ascending: false })
-    .limit(1)
+    .from("test_access_plan")
+    .select("price, credits_included, currency, chariow_product_id")
+    .eq("code", OFFER_CODE)
+    .eq("is_active", true)
     .maybeSingle();
-  const row = (data as PromotionRow | null) ?? FALLBACK;
-  rowCache = { row, at: now };
-  return row;
-}
 
-/** Tarif applicable, calculé exclusivement à partir de l'horloge serveur. */
-export async function resolveCurrentOffer(): Promise<ResolvedOffer & { row: PromotionRow }> {
-  const row = await loadPromotionRow();
-  return { ...resolveOffer(row, Date.now()), row };
+  const offer: ResolvedOffer = {
+    price: data?.price ?? FALLBACK.price,
+    credits: data?.credits_included ?? FALLBACK.credits,
+    currency: data?.currency ?? FALLBACK.currency,
+    productId: data?.chariow_product_id ?? FALLBACK.productId,
+  };
+  offerCache = { offer, at: now };
+  return offer;
 }
 
 // --- Taux de change, mis en cache pour éviter les appels répétés ---
