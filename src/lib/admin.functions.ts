@@ -444,6 +444,13 @@ export const getFinanceOverview = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
 
+    const { data: adjustmentRows } = await supabaseAdmin
+      .from("financial_adjustments")
+      .select("id, label, description, amount, currency, balance_before, balance_after, created_by, created_at")
+      .order("created_at", { ascending: false });
+    const adjustments = adjustmentRows ?? [];
+    const adjustmentsTotal = adjustments.reduce((sum: number, a: any) => sum + Number(a.amount ?? 0), 0);
+
     const list = payments ?? [];
     const success = list.filter((p: any) => p.status === "success");
 
