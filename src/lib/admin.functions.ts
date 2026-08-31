@@ -581,7 +581,9 @@ export const getFinanceOverview = createServerFn({ method: "GET" })
 
     return {
       totals: {
-        revenue: totalRevenue,
+        revenue: totalRevenue + adjustmentsTotal,
+        revenueBeforeAdjustments: totalRevenue,
+        adjustments: adjustmentsTotal,
         gross: totalGross,
         commission: totalCommission,
         commissionRate: CHARIOW_COMMISSION_RATE,
@@ -592,6 +594,10 @@ export const getFinanceOverview = createServerFn({ method: "GET" })
         totalCandidates: totalCandidates ?? 0,
         conversion,
       },
+      adjustments: adjustments.map((a: any) => ({
+        ...a,
+        author_email: a.created_by ? emailMap.get(a.created_by) ?? null : null,
+      })),
       today: { count: todayCount, amount: todayAmount },
       week: { count: weekCount, amount: weekAmount },
       month: { count: monthCount, amount: monthAmount },
