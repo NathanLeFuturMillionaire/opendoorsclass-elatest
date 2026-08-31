@@ -264,8 +264,57 @@ function FinancePage() {
         Montants affichés nets de commission. Brut encaissé :{" "}
         <span className="tabular-nums">{formatFCFA((d.totals as any).gross ?? 0)}</span>. Commission Chariow retenue (
         {Math.round(CHARIOW_COMMISSION_RATE * 100)} %) :{" "}
-        <span className="tabular-nums">{formatFCFA((d.totals as any).commission ?? 0)}</span>.
+        <span className="tabular-nums">{formatFCFA((d.totals as any).commission ?? 0)}</span>. Ajustements manuels
+        appliqués :{" "}
+        <span className="tabular-nums">{formatFCFA((d.totals as any).adjustments ?? 0)}</span>.
       </p>
+
+      {((d as any).adjustments ?? []).length > 0 && (
+        <Card className="border-border/60">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Ajustements financiers manuels</CardTitle>
+          </CardHeader>
+          <CardContent className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Auteur</TableHead>
+                  <TableHead className="text-right">Solde avant</TableHead>
+                  <TableHead className="text-right">Montant</TableHead>
+                  <TableHead className="text-right">Solde après</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {((d as any).adjustments as any[]).map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell className="whitespace-nowrap">{formatDateTime(a.created_at)}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{a.label}</Badge>
+                    </TableCell>
+                    <TableCell className="max-w-[280px] text-muted-foreground">{a.description ?? ""}</TableCell>
+                    <TableCell className="text-muted-foreground">{a.author_email ?? "Système"}</TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {a.balance_before != null ? formatFCFA(a.balance_before) : "-"}
+                    </TableCell>
+                    <TableCell
+                      className={`text-right tabular-nums font-semibold ${a.amount < 0 ? "text-destructive" : "text-emerald-600"}`}
+                    >
+                      {a.amount < 0 ? "" : "+"}
+                      {formatFCFA(a.amount)}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {a.balance_after != null ? formatFCFA(a.balance_after) : "-"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c, i) => {
