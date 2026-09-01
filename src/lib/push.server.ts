@@ -171,7 +171,7 @@ export async function sendPushToUser(params: {
       for (let attempt = 0; attempt < 2; attempt += 1) {
         try {
           const payload = await buildPushPayload(message, subscription, keys);
-          const res = await fetch(subscription.endpoint, payload);
+          const res = await fetch(subscription.endpoint, payload as unknown as RequestInit);
           if (res.status >= 200 && res.status < 300) {
             status = "sent";
             error = null;
