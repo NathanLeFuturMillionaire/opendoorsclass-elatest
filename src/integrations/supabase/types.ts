@@ -217,6 +217,120 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_deliveries: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_key: string | null
+          id: string
+          notification_id: string | null
+          sent_at: string | null
+          status: string
+          subscription_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_key?: string | null
+          id?: string
+          notification_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subscription_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_key?: string | null
+          id?: string
+          notification_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subscription_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_deliveries_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_deliveries_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "push_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_events: {
+        Row: {
+          created_at: string
+          event_key: string
+          event_type: string
+          id: string
+          payload: Json
+          processed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_key: string
+          event_type: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_key?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+        }
+        Relationships: []
+      }
+      notification_preferences: {
+        Row: {
+          attendance_enabled: boolean
+          created_at: string
+          locale: string
+          payment_enabled: boolean
+          push_enabled: boolean
+          student_enabled: boolean
+          system_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attendance_enabled?: boolean
+          created_at?: string
+          locale?: string
+          payment_enabled?: boolean
+          push_enabled?: boolean
+          student_enabled?: boolean
+          system_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attendance_enabled?: boolean
+          created_at?: string
+          locale?: string
+          payment_enabled?: boolean
+          push_enabled?: boolean
+          student_enabled?: boolean
+          system_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           action_label: string | null
@@ -227,7 +341,10 @@ export type Database = {
           id: string
           is_read: boolean
           message: string
+          related_entity_id: string | null
+          related_entity_type: string | null
           title: string
+          type: string
           updated_at: string
           user_id: string
         }
@@ -240,7 +357,10 @@ export type Database = {
           id?: string
           is_read?: boolean
           message: string
+          related_entity_id?: string | null
+          related_entity_type?: string | null
           title: string
+          type?: string
           updated_at?: string
           user_id: string
         }
@@ -253,7 +373,10 @@ export type Database = {
           id?: string
           is_read?: boolean
           message?: string
+          related_entity_id?: string | null
+          related_entity_type?: string | null
           title?: string
+          type?: string
           updated_at?: string
           user_id?: string
         }
@@ -553,6 +676,51 @@ export type Database = {
           sex?: string | null
           sex_other?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          browser: string | null
+          created_at: string
+          device_name: string | null
+          endpoint: string
+          id: string
+          is_active: boolean
+          last_used_at: string | null
+          p256dh: string
+          platform: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          browser?: string | null
+          created_at?: string
+          device_name?: string | null
+          endpoint: string
+          id?: string
+          is_active?: boolean
+          last_used_at?: string | null
+          p256dh: string
+          platform?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          browser?: string | null
+          created_at?: string
+          device_name?: string | null
+          endpoint?: string
+          id?: string
+          is_active?: boolean
+          last_used_at?: string | null
+          p256dh?: string
+          platform?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
