@@ -149,6 +149,9 @@ export const Route = createFileRoute("/api/public/chariow-webhook/$secret")({
             await pushNotification(
               NotificationTemplates.creditsReceived(payment.user_id, payment.credits_added),
             );
+            // Owner alerts (Web Push + notification center), idempotent per payment.
+            const { notifyOwnersPaymentSuccess } = await import("@/lib/push.server");
+            await notifyOwnersPaymentSuccess(payment.id);
           } else if (normalized === "failed" || normalized === "cancelled") {
             await pushNotification(NotificationTemplates.paymentFailed(payment.user_id));
           }
