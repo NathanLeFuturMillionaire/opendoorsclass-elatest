@@ -217,6 +217,9 @@ export const checkPaymentStatus = createServerFn({ method: "GET" })
         await pushNotification(
           NotificationTemplates.creditsReceived(context.userId, payment.credits_added),
         );
+        // Owner alerts, idempotent: the webhook path may already have claimed this payment.
+        const { notifyOwnersPaymentSuccess } = await import("@/lib/push.server");
+        await notifyOwnersPaymentSuccess(payment.id);
       } catch {
         // ignore
       }
