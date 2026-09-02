@@ -17,6 +17,7 @@ import { Trophy, Flame, Sparkles } from "lucide-react";
 import { useT, useI18n } from "@/lib/i18n";
 import { TakeTestDialog } from "@/components/take-test-dialog";
 import { NOINDEX } from "@/lib/seo";
+import { OwnerPushPrompt } from "@/components/notifications/push-permission-prompt";
 
 export const Route = createFileRoute("/_authenticated/tableau-de-bord")({
   head: () => ({
@@ -229,6 +230,7 @@ function DashboardPage() {
         </section>
       </main>
       <SiteFooter />
+      <OwnerPushPrompt />
     </div>
   );
 }

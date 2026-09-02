@@ -3,10 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { getAdminContext } from "@/lib/admin.functions";
-import { LayoutDashboard, Users, MessageSquareText, HelpCircle, Award, Shield, ScrollText, ArrowLeft, Wallet, Menu } from "lucide-react";
+import { LayoutDashboard, Users, MessageSquareText, HelpCircle, Award, Shield, ScrollText, ArrowLeft, Wallet, Menu, BellRing } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { PushPermissionPrompt } from "@/components/notifications/push-permission-prompt";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
@@ -47,6 +48,7 @@ function AdminLayout() {
     { to: "/admin/certificats", label: "Certificats", icon: Award },
     { to: "/admin/finance", label: "Finance", icon: Wallet, ownerOnly: true },
     { to: "/admin/utilisateurs", label: "Utilisateurs", icon: Shield, ownerOnly: true },
+    { to: "/admin/notifications", label: "Notifications", icon: BellRing, ownerOnly: true },
     { to: "/admin/journal", label: "Journal", icon: ScrollText, adminOnly: true },
   ];
 
@@ -114,6 +116,7 @@ function AdminLayout() {
         </div>
         <Outlet />
       </div>
+      <PushPermissionPrompt isOwner={data.isOwner} />
     </div>
   );
 }

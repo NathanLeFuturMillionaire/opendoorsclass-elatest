@@ -36,9 +36,11 @@ import { Route as AuthenticatedAdminCandidatsRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminCertificatsRouteImport } from './routes/_authenticated/admin/certificats'
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin/finance'
 import { Route as AuthenticatedAdminJournalRouteImport } from './routes/_authenticated/admin/journal'
+import { Route as AuthenticatedAdminNotificationsRouteImport } from './routes/_authenticated/admin/notifications'
 import { Route as AuthenticatedAdminQuestionsRouteImport } from './routes/_authenticated/admin/questions'
 import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin/utilisateurs'
 import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
+import { Route as AuthenticatedAdminPaiementsIdRouteImport } from './routes/_authenticated/admin/paiements.$id'
 import { Route as ApiPublicChariowWebhookSecretRouteImport } from './routes/api/public/chariow-webhook.$secret'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -187,6 +189,12 @@ const AuthenticatedAdminJournalRoute =
     path: '/journal',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminNotificationsRoute =
+  AuthenticatedAdminNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminQuestionsRoute =
   AuthenticatedAdminQuestionsRouteImport.update({
     id: '/questions',
@@ -204,6 +212,12 @@ const AuthenticatedResultatIdRoute = AuthenticatedResultatIdRouteImport.update({
   path: '/resultat/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminPaiementsIdRoute =
+  AuthenticatedAdminPaiementsIdRouteImport.update({
+    id: '/paiements/$id',
+    path: '/paiements/$id',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const ApiPublicChariowWebhookSecretRoute =
   ApiPublicChariowWebhookSecretRouteImport.update({
     id: '/api/public/chariow-webhook/$secret',
@@ -247,10 +261,12 @@ export interface FileRoutesByFullPath {
   '/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/journal': typeof AuthenticatedAdminJournalRoute
+  '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/paiements/$id': typeof AuthenticatedAdminPaiementsIdRoute
   '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -280,10 +296,12 @@ export interface FileRoutesByTo {
   '/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/journal': typeof AuthenticatedAdminJournalRoute
+  '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/paiements/$id': typeof AuthenticatedAdminPaiementsIdRoute
   '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -316,10 +334,12 @@ export interface FileRoutesById {
   '/_authenticated/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/_authenticated/admin/journal': typeof AuthenticatedAdminJournalRoute
+  '/_authenticated/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/_authenticated/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/_authenticated/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/paiements/$id': typeof AuthenticatedAdminPaiementsIdRoute
   '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -352,10 +372,12 @@ export interface FileRouteTypes {
     | '/admin/certificats'
     | '/admin/finance'
     | '/admin/journal'
+    | '/admin/notifications'
     | '/admin/questions'
     | '/admin/utilisateurs'
     | '/resultat/$id'
     | '/admin/'
+    | '/admin/paiements/$id'
     | '/api/public/chariow-webhook/$secret'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -385,10 +407,12 @@ export interface FileRouteTypes {
     | '/admin/certificats'
     | '/admin/finance'
     | '/admin/journal'
+    | '/admin/notifications'
     | '/admin/questions'
     | '/admin/utilisateurs'
     | '/resultat/$id'
     | '/admin'
+    | '/admin/paiements/$id'
     | '/api/public/chariow-webhook/$secret'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -420,10 +444,12 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/certificats'
     | '/_authenticated/admin/finance'
     | '/_authenticated/admin/journal'
+    | '/_authenticated/admin/notifications'
     | '/_authenticated/admin/questions'
     | '/_authenticated/admin/utilisateurs'
     | '/_authenticated/resultat/$id'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/paiements/$id'
     | '/api/public/chariow-webhook/$secret'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -638,6 +664,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminJournalRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/notifications': {
+      id: '/_authenticated/admin/notifications'
+      path: '/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AuthenticatedAdminNotificationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/questions': {
       id: '/_authenticated/admin/questions'
       path: '/questions'
@@ -658,6 +691,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/resultat/$id'
       preLoaderRoute: typeof AuthenticatedResultatIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/paiements/$id': {
+      id: '/_authenticated/admin/paiements/$id'
+      path: '/paiements/$id'
+      fullPath: '/admin/paiements/$id'
+      preLoaderRoute: typeof AuthenticatedAdminPaiementsIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/api/public/chariow-webhook/$secret': {
       id: '/api/public/chariow-webhook/$secret'
@@ -689,9 +729,11 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCertificatsRoute: typeof AuthenticatedAdminCertificatsRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
   AuthenticatedAdminJournalRoute: typeof AuthenticatedAdminJournalRoute
+  AuthenticatedAdminNotificationsRoute: typeof AuthenticatedAdminNotificationsRoute
   AuthenticatedAdminQuestionsRoute: typeof AuthenticatedAdminQuestionsRoute
   AuthenticatedAdminUtilisateursRoute: typeof AuthenticatedAdminUtilisateursRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminPaiementsIdRoute: typeof AuthenticatedAdminPaiementsIdRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
@@ -701,9 +743,11 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminCertificatsRoute: AuthenticatedAdminCertificatsRoute,
     AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
     AuthenticatedAdminJournalRoute: AuthenticatedAdminJournalRoute,
+    AuthenticatedAdminNotificationsRoute: AuthenticatedAdminNotificationsRoute,
     AuthenticatedAdminQuestionsRoute: AuthenticatedAdminQuestionsRoute,
     AuthenticatedAdminUtilisateursRoute: AuthenticatedAdminUtilisateursRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminPaiementsIdRoute: AuthenticatedAdminPaiementsIdRoute,
   }
 
 const AuthenticatedAdminRouteRouteWithChildren =
