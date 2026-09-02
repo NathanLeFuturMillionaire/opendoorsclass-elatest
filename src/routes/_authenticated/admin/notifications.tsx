@@ -190,7 +190,7 @@ function NotificationSettingsPage() {
                     <p className="font-medium">{dv.device_name ?? "Appareil"}</p>
                     <p className="text-xs text-muted-foreground">
                       {dv.is_active ? "Actif" : "Inactif"}
-                      {dv.last_used_at && <> · dernier envoi <RelativeTime iso={dv.last_used_at} /></>}
+                      {dv.last_used_at && <> · dernier envoi <RelativeTime value={dv.last_used_at} /></>}
                     </p>
                   </div>
                 </div>
@@ -234,7 +234,7 @@ function NotificationSettingsPage() {
             <p className="text-xs text-muted-foreground">Dernière notification</p>
             {diag?.last ? (
               <div className="mt-1 space-y-1 text-sm">
-                <p className="flex items-center gap-1"><Clock className="size-3" /> <RelativeTime iso={diag.last.at} /></p>
+                <p className="flex items-center gap-1"><Clock className="size-3" /> <RelativeTime value={diag.last.at} /></p>
                 <p className="truncate font-mono text-xs">{diag.last.eventKey ?? "Sans événement"}</p>
                 <Badge variant={diag.last.status === "sent" ? "default" : "destructive"}>{diag.last.status.toUpperCase()}</Badge>
               </div>

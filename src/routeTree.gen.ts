@@ -36,6 +36,7 @@ import { Route as AuthenticatedAdminCandidatsRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminCertificatsRouteImport } from './routes/_authenticated/admin/certificats'
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin/finance'
 import { Route as AuthenticatedAdminJournalRouteImport } from './routes/_authenticated/admin/journal'
+import { Route as AuthenticatedAdminNotificationsRouteImport } from './routes/_authenticated/admin/notifications'
 import { Route as AuthenticatedAdminQuestionsRouteImport } from './routes/_authenticated/admin/questions'
 import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin/utilisateurs'
 import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
@@ -188,6 +189,12 @@ const AuthenticatedAdminJournalRoute =
     path: '/journal',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminNotificationsRoute =
+  AuthenticatedAdminNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminQuestionsRoute =
   AuthenticatedAdminQuestionsRouteImport.update({
     id: '/questions',
@@ -254,6 +261,7 @@ export interface FileRoutesByFullPath {
   '/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/journal': typeof AuthenticatedAdminJournalRoute
+  '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
@@ -288,6 +296,7 @@ export interface FileRoutesByTo {
   '/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/journal': typeof AuthenticatedAdminJournalRoute
+  '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
@@ -325,6 +334,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/_authenticated/admin/journal': typeof AuthenticatedAdminJournalRoute
+  '/_authenticated/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/_authenticated/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/_authenticated/resultat/$id': typeof AuthenticatedResultatIdRoute
@@ -362,6 +372,7 @@ export interface FileRouteTypes {
     | '/admin/certificats'
     | '/admin/finance'
     | '/admin/journal'
+    | '/admin/notifications'
     | '/admin/questions'
     | '/admin/utilisateurs'
     | '/resultat/$id'
@@ -396,6 +407,7 @@ export interface FileRouteTypes {
     | '/admin/certificats'
     | '/admin/finance'
     | '/admin/journal'
+    | '/admin/notifications'
     | '/admin/questions'
     | '/admin/utilisateurs'
     | '/resultat/$id'
@@ -432,6 +444,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/certificats'
     | '/_authenticated/admin/finance'
     | '/_authenticated/admin/journal'
+    | '/_authenticated/admin/notifications'
     | '/_authenticated/admin/questions'
     | '/_authenticated/admin/utilisateurs'
     | '/_authenticated/resultat/$id'
@@ -651,6 +664,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminJournalRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/notifications': {
+      id: '/_authenticated/admin/notifications'
+      path: '/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AuthenticatedAdminNotificationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/questions': {
       id: '/_authenticated/admin/questions'
       path: '/questions'
@@ -709,6 +729,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCertificatsRoute: typeof AuthenticatedAdminCertificatsRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
   AuthenticatedAdminJournalRoute: typeof AuthenticatedAdminJournalRoute
+  AuthenticatedAdminNotificationsRoute: typeof AuthenticatedAdminNotificationsRoute
   AuthenticatedAdminQuestionsRoute: typeof AuthenticatedAdminQuestionsRoute
   AuthenticatedAdminUtilisateursRoute: typeof AuthenticatedAdminUtilisateursRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -722,6 +743,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminCertificatsRoute: AuthenticatedAdminCertificatsRoute,
     AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
     AuthenticatedAdminJournalRoute: AuthenticatedAdminJournalRoute,
+    AuthenticatedAdminNotificationsRoute: AuthenticatedAdminNotificationsRoute,
     AuthenticatedAdminQuestionsRoute: AuthenticatedAdminQuestionsRoute,
     AuthenticatedAdminUtilisateursRoute: AuthenticatedAdminUtilisateursRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
