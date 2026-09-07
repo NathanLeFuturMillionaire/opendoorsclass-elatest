@@ -13,6 +13,8 @@ export type Skill =
 export type Cefr = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 
 // How many items the engine tries to draw per level and skill for one attempt.
+// Every skill activated in the test is now served at several CEFR levels, so no
+// section of the report card is ever built on a single item.
 export const TEST_BLUEPRINT: Array<{ level: Cefr; skill: Skill; count: number }> = [
   { level: "A1", skill: "grammar", count: 2 },
   { level: "A1", skill: "vocabulary", count: 2 },
@@ -23,28 +25,34 @@ export const TEST_BLUEPRINT: Array<{ level: Cefr; skill: Skill; count: number }>
   { level: "A2", skill: "vocabulary", count: 2 },
   { level: "A2", skill: "reading", count: 1 },
   { level: "A2", skill: "orthography", count: 1 },
+  { level: "A2", skill: "listening", count: 1 },
 
   { level: "B1", skill: "grammar", count: 2 },
   { level: "B1", skill: "vocabulary", count: 2 },
   { level: "B1", skill: "reading", count: 1 },
   { level: "B1", skill: "orthography", count: 1 },
-  { level: "B1", skill: "listening", count: 2 },
+  { level: "B1", skill: "listening", count: 1 },
   { level: "B1", skill: "writing", count: 1 },
 
   { level: "B2", skill: "grammar", count: 2 },
   { level: "B2", skill: "vocabulary", count: 2 },
   { level: "B2", skill: "reading", count: 1 },
   { level: "B2", skill: "orthography", count: 1 },
+  { level: "B2", skill: "listening", count: 1 },
   { level: "B2", skill: "speaking", count: 1 },
 
   { level: "C1", skill: "grammar", count: 2 },
   { level: "C1", skill: "vocabulary", count: 1 },
   { level: "C1", skill: "reading", count: 1 },
+  { level: "C1", skill: "orthography", count: 1 },
+  { level: "C1", skill: "listening", count: 1 },
 
   { level: "C2", skill: "grammar", count: 2 },
   { level: "C2", skill: "vocabulary", count: 1 },
   { level: "C2", skill: "reading", count: 1 },
+  { level: "C2", skill: "orthography", count: 1 },
 ];
+
 
 export const SKILL_ORDER: Skill[] = [
   "grammar",
