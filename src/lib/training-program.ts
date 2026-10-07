@@ -20,6 +20,38 @@ export const TRAINING_OFFER = {
   format: "100 % en ligne",
 } as const;
 
+export type TrainingPlan = {
+  period: string;
+  /** Prix total de la formule, en FCFA. */
+  price: number;
+  /** Remise en pourcentage par rapport au mensuel, ou null. */
+  discount: number | null;
+};
+
+/** Tarifs officiels de la formation (flyer OpenDoorsClass). Prix total en FCFA. */
+export const TRAINING_PRICING: { id: string; title: string; plans: TrainingPlan[] }[] = [
+  {
+    id: "professionnels",
+    title: "Professionnels",
+    plans: [
+      { period: "Mensuel", price: 50000, discount: null },
+      { period: "Trimestriel", price: 120000, discount: 20 },
+      { period: "Semestriel", price: 225000, discount: 25 },
+      { period: "Annuel", price: 432000, discount: 28 },
+    ],
+  },
+  {
+    id: "etudiants-enfants",
+    title: "Étudiants & Enfants",
+    plans: [
+      { period: "Mensuel", price: 25000, discount: null },
+      { period: "Trimestriel", price: 71000, discount: 5 },
+      { period: "Semestriel", price: 127000, discount: 15 },
+      { period: "Annuel", price: 240000, discount: 20 },
+    ],
+  },
+];
+
 export type ProgramWeek = { title: string; items: string[] };
 export type ProgramMonth = {
   index: string;

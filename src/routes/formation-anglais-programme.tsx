@@ -14,6 +14,7 @@ import {
   PROGRAM_SESSION_STRUCTURE,
   TRAINING_OFFER,
 } from "@/lib/training-program";
+import { TrainingPricingSection } from "@/components/training-pricing-section";
 import { socialMeta, canonicalLink, breadcrumbLd, courseLd } from "@/lib/seo";
 
 const TITLE = "Formation anglais professionnel | OpenDoorsClass";
@@ -187,6 +188,8 @@ function ProgramPage() {
             </div>
           </div>
         </section>
+
+        <TrainingPricingSection />
 
         <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
           <div className="flex items-center gap-2">
