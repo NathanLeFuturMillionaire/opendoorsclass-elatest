@@ -189,6 +189,8 @@ function ProgramPage() {
           </div>
         </section>
 
+        <TrainingPricingSection />
+
         <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
           <div className="flex items-center gap-2">
             <Award className="size-5 text-brand-yellow-foreground" aria-hidden />
