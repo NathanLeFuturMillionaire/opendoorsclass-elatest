@@ -14,6 +14,7 @@ import {
   PROGRAM_SESSION_STRUCTURE,
   TRAINING_OFFER,
 } from "@/lib/training-program";
+import { TrainingPricingSection } from "@/components/training-pricing-section";
 import { socialMeta, canonicalLink, breadcrumbLd, courseLd } from "@/lib/seo";
 
 const TITLE = "Formation anglais professionnel | OpenDoorsClass";
