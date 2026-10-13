@@ -102,6 +102,7 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "To Be avec tous les pronoms : formes affirmative, négative et interrogative",
           "Questions simples : What ? Who ? Where ? How ?",
           "Mini-dialogues de présentation naturels",
+          "Elevator Pitch personnel, se présenter en 30 secondes",
         ],
       },
       {
@@ -111,6 +112,7 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "Les couleurs, adjectifs et descriptions simples",
           "Les jours, mois, saisons et dates",
           "Present Simple, introduction aux habitudes et routines",
+          "Pronunciation & Connected Speech : linking, weak forms, sentence stress",
         ],
       },
       {
@@ -136,6 +138,7 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "Present Simple vs Present Continuous, la distinction",
           "Les verbes statifs, jamais en forme continue",
           "Adjectifs et description de personnes et situations",
+          "Comparatifs (as... as, -er than, more... than) et superlatifs de base (the -est, the most)",
         ],
       },
       {
@@ -179,6 +182,7 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "Past Perfect, action avant une autre action passée",
           "Past Perfect Continuous, durée dans le passé",
           "Connecteurs narratifs : first, then, after that, finally",
+          "Active Listening & Shadowing, imiter le rythme et l'intonation des natifs",
         ],
       },
       {
@@ -188,6 +192,7 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "Present Perfect Continuous, durée jusqu'au présent",
           "Question Tags, confirmation et engagement conversationnel",
           "Wish & If Only, exprimer regrets et désirs",
+          "Modaux de déduction au passé : must have, should have, could have, might have",
         ],
       },
       {
@@ -197,6 +202,8 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "Academic Vocabulary, marqueurs du discours",
           "Phrasal Verbs professionnels, 30 verbes essentiels",
           "Expressions idiomatiques B1, 20 expressions",
+          "Word Building : le préfixe Mis- (misunderstand, misspell, mismanage, mislead, mistrust, mismatch)",
+          "Préfixes et suffixes de dérivation : dis-, un-, im-, -able, -less, -ment, -ness",
         ],
       },
       {
@@ -231,6 +238,7 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "Data Presentation in English, chiffres et tendances",
           "Defending an Initiative, défendre une idée sous pression",
           "Collective Decision-Making, conduire un groupe vers un accord",
+          "The Art of Hedging & Softening, la diplomatie professionnelle (It seems to me..., Perhaps we could consider...)",
         ],
       },
       {
@@ -240,6 +248,7 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "Hotel & Professional Booking, l'hôtellerie en déplacement",
           "Transports et déplacements internationaux",
           "Networking en déplacement, Social English professionnel",
+          "Small Talk multiculturel, adapter la conversation selon la zone géographique",
         ],
       },
       {
@@ -248,6 +257,7 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "Job Interview Simulation, l'entretien en anglais",
           "Business Presentation avancée, 5 minutes devant un panel",
           "Journalistic Listening, textes authentiques BBC et CNN",
+          "Virtual Presence & Meeting Etiquette, animer et intervenir en visioconférence",
           "Weekly Summit, Full Group Call simulation",
         ],
       },
@@ -274,6 +284,7 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "Collective Decision-Making avancé, faciliter les débats",
           "Managing Conflict in English, résolution diplomatique",
           "Executive Communication, le registre du cadre dirigeant",
+          "Crisis & Remote Conflict Management, désamorcer les tensions à distance et par écrit",
         ],
       },
       {
@@ -283,6 +294,8 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "Conference & Event English, forums et événements",
           "Telephoning & Video Calls, professionnalisme téléphonique",
           "Social Media English : LinkedIn, Twitter, communication digitale",
+          "Asynchronous Communication : Slack, Teams, Loom, Notion et e-mails synthétiques",
+          "Prompt Engineering in English, des prompts précis et professionnels (ChatGPT, Claude, Copilot)",
         ],
       },
       {
@@ -291,6 +304,7 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "Critical Thinking in English, analyser et évaluer",
           "Debating & Argumentation, le débat structuré",
           "Report Writing, rapports professionnels complets",
+          "Low-Context vs High-Context Communication : US direct, UK implicite, international",
           "Weekly Summit, simulation intensive en groupe",
         ],
       },
@@ -308,6 +322,8 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "Subjunctive & Advanced Conditionals",
           "Complex Noun Phrases, densité de l'information",
           "Discourse Markers avancés, cohésion et cohérence",
+          "Pronoms relatifs complexes (whom, whose, preposition + which) et propositions participiales",
+          "Comparatifs complexes : much better, far more, The more..., the more...",
         ],
       },
       {
@@ -325,6 +341,7 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "Public Speaking & Keynotes, parler devant une salle",
           "Cross-Cultural Communication, les codes culturels",
           "Media English : presse, podcasts, télévision",
+          "Humor, Irony & Sarcasm in British/American Business, comprendre le second degré",
           "Pitch professionnel, 5 minutes pour convaincre",
         ],
       },
@@ -351,6 +368,7 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "Collocations professionnelles, les associations naturelles",
           "Discourse Analysis, analyser et décoder un discours",
           "Persuasive Language, les techniques de la rhétorique",
+          "Euphemisms & Politically Correct Language, le vocabulaire nuancé en entreprise",
         ],
       },
       {
@@ -360,6 +378,7 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
           "Boardroom English, salle de conseil en anglais",
           "Strategic Presentations, présentations de haut niveau",
           "Managing International Teams, leadership multinational",
+          "AI & Tech Workplace Vocabulary : workflows automatisés, machine learning, data",
         ],
       },
       {
@@ -409,6 +428,7 @@ export const PROGRAM_MONTHS: ProgramMonth[] = [
         title: "Semaine 3 : production avancée",
         items: [
           "Professional & Creative Writing C1",
+          "AI-Assisted Writing & Editing, utiliser l'IA tout en conservant son style",
           "Leadership Presentations, 20 minutes sans notes",
           "Full Immersion Simulations, tout en anglais",
           "Live Debate with near-native participants",
