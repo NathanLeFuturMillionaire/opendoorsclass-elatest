@@ -1,0 +1,12 @@
+CREATE TABLE public.speaking_recordings (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid NOT NULL, session_id uuid NOT NULL REFERENCES public.test_sessions(id) ON DELETE CASCADE, question_id uuid NOT NULL REFERENCES public.questions(id), storage_path text NOT NULL UNIQUE, status text NOT NULL DEFAULT 'uploading' CHECK (status IN ('uploading','saved','transcribed','graded','failed')), transcript text, score integer, feedback text, error_message text, created_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT ON public.speaking_recordings TO authenticated;
+GRANT ALL ON public.speaking_recordings TO service_role;
+ALTER TABLE public.speaking_recordings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY speaking_recordings_read ON public.speaking_recordings FOR SELECT TO authenticated USING (user_id=auth.uid() OR public.has_role(auth.uid(),'owner') OR public.has_role(auth.uid(),'admin') OR public.has_role(auth.uid(),'moderator'));
+CREATE POLICY speaking_audio_read ON storage.objects FOR SELECT TO authenticated USING (bucket_id='speaking-recordings' AND EXISTS (SELECT 1 FROM public.speaking_recordings r WHERE r.storage_path=name AND (r.user_id=auth.uid() OR public.has_role(auth.uid(),'owner') OR public.has_role(auth.uid(),'admin') OR public.has_role(auth.uid(),'moderator'))));
+CREATE TABLE public.speaking_ai_access (model text PRIMARY KEY, denial_message text NOT NULL, status_code integer NOT NULL, blocked_at timestamptz NOT NULL DEFAULT now());
+GRANT ALL ON public.speaking_ai_access TO service_role;
+ALTER TABLE public.speaking_ai_access ENABLE ROW LEVEL SECURITY;
+CREATE FUNCTION public.save_english_speaking_answer(_session uuid, _user uuid, _question uuid, _answer text) RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN UPDATE public.test_sessions SET answers=jsonb_set(COALESCE(answers,'{}'::jsonb),ARRAY[_question::text],to_jsonb(_answer),true) WHERE id=_session AND user_id=_user AND completed_at IS NULL AND _question=ANY(question_ids); RETURN FOUND; END $$;
+REVOKE ALL ON FUNCTION public.save_english_speaking_answer(uuid,uuid,uuid,text) FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.save_english_speaking_answer(uuid,uuid,uuid,text) TO service_role;
