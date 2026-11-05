@@ -841,6 +841,84 @@ export type Database = {
         }
         Relationships: []
       }
+      speaking_ai_access: {
+        Row: {
+          blocked_at: string
+          denial_message: string
+          model: string
+          status_code: number
+        }
+        Insert: {
+          blocked_at?: string
+          denial_message: string
+          model: string
+          status_code: number
+        }
+        Update: {
+          blocked_at?: string
+          denial_message?: string
+          model?: string
+          status_code?: number
+        }
+        Relationships: []
+      }
+      speaking_recordings: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          feedback: string | null
+          id: string
+          question_id: string
+          score: number | null
+          session_id: string
+          status: string
+          storage_path: string
+          transcript: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          feedback?: string | null
+          id?: string
+          question_id: string
+          score?: number | null
+          session_id: string
+          status?: string
+          storage_path: string
+          transcript?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          feedback?: string | null
+          id?: string
+          question_id?: string
+          score?: number | null
+          session_id?: string
+          status?: string
+          storage_path?: string
+          transcript?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "speaking_recordings_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "speaking_recordings_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "test_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       streak_days: {
         Row: {
           day: string
@@ -1192,6 +1270,15 @@ export type Database = {
         Returns: string
       }
       record_streak: { Args: { _user_id: string }; Returns: Json }
+      save_english_speaking_answer: {
+        Args: {
+          _answer: string
+          _question: string
+          _session: string
+          _user: string
+        }
+        Returns: boolean
+      }
       set_leaderboard_opt_in: {
         Args: { _actor: string; _country: string; _opt_in: boolean }
         Returns: Json
