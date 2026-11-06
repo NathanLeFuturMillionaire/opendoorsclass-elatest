@@ -64,6 +64,7 @@ export async function finishEnglishSpeaking(recordingId: string, userId: string,
     if (typeof grade.score !== "number" || !Number.isFinite(grade.score)) throw new Error("Notation incomplète. Votre audio est conservé.");
     const result = { recordingId: row.id, transcript, score: Math.max(0, Math.min(100, Math.round(grade.score))), feedback: typeof grade.feedback === "string" ? grade.feedback.replace(/[\u2013\u2014]/g, ",") : "" };
     const { data: saved, error } = await supabaseAdmin.rpc("save_english_speaking_answer", { _session: row.session_id, _user: userId, _question: row.question_id, _answer: JSON.stringify(result) });
+    if (error) console.error("Speaking answer save failed", error.code, error.message);
     if (error || !saved) throw new Error("Le test est terminé ou la sauvegarde de la note a échoué. L’audio reste conservé.");
     await update({ status: "graded", transcript, score: result.score, feedback: result.feedback });
     return result;
