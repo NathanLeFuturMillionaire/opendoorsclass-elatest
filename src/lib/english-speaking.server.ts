@@ -1,5 +1,6 @@
-import { splitSpeakingWav } from "./speaking-audio";
+import { splitSpeakingWav, speakingPartHasSound } from "./speaking-audio";
 import { readSpeakingTranscript } from "./speaking-transcript";
+import type { Database } from "@/integrations/supabase/types";
 
 /** Preserve the selected models and criteria; save audio before any AI request. */
 export async function finishEnglishSpeaking(recordingId: string, userId: string, apiKey: string) {
@@ -12,7 +13,7 @@ export async function finishEnglishSpeaking(recordingId: string, userId: string,
   if (session.completed_at) throw new Error("Session déjà terminée. L’audio sauvegardé reste consultable.");
   const { data: question } = await supabaseAdmin.from("questions").select("question_text, level, category").eq("id", row.question_id).maybeSingle();
   if (question?.category !== "speaking") throw new Error("Question orale invalide.");
-  const update = async (values: Record<string, unknown>) => {
+  const update = async (values: Database["public"]["Tables"]["speaking_recordings"]["Update"]) => {
     const { error } = await supabaseAdmin.from("speaking_recordings").update(values).eq("id", row.id);
     if (error) throw new Error("Sauvegarde de la réponse impossible.");
   };
@@ -37,6 +38,7 @@ export async function finishEnglishSpeaking(recordingId: string, userId: string,
       const parts = splitSpeakingWav(await audio.arrayBuffer());
       const texts: string[] = [];
       for (const part of parts) {
+        if (!await speakingPartHasSound(part)) continue;
         const form = new FormData();
         form.append("file", part, "speaking.wav");
         form.append("model", "openai/gpt-4o-transcribe");
@@ -47,6 +49,7 @@ export async function finishEnglishSpeaking(recordingId: string, userId: string,
         texts.push(await readSpeakingTranscript(res));
       }
       transcript = texts.join(" ").trim();
+      if (!transcript) throw new Error("Aucune parole reconnue. L’audio original reste conservé.");
       await update({ status: "transcribed", transcript });
     }
     const response = await request("openai/gpt-5.5", "https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -63,6 +66,7 @@ export async function finishEnglishSpeaking(recordingId: string, userId: string,
     if (typeof grade.score !== "number" || !Number.isFinite(grade.score)) throw new Error("Notation incomplète. Votre audio est conservé.");
     const result = { recordingId: row.id, transcript, score: Math.max(0, Math.min(100, Math.round(grade.score))), feedback: typeof grade.feedback === "string" ? grade.feedback.replace(/[\u2013\u2014]/g, ",") : "" };
     const { data: saved, error } = await supabaseAdmin.rpc("save_english_speaking_answer", { _session: row.session_id, _user: userId, _question: row.question_id, _answer: JSON.stringify(result) });
+    if (error) console.error("Speaking answer save failed", error.code, error.message);
     if (error || !saved) throw new Error("Le test est terminé ou la sauvegarde de la note a échoué. L’audio reste conservé.");
     await update({ status: "graded", transcript, score: result.score, feedback: result.feedback });
     return result;

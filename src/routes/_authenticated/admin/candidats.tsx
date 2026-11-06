@@ -13,8 +13,19 @@ import { Coins } from "lucide-react";
 import { toast } from "sonner";
 import { FounderBadge } from "@/components/founder-badge";
 import { RelativeTime } from "@/components/relative-time";
+import { CandidateSpeakingDialog } from "@/components/candidate-speaking-dialog";
+import { Mic } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/candidats")({
+  head: () => ({ meta: [
+    { title: "Candidats et réponses orales | OpenDoorsClass" },
+    { name: "description", content: "Gestion des candidats et écoute privée des réponses orales OpenDoorsClass." },
+    { property: "og:title", content: "Candidats | OpenDoorsClass" },
+    { property: "og:description", content: "Suivi des candidats et de leurs prestations orales." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex, nofollow" },
+  ] }),
   component: CandidatesPage,
 });
 
@@ -29,6 +40,7 @@ function CandidatesPage() {
   const [creditDelta, setCreditDelta] = useState<string>("1");
   const [creditReason, setCreditReason] = useState<string>("");
   const [saving, setSaving] = useState(false);
+  const [speakingTarget, setSpeakingTarget] = useState<{ id: string; name: string } | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-candidates", search],
@@ -134,6 +146,7 @@ function CandidatesPage() {
                       <td className="p-3">{c.last_level ?? "-"}</td>
                       <td className="p-3">{c.suspended ? <Badge variant="destructive">Suspendu</Badge> : <Badge variant="secondary">Actif</Badge>}</td>
                       <td className="p-3 text-right">
+                        <Button size="icon" variant="outline" className="mr-2" title="Écouter les réponses orales" aria-label={`Réponses orales de ${c.first_name ?? ""} ${c.last_name ?? ""}`} onClick={() => setSpeakingTarget({ id: c.id, name: `${c.first_name ?? ""} ${c.last_name ?? ""}`.trim() })}><Mic className="size-4" /></Button>
                         <Button
                           size="sm"
                           variant="outline"
@@ -163,6 +176,7 @@ function CandidatesPage() {
         </Card>
       )}
 
+      <CandidateSpeakingDialog candidate={speakingTarget} onClose={() => setSpeakingTarget(null)} />
       <Dialog open={!!creditTarget} onOpenChange={(o) => !o && setCreditTarget(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>

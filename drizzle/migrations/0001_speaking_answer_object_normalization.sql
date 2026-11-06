@@ -1,0 +1,3 @@
+CREATE OR REPLACE FUNCTION public.save_english_speaking_answer(_session uuid, _user uuid, _question uuid, _answer text) RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN UPDATE public.test_sessions SET answers=jsonb_set(CASE WHEN jsonb_typeof(answers)='object' THEN answers ELSE '{}'::jsonb END,ARRAY[_question::text],to_jsonb(_answer),true) WHERE id=_session AND user_id=_user AND completed_at IS NULL AND _question=ANY(question_ids); RETURN FOUND; END $$;
+REVOKE ALL ON FUNCTION public.save_english_speaking_answer(uuid,uuid,uuid,text) FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.save_english_speaking_answer(uuid,uuid,uuid,text) TO service_role;
