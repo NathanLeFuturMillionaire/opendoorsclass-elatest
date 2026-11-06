@@ -20,7 +20,7 @@ describe("complete speaking capture", () => {
   });
   it("processes every segment and the tail of a long response", async () => {
     const b = await encodeSpeakingWav([new Float32Array(16000 * 271).fill(0.2)], 16000).arrayBuffer();
-    const parts = splitSpeakingWav(b);
+    const parts = splitSpeakingWav(b, 90);
     expect(parts).toHaveLength(4);
     expect(parts.reduce((n, p) => n + p.size - 44, 0)).toBe(b.byteLength - 44);
     expect(parts[3]?.size).toBe(32044);

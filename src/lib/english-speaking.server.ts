@@ -1,4 +1,4 @@
-import { splitSpeakingWav } from "./speaking-audio";
+import { splitSpeakingWav, speakingPartHasSound } from "./speaking-audio";
 import { readSpeakingTranscript } from "./speaking-transcript";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -38,6 +38,7 @@ export async function finishEnglishSpeaking(recordingId: string, userId: string,
       const parts = splitSpeakingWav(await audio.arrayBuffer());
       const texts: string[] = [];
       for (const part of parts) {
+        if (!await speakingPartHasSound(part)) continue;
         const form = new FormData();
         form.append("file", part, "speaking.wav");
         form.append("model", "openai/gpt-4o-transcribe");
@@ -48,6 +49,7 @@ export async function finishEnglishSpeaking(recordingId: string, userId: string,
         texts.push(await readSpeakingTranscript(res));
       }
       transcript = texts.join(" ").trim();
+      if (!transcript) throw new Error("Aucune parole reconnue. L’audio original reste conservé.");
       await update({ status: "transcribed", transcript });
     }
     const response = await request("openai/gpt-5.5", "https://ai.gateway.lovable.dev/v1/chat/completions", {

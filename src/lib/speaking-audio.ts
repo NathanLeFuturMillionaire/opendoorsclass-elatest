@@ -27,7 +27,7 @@ export function encodeSpeakingWav(chunks: readonly Float32Array[], sampleRate: n
 }
 
 /** Split into standalone WAV files; never upload headerless fragments. */
-export function splitSpeakingWav(buffer: ArrayBuffer, seconds = 90): Blob[] {
+export function splitSpeakingWav(buffer: ArrayBuffer, seconds = 20): Blob[] {
   const v = new DataView(buffer);
   if (buffer.byteLength < 46 || v.getUint32(0) !== 0x52494646 || v.getUint32(8) !== 0x57415645 || v.getUint32(36) !== 0x64617461 || v.getUint16(20, true) !== 1 || v.getUint16(22, true) !== 1 || v.getUint16(34, true) !== 16) {
     throw new Error("Fichier audio WAV invalide.");
@@ -39,6 +39,12 @@ export function splitSpeakingWav(buffer: ArrayBuffer, seconds = 90): Blob[] {
   const result: Blob[] = [];
   for (let offset = 0; offset < size;) {
     let end = Math.min(size, offset + stride);
+    // Long natural pauses get independent recognition contexts, not an early end of speech.
+    let silence = 0;
+    for (let i = offset; i < end; i += 2) {
+      silence = Math.abs(v.getInt16(44 + i, true)) < 150 ? silence + 1 : 0;
+      if (silence >= rate * 0.8 && i - offset > rate * 2) { end = i + 2; break; }
+    }
     // Prefer a natural pause near a segment boundary without removing any samples.
     if (end < size) {
       let bestEnergy = Infinity;
@@ -57,6 +63,12 @@ export function splitSpeakingWav(buffer: ArrayBuffer, seconds = 90): Blob[] {
     offset = end;
   }
   return result;
+}
+
+export async function speakingPartHasSound(part: Blob): Promise<boolean> {
+  const data = new DataView(await part.arrayBuffer());
+  for (let i = 44; i < data.byteLength; i += 2) if (Math.abs(data.getInt16(i, true)) > 150) return true;
+  return false;
 }
 
 export function canReadSpeakingAudio(userId: string, ownerId: string, roles: readonly string[]): boolean {
