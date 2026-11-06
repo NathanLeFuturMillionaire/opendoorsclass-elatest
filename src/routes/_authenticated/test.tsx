@@ -15,7 +15,6 @@ import {
   getTestQuestions,
   startTestSession,
   submitTestAnswers,
-  transcribeAndScoreSpeaking,
   scoreWritingAnswer,
   type ClientQuestion,
 } from "@/lib/test.functions";
@@ -30,6 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useI18n } from "@/lib/i18n";
 import { InsufficientCreditsDialog } from "@/components/insufficient-credits-dialog";
 import { PreTestWarning } from "@/components/assessment/pre-test-warning";
+import { EnglishSpeakingRecorder } from "@/components/english-speaking-recorder";
 import { NOINDEX } from "@/lib/seo";
 
 export const Route = createFileRoute("/_authenticated/test")({
@@ -37,6 +37,10 @@ export const Route = createFileRoute("/_authenticated/test")({
     meta: [
       { title: "Passer le test de niveau | OpenDoorsClass" },
       { name: "description", content: "Session de test de niveau OpenDoorsClass en cours, alignée sur le cadre CECRL." },
+      { property: "og:title", content: "Test d’anglais | OpenDoorsClass" },
+      { property: "og:description", content: "Évaluation du niveau d’anglais CECRL OpenDoorsClass." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       NOINDEX,
     ],
   }),
@@ -66,6 +70,10 @@ function TestPage() {
   const [sectionMessage, setSectionMessage] = useState<string | null>(null);
   const [fadeKey, setFadeKey] = useState(0);
   const [noCreditsOpen, setNoCreditsOpen] = useState(false);
+  const [speakingBusy, setSpeakingBusy] = useState(false);
+  const speakingFinish = useRef<(() => Promise<string | undefined>) | null>(null);
+  const answersRef = useRef(answers);
+  answersRef.current = answers;
   const introVariant = useMemo(() => pickRandom(TEST_INTROS), []);
   const introText = locale === "en" ? introVariant.en : introVariant.fr;
 
@@ -93,6 +101,11 @@ function TestPage() {
 
   const doSubmit = async (finalAnswers: Record<string, string>) => {
     if (!sessionId) return;
+    if (speakingFinish.current) {
+      const raw = await speakingFinish.current();
+      finalAnswers = { ...finalAnswers, ...answersRef.current };
+      if (raw && questions[current]) finalAnswers[questions[current].id] = raw;
+    }
     setPhase("submitting");
     try {
       await submit({ data: { sessionId, answers: finalAnswers } });
@@ -110,7 +123,7 @@ function TestPage() {
       setRemaining((r) => {
         if (r <= 1) {
           clearInterval(t);
-          void doSubmit(answers);
+          void doSubmit(answersRef.current);
           return 0;
         }
         return r - 1;
@@ -294,11 +307,13 @@ function TestPage() {
             ) : null}
             <h2 className="text-lg font-semibold leading-relaxed">{q.question_text}</h2>
             {q.category === "speaking" ? (
-              <SpeakingRecorder
+              <EnglishSpeakingRecorder
                 key={q.id}
-                sessionId={sessionId!}
+                sessionId={sessionId ?? ""}
                 questionId={q.id}
                 existing={answers[q.id]}
+                onBusyChange={setSpeakingBusy}
+                registerFinish={(finish) => { speakingFinish.current = finish; }}
                 onScored={(value) => setAnswers((a) => ({ ...a, [q.id]: value }))}
                 onSkip={() => {
                   setAnswers((a) => ({
@@ -316,7 +331,7 @@ function TestPage() {
             ) : q.category === "writing" ? (
               <WritingAnswer
                 key={q.id}
-                sessionId={sessionId!}
+                sessionId={sessionId ?? ""}
                 questionId={q.id}
                 existing={answers[q.id]}
                 onScored={(value) => setAnswers((a) => ({ ...a, [q.id]: value }))}
@@ -346,16 +361,17 @@ function TestPage() {
         </Card>
 
         <div className="flex items-center justify-between gap-3">
-          <Button variant="outline" onClick={() => goto(-1)} disabled={current === 0}>
+          <Button variant="outline" onClick={() => goto(-1)} disabled={current === 0 || speakingBusy}>
             <ArrowLeft className="mr-2 size-4" /> Précédent
           </Button>
           <span className="hidden text-xs text-muted-foreground sm:inline">{skillLabel}</span>
           {current < questions.length - 1 ? (
-            <Button onClick={() => goto(1)} className="bg-brand-gradient text-primary-foreground">
+            <Button disabled={speakingBusy} onClick={() => goto(1)} className="bg-brand-gradient text-primary-foreground">
               Suivant <ArrowRight className="ml-2 size-4" />
             </Button>
           ) : (
             <Button
+              disabled={speakingBusy}
               onClick={() => void doSubmit(answers)}
               className="bg-brand-gradient text-primary-foreground"
             >
@@ -435,255 +451,6 @@ function AudioPlayer({ url, maxPlays }: { url: string; maxPlays: number }) {
     </div>
   );
 }
-function SpeakingRecorder({
-  sessionId,
-  questionId,
-  existing,
-  onScored,
-  onSkip,
-}: {
-  sessionId: string;
-  questionId: string;
-  existing?: string;
-  onScored: (value: string) => void;
-  onSkip: () => void;
-}) {
-  const scoreFn = useServerFn(transcribeAndScoreSpeaking);
-  const [recording, setRecording] = useState(false);
-  const [processing, setProcessing] = useState(false);
-  const [level, setLevel] = useState(0);
-  const [seconds, setSeconds] = useState(0);
-  const [liveTranscript, setLiveTranscript] = useState("");
-  const mediaRef = useRef<MediaRecorder | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
-  const rafRef = useRef<number | null>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const recognitionRef = useRef<unknown>(null);
-
-  const parsed = (() => {
-    if (!existing) return null;
-    try {
-      const p = JSON.parse(existing) as { transcript: string; score: number; feedback?: string };
-      return p;
-    } catch { return null; }
-  })();
-
-  const stopAll = () => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = null;
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = null;
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-    streamRef.current = null;
-    audioCtxRef.current?.close().catch(() => {});
-    audioCtxRef.current = null;
-    try {
-      const r = recognitionRef.current as { stop?: () => void } | null;
-      r?.stop?.();
-    } catch { /* noop */ }
-    recognitionRef.current = null;
-  };
-
-  const start = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      streamRef.current = stream;
-      const mime =
-        MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" :
-        MediaRecorder.isTypeSupported("audio/mp4") ? "audio/mp4" : "";
-      const rec = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
-      chunksRef.current = [];
-      rec.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
-      rec.onstop = async () => {
-        const type = rec.mimeType || "audio/webm";
-        const blob = new Blob(chunksRef.current, { type });
-        stopAll();
-        setLevel(0);
-        setRecording(false);
-        if (blob.size < 2048) {
-          toast.error("Enregistrement trop court, réessayez.");
-          return;
-        }
-        setProcessing(true);
-        try {
-          const arrayBuf = await blob.arrayBuffer();
-          // base64
-          let binary = "";
-          const bytes = new Uint8Array(arrayBuf);
-          const chunk = 0x8000;
-          for (let i = 0; i < bytes.length; i += chunk) {
-            binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)) as unknown as number[]);
-          }
-          const b64 = btoa(binary);
-          const res = await scoreFn({
-            data: { sessionId, questionId, audioBase64: b64, mimeType: type },
-          });
-          onScored(JSON.stringify(res));
-          toast.success(`Réponse notée : ${res.score}/100`);
-        } catch (e) {
-          toast.error(e instanceof Error ? e.message : "Erreur transcription.");
-        } finally {
-          setProcessing(false);
-        }
-      };
-      rec.start();
-      mediaRef.current = rec;
-
-      // Audio analyser for waveform
-      const ctx = new AudioContext();
-      audioCtxRef.current = ctx;
-      const source = ctx.createMediaStreamSource(stream);
-      const analyser = ctx.createAnalyser();
-      analyser.fftSize = 256;
-      source.connect(analyser);
-      const buf = new Uint8Array(analyser.frequencyBinCount);
-      const tick = () => {
-        analyser.getByteTimeDomainData(buf);
-        let sum = 0;
-        for (let i = 0; i < buf.length; i++) {
-          const v = (buf[i] - 128) / 128;
-          sum += v * v;
-        }
-        const rms = Math.sqrt(sum / buf.length);
-        setLevel(Math.min(1, rms * 3));
-        rafRef.current = requestAnimationFrame(tick);
-      };
-      tick();
-
-      setSeconds(0);
-      timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
-      setRecording(true);
-      setLiveTranscript("");
-      // Live transcription via Web Speech API when available (Chrome/Edge/Safari).
-      try {
-        const w = window as unknown as {
-          SpeechRecognition?: new () => unknown;
-          webkitSpeechRecognition?: new () => unknown;
-        };
-        const SR = w.SpeechRecognition ?? w.webkitSpeechRecognition;
-        if (SR) {
-          const rec = new SR() as {
-            continuous: boolean;
-            interimResults: boolean;
-            lang: string;
-            onresult: (e: { resultIndex: number; results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }> }) => void;
-            onerror: () => void;
-            start: () => void;
-          };
-          rec.continuous = true;
-          rec.interimResults = true;
-          rec.lang = "en-US";
-          let finalText = "";
-          rec.onresult = (e) => {
-            let interim = "";
-            for (let i = e.resultIndex; i < e.results.length; i++) {
-              const r = e.results[i];
-              const txt = r[0]?.transcript ?? "";
-              if (r.isFinal) finalText += txt + " ";
-              else interim += txt;
-            }
-            setLiveTranscript((finalText + interim).trim());
-          };
-          rec.onerror = () => { /* silent, fallback to server STT */ };
-          rec.start();
-          recognitionRef.current = rec;
-        }
-      } catch { /* live transcription optional */ }
-    } catch (err) {
-      const name = (err as { name?: string })?.name ?? "";
-      const msg =
-        name === "NotAllowedError" || name === "SecurityError"
-          ? "Accès au microphone refusé. Cliquez sur l'icône microphone dans la barre d'adresse de votre navigateur pour autoriser l'accès, puis réessayez."
-          : name === "NotFoundError"
-            ? "Aucun microphone détecté sur cet appareil."
-            : name === "NotReadableError"
-              ? "Votre microphone est peut-être utilisé par une autre application. Fermez-la et réessayez."
-              : name === "OverconstrainedError"
-                ? "Aucun microphone compatible n'a été trouvé."
-                : "Impossible d'accéder au microphone.";
-      toast.error(msg);
-    }
-  };
-
-  const stop = () => {
-    mediaRef.current?.state === "recording" && mediaRef.current.stop();
-  };
-
-  useEffect(() => () => stopAll(), []);
-
-  // 10 animated bars driven by level + slight jitter per bar
-  const bars = Array.from({ length: 18 }, (_, i) => {
-    const jitter = 0.35 + Math.abs(Math.sin((Date.now() / 120) + i)) * 0.65;
-    const h = recording ? Math.max(6, level * 60 * jitter + 6) : 6;
-    return h;
-  });
-
-  return (
-    <div className="space-y-4">
-      <div className="rounded-lg border border-border bg-muted/40 p-5">
-        <div className="flex h-16 items-center justify-center gap-1">
-          {bars.map((h, i) => (
-            <span
-              key={i}
-              className={`inline-block w-1.5 rounded-full transition-all duration-100 ${recording ? "bg-primary" : "bg-muted-foreground/30"}`}
-              style={{ height: `${h}px` }}
-            />
-          ))}
-        </div>
-        <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-          <span>{recording ? `Enregistrement... ${seconds}s` : processing ? "Analyse IA en cours..." : "Prêt à enregistrer"}</span>
-          <span>Micro requis</span>
-        </div>
-        {recording && liveTranscript ? (
-          <div className="mt-3 rounded-md bg-background/70 p-3 text-sm italic text-foreground/80">
-            "{liveTranscript}"
-          </div>
-        ) : null}
-        <div className="mt-4 flex justify-center">
-          {!recording ? (
-            <Button type="button" onClick={start} disabled={processing} className="bg-brand-gradient text-primary-foreground">
-              {processing ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Mic className="mr-2 size-4" />}
-              {processing ? "Traitement..." : parsed ? "Réenregistrer" : "Commencer à parler"}
-            </Button>
-          ) : (
-            <Button type="button" onClick={stop} variant="destructive">
-              <Square className="mr-2 size-4" /> Arrêter
-            </Button>
-          )}
-        </div>
-        {!recording && !processing ? (
-          <div className="mt-3 text-center">
-            <Button type="button" variant="ghost" size="sm" onClick={onSkip}>
-              Ignorer ce passage
-            </Button>
-            <p className="mt-1 text-[11px] text-muted-foreground">
-              Si vous n'avez pas de microphone, vous pouvez continuer sans cette question.
-            </p>
-          </div>
-        ) : null}
-      </div>
-
-      {parsed && !recording && !processing && (
-        <div className="rounded-lg border border-border bg-card p-4 text-sm space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="font-medium">Note IA : {parsed.score}/100</span>
-            <Badge variant={parsed.score >= 60 ? "secondary" : "outline"}>
-              {parsed.score >= 60 ? "Validé" : "À améliorer"}
-            </Badge>
-          </div>
-          {parsed.feedback ? <p className="text-xs text-muted-foreground">{parsed.feedback}</p> : null}
-          <details className="text-xs text-muted-foreground">
-            <summary className="cursor-pointer">Voir la transcription</summary>
-            <p className="mt-2 whitespace-pre-wrap">{parsed.transcript || "(aucune parole détectée)"}</p>
-          </details>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function MicCheck({ onReady, onSkip }: { onReady: () => void; onSkip: () => void }) {
   const [step, setStep] = useState<"prompt" | "granted" | "denied">("prompt");
   const [level, setLevel] = useState(0);
