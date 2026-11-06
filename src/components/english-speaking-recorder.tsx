@@ -65,6 +65,7 @@ export function EnglishSpeakingRecorder({ sessionId, questionId, existing, onSco
 
   async function finish(): Promise<string | undefined> {
     if (work.current) return work.current;
+    if (stateRef.current === "saved" || !audio.current && !capture.current) return existing;
     const task = async () => {
       if (capture.current) {
         transition("stopping");

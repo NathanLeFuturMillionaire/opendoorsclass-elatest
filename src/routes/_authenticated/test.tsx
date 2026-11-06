@@ -103,6 +103,10 @@ function TestPage() {
     if (!sessionId) return;
     if (speakingFinish.current) {
       const raw = await speakingFinish.current();
+      if (!raw && !answersRef.current[questions[current]?.id ?? ""]) {
+        toast.error("Votre réponse orale n’est pas encore validée. Vérifiez l’enregistrement avant de terminer.");
+        return;
+      }
       finalAnswers = { ...finalAnswers, ...answersRef.current };
       if (raw && questions[current]) finalAnswers[questions[current].id] = raw;
     }
@@ -116,6 +120,9 @@ function TestPage() {
     }
   };
 
+  const submitRef = useRef(doSubmit);
+  submitRef.current = doSubmit;
+
   // Timer
   useEffect(() => {
     if (phase !== "running") return;
@@ -123,7 +130,7 @@ function TestPage() {
       setRemaining((r) => {
         if (r <= 1) {
           clearInterval(t);
-          void doSubmit(answersRef.current);
+          void submitRef.current(answersRef.current);
           return 0;
         }
         return r - 1;

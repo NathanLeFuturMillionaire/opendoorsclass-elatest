@@ -37,12 +37,23 @@ export function splitSpeakingWav(buffer: ArrayBuffer, seconds = 90): Blob[] {
   if (rate !== SPEAKING_SAMPLE_RATE || size !== buffer.byteLength - 44 || size % 2 || seconds <= 0) throw new Error("Fichier audio incomplet.");
   const stride = Math.floor(seconds * rate) * 2;
   const result: Blob[] = [];
-  for (let offset = 0; offset < size; offset += stride) {
-    const end = Math.min(size, offset + stride);
+  for (let offset = 0; offset < size;) {
+    let end = Math.min(size, offset + stride);
+    // Prefer a natural pause near a segment boundary without removing any samples.
+    if (end < size) {
+      let bestEnergy = Infinity;
+      const windowBytes = rate / 10 * 2;
+      for (let candidate = Math.max(offset + windowBytes, end - rate * 4); candidate <= end; candidate += windowBytes) {
+        let energy = 0;
+        for (let i = candidate - windowBytes; i < candidate; i += 2) energy += Math.abs(v.getInt16(44 + i, true));
+        if (energy < bestEnergy) { bestEnergy = energy; end = candidate; }
+      }
+    }
     const header = buffer.slice(0, 44);
     const h = new DataView(header);
     h.setUint32(4, 36 + end - offset, true); h.setUint32(40, end - offset, true);
     result.push(new Blob([header, buffer.slice(44 + offset, 44 + end)], { type: "audio/wav" }));
+    offset = end;
   }
   return result;
 }
