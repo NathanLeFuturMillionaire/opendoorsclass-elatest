@@ -42,11 +42,12 @@ export function splitSpeakingWav(buffer: ArrayBuffer, seconds = 90): Blob[] {
     // Prefer a natural pause near a segment boundary without removing any samples.
     if (end < size) {
       let bestEnergy = Infinity;
+      const boundary = end;
       const windowBytes = rate / 10 * 2;
-      for (let candidate = Math.max(offset + windowBytes, end - rate * 4); candidate <= end; candidate += windowBytes) {
+      for (let candidate = Math.max(offset + windowBytes, boundary - rate * 4); candidate <= boundary; candidate += windowBytes) {
         let energy = 0;
         for (let i = candidate - windowBytes; i < candidate; i += 2) energy += Math.abs(v.getInt16(44 + i, true));
-        if (energy < bestEnergy) { bestEnergy = energy; end = candidate; }
+        if (energy < bestEnergy && energy / (windowBytes / 2) < 200) { bestEnergy = energy; end = candidate; }
       }
     }
     const header = buffer.slice(0, 44);
