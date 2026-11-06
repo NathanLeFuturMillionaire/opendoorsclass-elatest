@@ -8,6 +8,13 @@
       "when": 1793867287317,
       "tag": "0000_english_speaking_recordings",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793924297637,
+      "tag": "0001_speaking_answer_object_normalization",
+      "breakpoints": true
     }
   ]
 }
