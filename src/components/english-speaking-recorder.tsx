@@ -25,10 +25,10 @@ export function EnglishSpeakingRecorder({ sessionId, questionId, existing, onSco
   const [error, setError] = useState<string>();
   const [localUrl, setLocalUrl] = useState<string>();
   const [recordingId, setRecordingId] = useState<string>();
-  const capture = useRef<SpeakingCapture>();
-  const audio = useRef<Blob>();
-  const uploaded = useRef<string>();
-  const urlRef = useRef<string>();
+  const capture = useRef<SpeakingCapture | undefined>(undefined);
+  const audio = useRef<Blob | undefined>(undefined);
+  const uploaded = useRef<string | undefined>(undefined);
+  const urlRef = useRef<string | undefined>(undefined);
   const stateRef = useRef<State>("ready");
   const mounted = useRef(true);
   const work = useRef<Promise<string | undefined> | undefined>(undefined);

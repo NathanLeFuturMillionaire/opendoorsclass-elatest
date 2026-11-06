@@ -1,5 +1,6 @@
 import { splitSpeakingWav } from "./speaking-audio";
 import { readSpeakingTranscript } from "./speaking-transcript";
+import type { Database } from "@/integrations/supabase/types";
 
 /** Preserve the selected models and criteria; save audio before any AI request. */
 export async function finishEnglishSpeaking(recordingId: string, userId: string, apiKey: string) {
@@ -12,7 +13,7 @@ export async function finishEnglishSpeaking(recordingId: string, userId: string,
   if (session.completed_at) throw new Error("Session déjà terminée. L’audio sauvegardé reste consultable.");
   const { data: question } = await supabaseAdmin.from("questions").select("question_text, level, category").eq("id", row.question_id).maybeSingle();
   if (question?.category !== "speaking") throw new Error("Question orale invalide.");
-  const update = async (values: Record<string, unknown>) => {
+  const update = async (values: Database["public"]["Tables"]["speaking_recordings"]["Update"]) => {
     const { error } = await supabaseAdmin.from("speaking_recordings").update(values).eq("id", row.id);
     if (error) throw new Error("Sauvegarde de la réponse impossible.");
   };
