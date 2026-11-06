@@ -176,6 +176,7 @@ function CandidatesPage() {
         </Card>
       )}
 
+      <CandidateSpeakingDialog candidate={speakingTarget} onClose={() => setSpeakingTarget(null)} />
       <Dialog open={!!creditTarget} onOpenChange={(o) => !o && setCreditTarget(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
