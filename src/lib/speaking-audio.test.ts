@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { encodeSpeakingWav, splitSpeakingWav, canReadSpeakingAudio } from "./speaking-audio";
+import { encodeSpeakingWav, splitSpeakingWav, canReadSpeakingAudio, speakingPartHasSound } from "./speaking-audio";
 import { readSpeakingTranscript } from "./speaking-transcript";
 
 describe("complete speaking capture", () => {
@@ -24,6 +24,17 @@ describe("complete speaking capture", () => {
     expect(parts).toHaveLength(4);
     expect(parts.reduce((n, p) => n + p.size - 44, 0)).toBe(b.byteLength - 44);
     expect(parts[3]?.size).toBe(32044);
+  });
+  it("processes speech after a five second pause without discarding original samples", async () => {
+    const b = await encodeSpeakingWav([new Float32Array(16000).fill(0.5), new Float32Array(80000), new Float32Array(16000).fill(-0.5)], 16000).arrayBuffer();
+    const parts = splitSpeakingWav(b);
+    expect(parts.length).toBeGreaterThan(1);
+    expect(parts.reduce((n, p) => n + p.size - 44, 0)).toBe(224000);
+    const audible = [];
+    for (const part of parts) if (await speakingPartHasSound(part)) audible.push(part);
+    expect(audible).toHaveLength(2);
+    const tail = new DataView(await audible[1].arrayBuffer());
+    expect(tail.getInt16(tail.byteLength - 2, true)).toBe(-16384);
   });
 });
 describe("final recognition results", () => {
