@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { getRwLesson } from "@/lib/rw-lessons.functions";
 import { RW_DAYS } from "@/lib/reading-workshop";
 import { cn } from "@/lib/utils";
+import { SmartReader } from "@/components/reading-workshop/smart-reader";
 
 export const Route = createFileRoute("/_authenticated/reading-workshop/lesson/$id")({
   head: () => ({ meta: [{ title: "Lecture, Reading Workshop OpenDoorsClass" }] }),
@@ -43,9 +44,7 @@ function Lesson() {
         {l.knowledge_point && (
           <div className="flex gap-3 rounded-2xl bg-[var(--rw-soft)] p-4 text-sm"><Lightbulb className="size-5 shrink-0 text-primary" /><p>{l.knowledge_point}</p></div>
         )}
-        <div className="space-y-4 rounded-3xl border border-border bg-card p-6 text-lg leading-relaxed shadow-[var(--rw-shadow)] sm:p-8">
-          {l.body.split(/\n\s*\n/).map((p: string, i: number) => <p key={i}>{p}</p>)}
-        </div>
+        <SmartReader body={l.body} vocabulary={l.vocabulary ?? []} />
         <p className="text-xs italic text-muted-foreground">{mention}{l.source_url && <> · <a href={l.source_url} target="_blank" rel="noreferrer" className="underline">Source</a></>}</p>
         <Button variant="outline" onClick={() => setShowFr(!showFr)}><Languages className="mr-2 size-4" />{showFr ? "Masquer la traduction" : "Voir la traduction en français"}</Button>
         {showFr && l.translation_fr && <div className="space-y-3 rounded-2xl border border-dashed border-border p-6 text-muted-foreground">{l.translation_fr.split(/\n\s*\n/).map((p: string, i: number) => <p key={i}>{p}</p>)}</div>}

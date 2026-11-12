@@ -106,3 +106,16 @@ export const saveRwLesson = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/** Members: translation of a clicked word (context aware). */
+export const translateRwWord = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v: { word: string; sentence: string }) => {
+    const word = String(v.word ?? "").trim().slice(0, 40);
+    if (!/^[A-Za-z'’]+$/.test(word)) throw new Error("Mot invalide.");
+    return { word, sentence: String(v.sentence ?? "").slice(0, 400) };
+  })
+  .handler(async ({ data }) => {
+    const { glossRwWord } = await import("./rw-lessons.server");
+    return glossRwWord(data.word, data.sentence);
+  });

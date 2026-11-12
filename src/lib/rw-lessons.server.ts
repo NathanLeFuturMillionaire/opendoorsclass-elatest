@@ -94,3 +94,28 @@ Return strict JSON with keys: title, body (paragraphs separated by blank lines),
 }
 
 export const countWords = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
+
+/** Short French gloss for one word in its sentence context. */
+export async function glossRwWord(word: string, sentence: string): Promise<{ translation_fr: string; phonetic: string; note_fr: string }> {
+  const apiKey = process.env["LOVABLE_API_KEY"];
+  if (!apiKey) throw new Error("Service IA indisponible.");
+  const s = { type: "string" };
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+    method: "POST",
+    headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "fetch", "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "openai/gpt-6-astra",
+      store: false,
+      reasoning: { effort: "low" },
+      instructions: "Translate one English word into French for a learner, using the sentence as context. Give translation_fr (short), phonetic (IPA, British), note_fr (one short sentence in French on meaning or usage). Never use em dashes or en dashes.",
+      input: `Word: ${word}\nSentence: ${sentence}`,
+      text: { format: { type: "json_schema", name: "gloss", strict: true, schema: { type: "object", additionalProperties: false, required: ["translation_fr", "phonetic", "note_fr"], properties: { translation_fr: s, phonetic: s, note_fr: s } } } },
+    }),
+  });
+  if (res.status === 429) throw new Error("Trop de demandes. Réessayez dans un instant.");
+  if (res.status === 402) throw new Error("Crédits IA épuisés.");
+  if (!res.ok) throw new Error("Traduction indisponible.");
+  const j: any = await res.json();
+  const text = j.output_text ?? (j.output ?? []).flatMap((o: any) => o.content ?? []).map((c: any) => c.text ?? "").join("");
+  return noDash(JSON.parse(text)) as any;
+}
