@@ -15,6 +15,13 @@
       "when": 1793924297637,
       "tag": "0001_speaking_answer_object_normalization",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794490386348,
+      "tag": "0002_reading_workshop_foundations",
+      "breakpoints": true
     }
   ]
 }

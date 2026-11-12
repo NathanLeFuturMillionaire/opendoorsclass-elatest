@@ -30,6 +30,8 @@ import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authen
 import { Route as AuthenticatedTestRouteImport } from './routes/_authenticated/test'
 import { Route as LeveltestLangRouteImport } from './routes/leveltest.$lang'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
+import { Route as ReadingWorkshopIndexRouteImport } from './routes/reading-workshop.index'
+import { Route as ReadingWorkshopLoginRouteImport } from './routes/reading-workshop.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminAvisRouteImport } from './routes/_authenticated/admin/avis'
 import { Route as AuthenticatedAdminCandidatsRouteImport } from './routes/_authenticated/admin/candidats'
@@ -39,6 +41,10 @@ import { Route as AuthenticatedAdminJournalRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminNotificationsRouteImport } from './routes/_authenticated/admin/notifications'
 import { Route as AuthenticatedAdminQuestionsRouteImport } from './routes/_authenticated/admin/questions'
 import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin/utilisateurs'
+import { Route as AuthenticatedReadingWorkshopAdminRouteImport } from './routes/_authenticated/reading-workshop.admin'
+import { Route as AuthenticatedReadingWorkshopCoachRouteImport } from './routes/_authenticated/reading-workshop.coach'
+import { Route as AuthenticatedReadingWorkshopLearnerRouteImport } from './routes/_authenticated/reading-workshop.learner'
+import { Route as AuthenticatedReadingWorkshopLibraryRouteImport } from './routes/_authenticated/reading-workshop.library'
 import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
 import { Route as AuthenticatedAdminPaiementsIdRouteImport } from './routes/_authenticated/admin/paiements.$id'
 import { Route as ApiPublicChariowWebhookSecretRouteImport } from './routes/api/public/chariow-webhook.$secret'
@@ -155,6 +161,16 @@ const ProfileIdRoute = ProfileIdRouteImport.update({
   path: '/profile/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReadingWorkshopIndexRoute = ReadingWorkshopIndexRouteImport.update({
+  id: '/reading-workshop/',
+  path: '/reading-workshop/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReadingWorkshopLoginRoute = ReadingWorkshopLoginRouteImport.update({
+  id: '/reading-workshop/login',
+  path: '/reading-workshop/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -207,6 +223,30 @@ const AuthenticatedAdminUtilisateursRoute =
     path: '/utilisateurs',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedReadingWorkshopAdminRoute =
+  AuthenticatedReadingWorkshopAdminRouteImport.update({
+    id: '/reading-workshop/admin',
+    path: '/reading-workshop/admin',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedReadingWorkshopCoachRoute =
+  AuthenticatedReadingWorkshopCoachRouteImport.update({
+    id: '/reading-workshop/coach',
+    path: '/reading-workshop/coach',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedReadingWorkshopLearnerRoute =
+  AuthenticatedReadingWorkshopLearnerRouteImport.update({
+    id: '/reading-workshop/learner',
+    path: '/reading-workshop/learner',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedReadingWorkshopLibraryRoute =
+  AuthenticatedReadingWorkshopLibraryRouteImport.update({
+    id: '/reading-workshop/library',
+    path: '/reading-workshop/library',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedResultatIdRoute = AuthenticatedResultatIdRouteImport.update({
   id: '/resultat/$id',
   path: '/resultat/$id',
@@ -256,6 +296,8 @@ export interface FileRoutesByFullPath {
   '/test': typeof AuthenticatedTestRoute
   '/leveltest/$lang': typeof LeveltestLangRoute
   '/profile/$id': typeof ProfileIdRoute
+  '/reading-workshop/login': typeof ReadingWorkshopLoginRoute
+  '/reading-workshop/': typeof ReadingWorkshopIndexRoute
   '/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
@@ -264,6 +306,10 @@ export interface FileRoutesByFullPath {
   '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
+  '/reading-workshop/admin': typeof AuthenticatedReadingWorkshopAdminRoute
+  '/reading-workshop/coach': typeof AuthenticatedReadingWorkshopCoachRoute
+  '/reading-workshop/learner': typeof AuthenticatedReadingWorkshopLearnerRoute
+  '/reading-workshop/library': typeof AuthenticatedReadingWorkshopLibraryRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/paiements/$id': typeof AuthenticatedAdminPaiementsIdRoute
@@ -291,6 +337,8 @@ export interface FileRoutesByTo {
   '/test': typeof AuthenticatedTestRoute
   '/leveltest/$lang': typeof LeveltestLangRoute
   '/profile/$id': typeof ProfileIdRoute
+  '/reading-workshop/login': typeof ReadingWorkshopLoginRoute
+  '/reading-workshop': typeof ReadingWorkshopIndexRoute
   '/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
@@ -299,6 +347,10 @@ export interface FileRoutesByTo {
   '/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
+  '/reading-workshop/admin': typeof AuthenticatedReadingWorkshopAdminRoute
+  '/reading-workshop/coach': typeof AuthenticatedReadingWorkshopCoachRoute
+  '/reading-workshop/learner': typeof AuthenticatedReadingWorkshopLearnerRoute
+  '/reading-workshop/library': typeof AuthenticatedReadingWorkshopLibraryRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/paiements/$id': typeof AuthenticatedAdminPaiementsIdRoute
@@ -329,6 +381,8 @@ export interface FileRoutesById {
   '/_authenticated/test': typeof AuthenticatedTestRoute
   '/leveltest/$lang': typeof LeveltestLangRoute
   '/profile/$id': typeof ProfileIdRoute
+  '/reading-workshop/login': typeof ReadingWorkshopLoginRoute
+  '/reading-workshop/': typeof ReadingWorkshopIndexRoute
   '/_authenticated/admin/avis': typeof AuthenticatedAdminAvisRoute
   '/_authenticated/admin/candidats': typeof AuthenticatedAdminCandidatsRoute
   '/_authenticated/admin/certificats': typeof AuthenticatedAdminCertificatsRoute
@@ -337,6 +391,10 @@ export interface FileRoutesById {
   '/_authenticated/admin/notifications': typeof AuthenticatedAdminNotificationsRoute
   '/_authenticated/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
+  '/_authenticated/reading-workshop/admin': typeof AuthenticatedReadingWorkshopAdminRoute
+  '/_authenticated/reading-workshop/coach': typeof AuthenticatedReadingWorkshopCoachRoute
+  '/_authenticated/reading-workshop/learner': typeof AuthenticatedReadingWorkshopLearnerRoute
+  '/_authenticated/reading-workshop/library': typeof AuthenticatedReadingWorkshopLibraryRoute
   '/_authenticated/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/paiements/$id': typeof AuthenticatedAdminPaiementsIdRoute
@@ -367,6 +425,8 @@ export interface FileRouteTypes {
     | '/test'
     | '/leveltest/$lang'
     | '/profile/$id'
+    | '/reading-workshop/login'
+    | '/reading-workshop/'
     | '/admin/avis'
     | '/admin/candidats'
     | '/admin/certificats'
@@ -375,6 +435,10 @@ export interface FileRouteTypes {
     | '/admin/notifications'
     | '/admin/questions'
     | '/admin/utilisateurs'
+    | '/reading-workshop/admin'
+    | '/reading-workshop/coach'
+    | '/reading-workshop/learner'
+    | '/reading-workshop/library'
     | '/resultat/$id'
     | '/admin/'
     | '/admin/paiements/$id'
@@ -402,6 +466,8 @@ export interface FileRouteTypes {
     | '/test'
     | '/leveltest/$lang'
     | '/profile/$id'
+    | '/reading-workshop/login'
+    | '/reading-workshop'
     | '/admin/avis'
     | '/admin/candidats'
     | '/admin/certificats'
@@ -410,6 +476,10 @@ export interface FileRouteTypes {
     | '/admin/notifications'
     | '/admin/questions'
     | '/admin/utilisateurs'
+    | '/reading-workshop/admin'
+    | '/reading-workshop/coach'
+    | '/reading-workshop/learner'
+    | '/reading-workshop/library'
     | '/resultat/$id'
     | '/admin'
     | '/admin/paiements/$id'
@@ -439,6 +509,8 @@ export interface FileRouteTypes {
     | '/_authenticated/test'
     | '/leveltest/$lang'
     | '/profile/$id'
+    | '/reading-workshop/login'
+    | '/reading-workshop/'
     | '/_authenticated/admin/avis'
     | '/_authenticated/admin/candidats'
     | '/_authenticated/admin/certificats'
@@ -447,6 +519,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/notifications'
     | '/_authenticated/admin/questions'
     | '/_authenticated/admin/utilisateurs'
+    | '/_authenticated/reading-workshop/admin'
+    | '/_authenticated/reading-workshop/coach'
+    | '/_authenticated/reading-workshop/learner'
+    | '/_authenticated/reading-workshop/library'
     | '/_authenticated/resultat/$id'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/paiements/$id'
@@ -468,6 +544,8 @@ export interface RootRouteChildren {
   SpanishTestRoute: typeof SpanishTestRoute
   LeveltestLangRoute: typeof LeveltestLangRoute
   ProfileIdRoute: typeof ProfileIdRoute
+  ReadingWorkshopLoginRoute: typeof ReadingWorkshopLoginRoute
+  ReadingWorkshopIndexRoute: typeof ReadingWorkshopIndexRoute
   ApiPublicChariowWebhookSecretRoute: typeof ApiPublicChariowWebhookSecretRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -622,6 +700,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reading-workshop/': {
+      id: '/reading-workshop/'
+      path: '/reading-workshop'
+      fullPath: '/reading-workshop/'
+      preLoaderRoute: typeof ReadingWorkshopIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reading-workshop/login': {
+      id: '/reading-workshop/login'
+      path: '/reading-workshop/login'
+      fullPath: '/reading-workshop/login'
+      preLoaderRoute: typeof ReadingWorkshopLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -684,6 +776,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/utilisateurs'
       preLoaderRoute: typeof AuthenticatedAdminUtilisateursRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/reading-workshop/admin': {
+      id: '/_authenticated/reading-workshop/admin'
+      path: '/reading-workshop/admin'
+      fullPath: '/reading-workshop/admin'
+      preLoaderRoute: typeof AuthenticatedReadingWorkshopAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reading-workshop/coach': {
+      id: '/_authenticated/reading-workshop/coach'
+      path: '/reading-workshop/coach'
+      fullPath: '/reading-workshop/coach'
+      preLoaderRoute: typeof AuthenticatedReadingWorkshopCoachRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reading-workshop/learner': {
+      id: '/_authenticated/reading-workshop/learner'
+      path: '/reading-workshop/learner'
+      fullPath: '/reading-workshop/learner'
+      preLoaderRoute: typeof AuthenticatedReadingWorkshopLearnerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reading-workshop/library': {
+      id: '/_authenticated/reading-workshop/library'
+      path: '/reading-workshop/library'
+      fullPath: '/reading-workshop/library'
+      preLoaderRoute: typeof AuthenticatedReadingWorkshopLibraryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/resultat/$id': {
       id: '/_authenticated/resultat/$id'
@@ -765,6 +885,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
   AuthenticatedTableauDeBordRoute: typeof AuthenticatedTableauDeBordRoute
   AuthenticatedTestRoute: typeof AuthenticatedTestRoute
+  AuthenticatedReadingWorkshopAdminRoute: typeof AuthenticatedReadingWorkshopAdminRoute
+  AuthenticatedReadingWorkshopCoachRoute: typeof AuthenticatedReadingWorkshopCoachRoute
+  AuthenticatedReadingWorkshopLearnerRoute: typeof AuthenticatedReadingWorkshopLearnerRoute
+  AuthenticatedReadingWorkshopLibraryRoute: typeof AuthenticatedReadingWorkshopLibraryRoute
   AuthenticatedResultatIdRoute: typeof AuthenticatedResultatIdRoute
 }
 
@@ -778,6 +902,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfilRoute: AuthenticatedProfilRoute,
   AuthenticatedTableauDeBordRoute: AuthenticatedTableauDeBordRoute,
   AuthenticatedTestRoute: AuthenticatedTestRoute,
+  AuthenticatedReadingWorkshopAdminRoute:
+    AuthenticatedReadingWorkshopAdminRoute,
+  AuthenticatedReadingWorkshopCoachRoute:
+    AuthenticatedReadingWorkshopCoachRoute,
+  AuthenticatedReadingWorkshopLearnerRoute:
+    AuthenticatedReadingWorkshopLearnerRoute,
+  AuthenticatedReadingWorkshopLibraryRoute:
+    AuthenticatedReadingWorkshopLibraryRoute,
   AuthenticatedResultatIdRoute: AuthenticatedResultatIdRoute,
 }
 
@@ -797,6 +929,8 @@ const rootRouteChildren: RootRouteChildren = {
   SpanishTestRoute: SpanishTestRoute,
   LeveltestLangRoute: LeveltestLangRoute,
   ProfileIdRoute: ProfileIdRoute,
+  ReadingWorkshopLoginRoute: ReadingWorkshopLoginRoute,
+  ReadingWorkshopIndexRoute: ReadingWorkshopIndexRoute,
   ApiPublicChariowWebhookSecretRoute: ApiPublicChariowWebhookSecretRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,

@@ -21,6 +21,7 @@ export function SiteHeader() {
     { to: "/", label: t("nav.home") },
     { to: "/leaderboards", label: t("nav.leaderboards") },
     { to: "/#formation", label: t("nav.training") },
+    { to: "/reading-workshop", label: "Reading Workshop" },
   ];
 
   useEffect(() => {

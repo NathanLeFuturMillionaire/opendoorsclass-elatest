@@ -288,3 +288,18 @@ html {
     page-break-inside: avoid;
   }
 }
+
+/* Reading Workshop: green-dominant theme scoped to its pages only */
+.rw-theme {
+  --primary: oklch(0.68 0.15 162);
+  --primary-foreground: oklch(0.99 0.005 160);
+  --ring: oklch(0.6 0.14 162);
+  --rw-deep: oklch(0.56 0.13 162);
+  --rw-soft: oklch(0.97 0.02 162);
+}
+.dark .rw-theme {
+  --primary: oklch(0.72 0.15 162);
+  --primary-foreground: oklch(0.15 0.03 160);
+  --rw-deep: oklch(0.62 0.13 162);
+  --rw-soft: oklch(0.24 0.04 162);
+}

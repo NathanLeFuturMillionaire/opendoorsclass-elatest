@@ -841,6 +841,213 @@ export type Database = {
         }
         Relationships: []
       }
+      rw_coaches: {
+        Row: {
+          bio: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          is_active: boolean
+          photo_path: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          is_active?: boolean
+          photo_path?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          photo_path?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      rw_learners: {
+        Row: {
+          coach_id: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          is_active: boolean
+          level: Database["public"]["Enums"]["rw_level"]
+          photo_path: string | null
+          start_date: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          coach_id?: string | null
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          is_active?: boolean
+          level?: Database["public"]["Enums"]["rw_level"]
+          photo_path?: string | null
+          start_date?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          coach_id?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          level?: Database["public"]["Enums"]["rw_level"]
+          photo_path?: string | null
+          start_date?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_learners_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "rw_coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rw_lessons: {
+        Row: {
+          body: string
+          content_type: string | null
+          created_at: string
+          id: string
+          level: Database["public"]["Enums"]["rw_level"]
+          mention: string
+          rights_status: string | null
+          session_id: string
+          source_author: string | null
+          source_date: string | null
+          source_institution: string | null
+          source_title: string | null
+          source_url: string | null
+          status: string
+          title: string
+          updated_at: string
+          word_count: number
+        }
+        Insert: {
+          body?: string
+          content_type?: string | null
+          created_at?: string
+          id?: string
+          level: Database["public"]["Enums"]["rw_level"]
+          mention?: string
+          rights_status?: string | null
+          session_id: string
+          source_author?: string | null
+          source_date?: string | null
+          source_institution?: string | null
+          source_title?: string | null
+          source_url?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          word_count?: number
+        }
+        Update: {
+          body?: string
+          content_type?: string | null
+          created_at?: string
+          id?: string
+          level?: Database["public"]["Enums"]["rw_level"]
+          mention?: string
+          rights_status?: string | null
+          session_id?: string
+          source_author?: string | null
+          source_date?: string | null
+          source_institution?: string | null
+          source_title?: string | null
+          source_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          word_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_lessons_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "rw_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rw_sessions: {
+        Row: {
+          created_at: string
+          day_index: number
+          id: string
+          title: string
+          week_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_index: number
+          id?: string
+          title: string
+          week_id: string
+        }
+        Update: {
+          created_at?: string
+          day_index?: number
+          id?: string
+          title?: string
+          week_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_sessions_week_id_fkey"
+            columns: ["week_id"]
+            isOneToOne: false
+            referencedRelation: "rw_weeks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rw_weeks: {
+        Row: {
+          created_at: string
+          id: string
+          title: string
+          week_number: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title: string
+          week_number: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string
+          week_number?: number
+        }
+        Relationships: []
+      }
       speaking_ai_access: {
         Row: {
           blocked_at: string
@@ -1270,6 +1477,30 @@ export type Database = {
         Returns: string
       }
       record_streak: { Args: { _user_id: string }; Returns: Json }
+      rw_coach_id: { Args: { _uid: string }; Returns: string }
+      rw_is_staff: { Args: { _uid: string }; Returns: boolean }
+      rw_learner_row: {
+        Args: { _uid: string }
+        Returns: {
+          coach_id: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          is_active: boolean
+          level: Database["public"]["Enums"]["rw_level"]
+          photo_path: string | null
+          start_date: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "rw_learners"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       save_english_speaking_answer: {
         Args: {
           _answer: string
@@ -1309,6 +1540,7 @@ export type Database = {
         | "speaking"
         | "writing"
         | "orthography"
+      rw_level: "A1" | "A2" | "B1" | "B2" | "C1"
       subscription_plan: "standard" | "premium"
     }
     CompositeTypes: {
@@ -1458,6 +1690,7 @@ export const Constants = {
         "writing",
         "orthography",
       ],
+      rw_level: ["A1", "A2", "B1", "B2", "C1"],
       subscription_plan: ["standard", "premium"],
     },
   },
