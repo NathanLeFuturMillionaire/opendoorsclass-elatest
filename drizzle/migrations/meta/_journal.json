@@ -29,6 +29,13 @@
       "when": 1794490839511,
       "tag": "0003_rw_photos_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794491136742,
+      "tag": "0004_rw_lesson_content",
+      "breakpoints": true
     }
   ]
 }

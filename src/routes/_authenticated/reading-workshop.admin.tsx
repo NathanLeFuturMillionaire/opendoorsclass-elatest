@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
@@ -79,6 +79,10 @@ function AdminHome() {
         <RwStat label="Coachs" value={ov?.coaches ?? 0} />
         <RwStat label="Textes publiés" value={ov?.lessons ?? 0} hint={`Objectif : ${RW_PROGRAM.length * 30} versions`} />
         <RwStat label="Programme" value={`${RW_PROGRAM.length} sem.`} hint="120 séances, 5 niveaux" />
+      </div>
+      <div className="flex flex-col items-start justify-between gap-3 rounded-2xl border border-border bg-[var(--rw-soft)] p-5 sm:flex-row sm:items-center">
+        <div><p className="font-bold">Bibliothèque pédagogique</p><p className="text-sm text-muted-foreground">Préparez les textes avec l'IA, relisez-les puis publiez-les.</p></div>
+        <Button asChild><Link to="/reading-workshop/content">Gérer les textes</Link></Button>
       </div>
       <Tabs defaultValue="learners">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

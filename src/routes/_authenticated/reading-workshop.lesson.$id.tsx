@@ -1,0 +1,105 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+import { ArrowLeft, BookOpenCheck, CheckCircle2, Languages, Lightbulb, XCircle } from "lucide-react";
+import { RwShell } from "@/components/reading-workshop/rw-shell";
+import { Button } from "@/components/ui/button";
+import { getRwLesson } from "@/lib/rw-lessons.functions";
+import { RW_DAYS } from "@/lib/reading-workshop";
+import { cn } from "@/lib/utils";
+
+export const Route = createFileRoute("/_authenticated/reading-workshop/lesson/$id")({
+  head: () => ({ meta: [{ title: "Lecture, Reading Workshop OpenDoorsClass" }] }),
+  component: () => (
+    <RwShell need="member" title="Lecture du jour" subtitle="Lisez, découvrez le vocabulaire, puis vérifiez votre compréhension.">
+      <Lesson />
+    </RwShell>
+  ),
+});
+
+function Lesson() {
+  const { id } = Route.useParams();
+  const fetchLesson = useServerFn(getRwLesson);
+  const { data: l, error } = useQuery({ queryKey: ["rw-lesson", id], queryFn: () => fetchLesson({ data: { id } }) });
+  const [showFr, setShowFr] = useState(false);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  if (error) return <p className="rounded-2xl border border-border p-6 text-muted-foreground">{error.message}</p>;
+  if (!l) return null;
+  const s = l.rw_sessions;
+  const mention = l.mention === "original" ? "Original educational text, OpenDoorsClass Reading Workshop."
+    : `Educational adaptation inspired by ${[l.source_author, l.source_title].filter(Boolean).join(", ") || "a public source"}.`;
+  const score = (l.questions ?? []).filter((q: any, i: number) => answers[i] === q.answer).length;
+
+  return (
+    <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+      <article className="space-y-6">
+        <Link to="/reading-workshop/library" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" /> Bibliothèque</Link>
+        <div>
+          <p className="text-sm font-semibold text-primary">Week {String(s?.rw_weeks?.week_number ?? 0).padStart(2, "0")} · {RW_DAYS[(s?.day_index ?? 1) - 1]} · {l.level}</p>
+          <h2 className="mt-1 text-3xl font-extrabold tracking-tight">{l.title}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{l.word_count} words · {Math.max(1, Math.round(l.word_count / 110))} min</p>
+        </div>
+        {l.knowledge_point && (
+          <div className="flex gap-3 rounded-2xl bg-[var(--rw-soft)] p-4 text-sm"><Lightbulb className="size-5 shrink-0 text-primary" /><p>{l.knowledge_point}</p></div>
+        )}
+        <div className="space-y-4 rounded-3xl border border-border bg-card p-6 text-lg leading-relaxed shadow-[var(--rw-shadow)] sm:p-8">
+          {l.body.split(/\n\s*\n/).map((p: string, i: number) => <p key={i}>{p}</p>)}
+        </div>
+        <p className="text-xs italic text-muted-foreground">{mention}{l.source_url && <> · <a href={l.source_url} target="_blank" rel="noreferrer" className="underline">Source</a></>}</p>
+        <Button variant="outline" onClick={() => setShowFr(!showFr)}><Languages className="mr-2 size-4" />{showFr ? "Masquer la traduction" : "Voir la traduction en français"}</Button>
+        {showFr && l.translation_fr && <div className="space-y-3 rounded-2xl border border-dashed border-border p-6 text-muted-foreground">{l.translation_fr.split(/\n\s*\n/).map((p: string, i: number) => <p key={i}>{p}</p>)}</div>}
+
+        {(l.questions ?? []).length > 0 && (
+          <section className="space-y-4">
+            <h3 className="flex items-center gap-2 text-xl font-bold"><BookOpenCheck className="size-5 text-primary" /> Compréhension</h3>
+            {l.questions.map((q: any, i: number) => (
+              <div key={i} className="rounded-2xl border border-border bg-card p-5">
+                <p className="font-semibold">{i + 1}. {q.question}</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {q.options.map((o: string) => {
+                    const picked = answers[i] === o; const done = answers[i] !== undefined;
+                    return (
+                      <button key={o} type="button" disabled={done} onClick={() => setAnswers({ ...answers, [i]: o })}
+                        className={cn("rounded-xl border px-4 py-2.5 text-left text-sm transition", !done && "hover:border-primary",
+                          done && o === q.answer && "border-primary bg-[var(--rw-soft)] font-semibold",
+                          picked && o !== q.answer && "border-destructive text-destructive")}>{o}</button>
+                    );
+                  })}
+                </div>
+                {answers[i] !== undefined && (
+                  <p className="mt-3 flex items-start gap-2 text-sm text-muted-foreground">
+                    {answers[i] === q.answer ? <CheckCircle2 className="size-4 shrink-0 text-primary" /> : <XCircle className="size-4 shrink-0 text-destructive" />}{q.explanation_fr}
+                  </p>
+                )}
+              </div>
+            ))}
+            {Object.keys(answers).length === l.questions.length && <p className="text-lg font-bold">Score : {score} / {l.questions.length}</p>}
+          </section>
+        )}
+        {(l.grammar ?? []).length > 0 && (
+          <section className="space-y-3">
+            <h3 className="text-xl font-bold">Grammar discovery</h3>
+            {l.grammar.map((g: any, i: number) => (
+              <div key={i} className="rounded-2xl border border-border bg-card p-5"><p className="font-semibold">{g.point}</p><p className="mt-1 text-sm text-muted-foreground">{g.explanation_fr}</p><p className="mt-2 text-sm italic">« {g.example} »</p></div>
+            ))}
+          </section>
+        )}
+        {(l.discussion ?? []).length > 0 && (
+          <section><h3 className="text-xl font-bold">Discussion</h3><ul className="mt-3 list-disc space-y-1 pl-5">{l.discussion.map((d: string) => <li key={d}>{d}</li>)}</ul></section>
+        )}
+      </article>
+      <aside className="space-y-3 lg:sticky lg:top-20 lg:self-start">
+        <h3 className="font-bold">Vocabulaire clé</h3>
+        {(l.vocabulary ?? []).map((v: any) => (
+          <div key={v.word} className="rounded-2xl border border-border bg-card p-4">
+            <p className="font-bold text-primary">{v.word} <span className="text-xs font-normal text-muted-foreground">{v.part_of_speech}</span></p>
+            <p className="text-sm font-medium">{v.translation_fr}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{v.definition}</p>
+            <p className="mt-1 text-xs italic">{v.example}</p>
+          </div>
+        ))}
+      </aside>
+    </div>
+  );
+}

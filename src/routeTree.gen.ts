@@ -43,10 +43,12 @@ import { Route as AuthenticatedAdminQuestionsRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin/utilisateurs'
 import { Route as AuthenticatedReadingWorkshopAdminRouteImport } from './routes/_authenticated/reading-workshop.admin'
 import { Route as AuthenticatedReadingWorkshopCoachRouteImport } from './routes/_authenticated/reading-workshop.coach'
+import { Route as AuthenticatedReadingWorkshopContentRouteImport } from './routes/_authenticated/reading-workshop.content'
 import { Route as AuthenticatedReadingWorkshopLearnerRouteImport } from './routes/_authenticated/reading-workshop.learner'
 import { Route as AuthenticatedReadingWorkshopLibraryRouteImport } from './routes/_authenticated/reading-workshop.library'
 import { Route as AuthenticatedResultatIdRouteImport } from './routes/_authenticated/resultat.$id'
 import { Route as AuthenticatedAdminPaiementsIdRouteImport } from './routes/_authenticated/admin/paiements.$id'
+import { Route as AuthenticatedReadingWorkshopLessonIdRouteImport } from './routes/_authenticated/reading-workshop.lesson.$id'
 import { Route as ApiPublicChariowWebhookSecretRouteImport } from './routes/api/public/chariow-webhook.$secret'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -235,6 +237,12 @@ const AuthenticatedReadingWorkshopCoachRoute =
     path: '/reading-workshop/coach',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedReadingWorkshopContentRoute =
+  AuthenticatedReadingWorkshopContentRouteImport.update({
+    id: '/reading-workshop/content',
+    path: '/reading-workshop/content',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedReadingWorkshopLearnerRoute =
   AuthenticatedReadingWorkshopLearnerRouteImport.update({
     id: '/reading-workshop/learner',
@@ -257,6 +265,12 @@ const AuthenticatedAdminPaiementsIdRoute =
     id: '/paiements/$id',
     path: '/paiements/$id',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedReadingWorkshopLessonIdRoute =
+  AuthenticatedReadingWorkshopLessonIdRouteImport.update({
+    id: '/reading-workshop/lesson/$id',
+    path: '/reading-workshop/lesson/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const ApiPublicChariowWebhookSecretRoute =
   ApiPublicChariowWebhookSecretRouteImport.update({
@@ -308,11 +322,13 @@ export interface FileRoutesByFullPath {
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/reading-workshop/admin': typeof AuthenticatedReadingWorkshopAdminRoute
   '/reading-workshop/coach': typeof AuthenticatedReadingWorkshopCoachRoute
+  '/reading-workshop/content': typeof AuthenticatedReadingWorkshopContentRoute
   '/reading-workshop/learner': typeof AuthenticatedReadingWorkshopLearnerRoute
   '/reading-workshop/library': typeof AuthenticatedReadingWorkshopLibraryRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/paiements/$id': typeof AuthenticatedAdminPaiementsIdRoute
+  '/reading-workshop/lesson/$id': typeof AuthenticatedReadingWorkshopLessonIdRoute
   '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -349,11 +365,13 @@ export interface FileRoutesByTo {
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/reading-workshop/admin': typeof AuthenticatedReadingWorkshopAdminRoute
   '/reading-workshop/coach': typeof AuthenticatedReadingWorkshopCoachRoute
+  '/reading-workshop/content': typeof AuthenticatedReadingWorkshopContentRoute
   '/reading-workshop/learner': typeof AuthenticatedReadingWorkshopLearnerRoute
   '/reading-workshop/library': typeof AuthenticatedReadingWorkshopLibraryRoute
   '/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/paiements/$id': typeof AuthenticatedAdminPaiementsIdRoute
+  '/reading-workshop/lesson/$id': typeof AuthenticatedReadingWorkshopLessonIdRoute
   '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -393,11 +411,13 @@ export interface FileRoutesById {
   '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/_authenticated/reading-workshop/admin': typeof AuthenticatedReadingWorkshopAdminRoute
   '/_authenticated/reading-workshop/coach': typeof AuthenticatedReadingWorkshopCoachRoute
+  '/_authenticated/reading-workshop/content': typeof AuthenticatedReadingWorkshopContentRoute
   '/_authenticated/reading-workshop/learner': typeof AuthenticatedReadingWorkshopLearnerRoute
   '/_authenticated/reading-workshop/library': typeof AuthenticatedReadingWorkshopLibraryRoute
   '/_authenticated/resultat/$id': typeof AuthenticatedResultatIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/paiements/$id': typeof AuthenticatedAdminPaiementsIdRoute
+  '/_authenticated/reading-workshop/lesson/$id': typeof AuthenticatedReadingWorkshopLessonIdRoute
   '/api/public/chariow-webhook/$secret': typeof ApiPublicChariowWebhookSecretRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -437,11 +457,13 @@ export interface FileRouteTypes {
     | '/admin/utilisateurs'
     | '/reading-workshop/admin'
     | '/reading-workshop/coach'
+    | '/reading-workshop/content'
     | '/reading-workshop/learner'
     | '/reading-workshop/library'
     | '/resultat/$id'
     | '/admin/'
     | '/admin/paiements/$id'
+    | '/reading-workshop/lesson/$id'
     | '/api/public/chariow-webhook/$secret'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -478,11 +500,13 @@ export interface FileRouteTypes {
     | '/admin/utilisateurs'
     | '/reading-workshop/admin'
     | '/reading-workshop/coach'
+    | '/reading-workshop/content'
     | '/reading-workshop/learner'
     | '/reading-workshop/library'
     | '/resultat/$id'
     | '/admin'
     | '/admin/paiements/$id'
+    | '/reading-workshop/lesson/$id'
     | '/api/public/chariow-webhook/$secret'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -521,11 +545,13 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/utilisateurs'
     | '/_authenticated/reading-workshop/admin'
     | '/_authenticated/reading-workshop/coach'
+    | '/_authenticated/reading-workshop/content'
     | '/_authenticated/reading-workshop/learner'
     | '/_authenticated/reading-workshop/library'
     | '/_authenticated/resultat/$id'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/paiements/$id'
+    | '/_authenticated/reading-workshop/lesson/$id'
     | '/api/public/chariow-webhook/$secret'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -791,6 +817,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReadingWorkshopCoachRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/reading-workshop/content': {
+      id: '/_authenticated/reading-workshop/content'
+      path: '/reading-workshop/content'
+      fullPath: '/reading-workshop/content'
+      preLoaderRoute: typeof AuthenticatedReadingWorkshopContentRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/reading-workshop/learner': {
       id: '/_authenticated/reading-workshop/learner'
       path: '/reading-workshop/learner'
@@ -818,6 +851,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/paiements/$id'
       preLoaderRoute: typeof AuthenticatedAdminPaiementsIdRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/reading-workshop/lesson/$id': {
+      id: '/_authenticated/reading-workshop/lesson/$id'
+      path: '/reading-workshop/lesson/$id'
+      fullPath: '/reading-workshop/lesson/$id'
+      preLoaderRoute: typeof AuthenticatedReadingWorkshopLessonIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/chariow-webhook/$secret': {
       id: '/api/public/chariow-webhook/$secret'
@@ -887,9 +927,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTestRoute: typeof AuthenticatedTestRoute
   AuthenticatedReadingWorkshopAdminRoute: typeof AuthenticatedReadingWorkshopAdminRoute
   AuthenticatedReadingWorkshopCoachRoute: typeof AuthenticatedReadingWorkshopCoachRoute
+  AuthenticatedReadingWorkshopContentRoute: typeof AuthenticatedReadingWorkshopContentRoute
   AuthenticatedReadingWorkshopLearnerRoute: typeof AuthenticatedReadingWorkshopLearnerRoute
   AuthenticatedReadingWorkshopLibraryRoute: typeof AuthenticatedReadingWorkshopLibraryRoute
   AuthenticatedResultatIdRoute: typeof AuthenticatedResultatIdRoute
+  AuthenticatedReadingWorkshopLessonIdRoute: typeof AuthenticatedReadingWorkshopLessonIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -906,11 +948,15 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedReadingWorkshopAdminRoute,
   AuthenticatedReadingWorkshopCoachRoute:
     AuthenticatedReadingWorkshopCoachRoute,
+  AuthenticatedReadingWorkshopContentRoute:
+    AuthenticatedReadingWorkshopContentRoute,
   AuthenticatedReadingWorkshopLearnerRoute:
     AuthenticatedReadingWorkshopLearnerRoute,
   AuthenticatedReadingWorkshopLibraryRoute:
     AuthenticatedReadingWorkshopLibraryRoute,
   AuthenticatedResultatIdRoute: AuthenticatedResultatIdRoute,
+  AuthenticatedReadingWorkshopLessonIdRoute:
+    AuthenticatedReadingWorkshopLessonIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

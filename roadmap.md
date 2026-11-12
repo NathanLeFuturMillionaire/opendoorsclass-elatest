@@ -8,7 +8,7 @@
 ## Reading Workshop
 - [x] Phase 1: fondations (menu, page publique, connexion, espaces protégés, base)
 - [x] Phase 2: gestion apprenants et coachs (photo, niveau, lien, affectation)
-- [ ] Phase 3: bibliothèque (120 séances x 5 niveaux, sources, validation admin)
+- [x] Phase 3: bibliothèque (outil prêt; 1 texte sur 600 publié, le reste à préparer par l admin)
 - [ ] Phase 4: lecture intelligente (audio, dictionnaire, traduction, vocabulaire)
 - [ ] Phase 5: envois audio/vidéo et corrections
 - [ ] Phase 6: suivi et rapports

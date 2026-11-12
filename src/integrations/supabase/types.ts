@@ -932,9 +932,15 @@ export type Database = {
           body: string
           content_type: string | null
           created_at: string
+          discussion: Json
+          grammar: Json
           id: string
+          knowledge_point: string | null
           level: Database["public"]["Enums"]["rw_level"]
           mention: string
+          published_at: string | null
+          published_by: string | null
+          questions: Json
           rights_status: string | null
           session_id: string
           source_author: string | null
@@ -943,17 +949,26 @@ export type Database = {
           source_title: string | null
           source_url: string | null
           status: string
+          summary_fr: string | null
           title: string
+          translation_fr: string | null
           updated_at: string
+          vocabulary: Json
           word_count: number
         }
         Insert: {
           body?: string
           content_type?: string | null
           created_at?: string
+          discussion?: Json
+          grammar?: Json
           id?: string
+          knowledge_point?: string | null
           level: Database["public"]["Enums"]["rw_level"]
           mention?: string
+          published_at?: string | null
+          published_by?: string | null
+          questions?: Json
           rights_status?: string | null
           session_id: string
           source_author?: string | null
@@ -962,17 +977,26 @@ export type Database = {
           source_title?: string | null
           source_url?: string | null
           status?: string
+          summary_fr?: string | null
           title: string
+          translation_fr?: string | null
           updated_at?: string
+          vocabulary?: Json
           word_count?: number
         }
         Update: {
           body?: string
           content_type?: string | null
           created_at?: string
+          discussion?: Json
+          grammar?: Json
           id?: string
+          knowledge_point?: string | null
           level?: Database["public"]["Enums"]["rw_level"]
           mention?: string
+          published_at?: string | null
+          published_by?: string | null
+          questions?: Json
           rights_status?: string | null
           session_id?: string
           source_author?: string | null
@@ -981,8 +1005,11 @@ export type Database = {
           source_title?: string | null
           source_url?: string | null
           status?: string
+          summary_fr?: string | null
           title?: string
+          translation_fr?: string | null
           updated_at?: string
+          vocabulary?: Json
           word_count?: number
         }
         Relationships: [
