@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, Shield } from "lucide-react";
+import { BookOpen, Menu, Shield } from "lucide-react";
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useSession, signOutAndRedirect } from "@/lib/session";
@@ -17,11 +18,11 @@ export function SiteHeader() {
   const [isStaff, setIsStaff] = useState(false);
   const t = useT();
 
-  const NAV = [
+  const NAV: { to: string; label: string; icon?: ReactNode }[] = [
     { to: "/", label: t("nav.home") },
     { to: "/leaderboards", label: t("nav.leaderboards") },
     { to: "/#formation", label: t("nav.training") },
-    { to: "/reading-workshop", label: "Reading Workshop" },
+    { to: "/reading-workshop", label: "Reading Workshop", icon: <BookOpen className="size-4 shrink-0" aria-hidden /> },
   ];
 
   useEffect(() => {
@@ -106,6 +107,13 @@ export function SiteHeader() {
         </div>
 
         <div className="flex items-center gap-1 md:hidden">
+          <Link
+            to="/reading-workshop"
+            className="flex items-center gap-1.5 rounded-full border border-brand-green/40 bg-brand-green/10 px-2.5 py-1.5 text-xs font-semibold text-brand-green transition-colors hover:bg-brand-green/20"
+          >
+            <BookOpen className="size-3.5 shrink-0" aria-hidden />
+            <span className="whitespace-nowrap">Reading Workshop</span>
+          </Link>
           {user && <NotificationBell />}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -123,8 +131,13 @@ export function SiteHeader() {
                   key={item.to}
                   href={item.to}
                   onClick={() => setOpen(false)}
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
+                  className={
+                    item.icon
+                      ? "mt-1 flex items-center gap-2 rounded-lg border border-brand-green/40 bg-brand-green/10 px-3 py-2.5 text-sm font-semibold text-brand-green hover:bg-brand-green/20"
+                      : "rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
+                  }
                 >
+                  {item.icon}
                   {item.label}
                 </a>
               ))}
