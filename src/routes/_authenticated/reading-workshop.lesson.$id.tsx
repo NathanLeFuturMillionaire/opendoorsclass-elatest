@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button";
 import { getRwLesson } from "@/lib/rw-lessons.functions";
 import { RW_DAYS } from "@/lib/reading-workshop";
 import { cn } from "@/lib/utils";
+import { RwSubmit } from "@/components/reading-workshop/rw-submit";
+import { RwSubmissionsList, useRwSubmissions } from "@/components/reading-workshop/rw-submissions-list";
+import { getRwMe } from "@/lib/reading-workshop.functions";
 import { SmartReader } from "@/components/reading-workshop/smart-reader";
 
 export const Route = createFileRoute("/_authenticated/reading-workshop/lesson/$id")({
@@ -23,6 +26,10 @@ function Lesson() {
   const { id } = Route.useParams();
   const fetchLesson = useServerFn(getRwLesson);
   const { data: l, error } = useQuery({ queryKey: ["rw-lesson", id], queryFn: () => fetchLesson({ data: { id } }) });
+  const fetchMe = useServerFn(getRwMe);
+  const { data: me } = useQuery({ queryKey: ["rw-me"], queryFn: () => fetchMe() });
+  const learnerId = me?.learner?.id;
+  const { data: mine = [] } = useRwSubmissions("lesson", { lessonId: id });
   const [showFr, setShowFr] = useState(false);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   if (error) return <p className="rounded-2xl border border-border p-6 text-muted-foreground">{error.message}</p>;
@@ -86,6 +93,12 @@ function Lesson() {
         )}
         {(l.discussion ?? []).length > 0 && (
           <section><h3 className="text-xl font-bold">Discussion</h3><ul className="mt-3 list-disc space-y-1 pl-5">{l.discussion.map((d: string) => <li key={d}>{d}</li>)}</ul></section>
+        )}
+        {learnerId && (
+          <>
+            <RwSubmit learnerId={learnerId} lessonId={id} />
+            {mine.length > 0 && <section className="space-y-3"><h3 className="text-xl font-bold">Mes envois pour ce texte</h3><RwSubmissionsList items={mine} mode="learner" /></section>}
+          </>
         )}
       </article>
       <aside className="space-y-3 lg:sticky lg:top-20 lg:self-start">

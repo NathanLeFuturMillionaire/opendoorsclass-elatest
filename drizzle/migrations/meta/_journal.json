@@ -36,6 +36,20 @@
       "when": 1794491136742,
       "tag": "0004_rw_lesson_content",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794492540183,
+      "tag": "0005_rw_submissions",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794492552664,
+      "tag": "0006_rw_submissions_safe_policy",
+      "breakpoints": true
     }
   ]
 }

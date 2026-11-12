@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { RwAvatar, RwEmpty, RwShell, RwStat } from "@/components/reading-workshop/rw-shell";
+import { RwAvatar, RwShell, RwStat } from "@/components/reading-workshop/rw-shell";
 import { getRwMe } from "@/lib/reading-workshop.functions";
 import { Button } from "@/components/ui/button";
 import { RW_PROGRAM } from "@/lib/reading-workshop";
+import { RwSubmissionsList, useRwSubmissions } from "@/components/reading-workshop/rw-submissions-list";
 
 export const Route = createFileRoute("/_authenticated/reading-workshop/learner")({
   head: () => ({ meta: [{ title: "Mon espace, Reading Workshop OpenDoorsClass" }] }),
@@ -20,6 +21,8 @@ function LearnerHome() {
   const { data } = useQuery({ queryKey: ["rw-me"], queryFn: () => fetchMe() });
   const total = RW_PROGRAM.length * 6;
   const me = data?.learner;
+  const { data: subs = [] } = useRwSubmissions("learner");
+  const validated = new Set(subs.filter((x) => x.status === "validated").map((x) => x.lesson_id)).size;
   return (
     <div className="space-y-6">
       {me && (
@@ -39,10 +42,9 @@ function LearnerHome() {
       )}
       <div className="grid gap-4 sm:grid-cols-3">
         <RwStat label="Mon niveau" value={me?.level ?? "Non défini"} />
-        <RwStat label="Lectures validées" value={`0 / ${total}`} />
+        <RwStat label="Lectures validées" value={`${validated} / ${total}`} />
         <RwStat label="Semaine en cours" value="1" hint={RW_PROGRAM[0]?.title} />
       </div>
-      <RwEmpty title="Vos lectures arrivent bientôt" text="Les textes de votre niveau seront publiés dans la bibliothèque au fil du programme." />
       <Button asChild><Link to="/reading-workshop/library">Ouvrir la bibliothèque</Link></Button>
     </div>
   );

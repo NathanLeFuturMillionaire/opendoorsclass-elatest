@@ -9,7 +9,7 @@
 - [x] Phase 1: fondations (menu, page publique, connexion, espaces protégés, base)
 - [x] Phase 2: gestion apprenants et coachs (photo, niveau, lien, affectation)
 - [x] Phase 3: bibliothèque (outil prêt; 1 texte sur 600 publié, le reste à préparer par l admin)
-- [ ] Phase 4: lecture intelligente (audio, dictionnaire, traduction, vocabulaire)
-- [ ] Phase 5: envois audio/vidéo et corrections
+- [x] Phase 4: lecture intelligente (audio, dictionnaire, traduction, vocabulaire)
+- [x] Phase 5: envois audio/vidéo et corrections
 - [ ] Phase 6: suivi et rapports
 - [ ] Phase 7: les 30 scénarios de vérification

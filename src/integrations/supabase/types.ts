@@ -1054,6 +1054,75 @@ export type Database = {
           },
         ]
       }
+      rw_submissions: {
+        Row: {
+          coach_feedback: string | null
+          created_at: string
+          id: string
+          kind: string
+          learner_id: string
+          learner_note: string | null
+          lesson_id: string
+          mime_type: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          score: number | null
+          size_bytes: number | null
+          status: Database["public"]["Enums"]["rw_submission_status"]
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          coach_feedback?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          learner_id: string
+          learner_note?: string | null
+          lesson_id: string
+          mime_type?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          score?: number | null
+          size_bytes?: number | null
+          status?: Database["public"]["Enums"]["rw_submission_status"]
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          coach_feedback?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          learner_id?: string
+          learner_note?: string | null
+          lesson_id?: string
+          mime_type?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          score?: number | null
+          size_bytes?: number | null
+          status?: Database["public"]["Enums"]["rw_submission_status"]
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_submissions_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "rw_learners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rw_submissions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "rw_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rw_weeks: {
         Row: {
           created_at: string
@@ -1505,6 +1574,14 @@ export type Database = {
       }
       record_streak: { Args: { _user_id: string }; Returns: Json }
       rw_coach_id: { Args: { _uid: string }; Returns: string }
+      rw_coaches_learner: {
+        Args: { _learner: string; _uid: string }
+        Returns: boolean
+      }
+      rw_coaches_learner_folder: {
+        Args: { _folder: string; _uid: string }
+        Returns: boolean
+      }
       rw_is_staff: { Args: { _uid: string }; Returns: boolean }
       rw_learner_row: {
         Args: { _uid: string }
@@ -1568,6 +1645,7 @@ export type Database = {
         | "writing"
         | "orthography"
       rw_level: "A1" | "A2" | "B1" | "B2" | "C1"
+      rw_submission_status: "submitted" | "redo" | "validated"
       subscription_plan: "standard" | "premium"
     }
     CompositeTypes: {
@@ -1718,6 +1796,7 @@ export const Constants = {
         "orthography",
       ],
       rw_level: ["A1", "A2", "B1", "B2", "C1"],
+      rw_submission_status: ["submitted", "redo", "validated"],
       subscription_plan: ["standard", "premium"],
     },
   },
