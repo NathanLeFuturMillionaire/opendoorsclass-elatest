@@ -1022,6 +1022,50 @@ export type Database = {
           },
         ]
       }
+      rw_saved_words: {
+        Row: {
+          created_at: string
+          id: string
+          lesson_id: string | null
+          part_of_speech: string | null
+          phonetic: string | null
+          sentence: string | null
+          translation_fr: string
+          user_id: string
+          word: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lesson_id?: string | null
+          part_of_speech?: string | null
+          phonetic?: string | null
+          sentence?: string | null
+          translation_fr: string
+          user_id?: string
+          word: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lesson_id?: string | null
+          part_of_speech?: string | null
+          phonetic?: string | null
+          sentence?: string | null
+          translation_fr?: string
+          user_id?: string
+          word?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_saved_words_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "rw_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rw_sessions: {
         Row: {
           created_at: string

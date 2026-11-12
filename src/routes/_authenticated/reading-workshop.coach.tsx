@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { RwShell, RwStat } from "@/components/reading-workshop/rw-shell";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { listRwCoachLearners } from "@/lib/reading-workshop.functions";
 import { RwSubmissionsList, useRwSubmissions } from "@/components/reading-workshop/rw-submissions-list";
 import { cn } from "@/lib/utils";
@@ -20,7 +20,9 @@ export const Route = createFileRoute("/_authenticated/reading-workshop/coach")({
 function CoachHome() {
   const fetchLearners = useServerFn(listRwCoachLearners);
   const { data = [] } = useQuery({ queryKey: ["rw-coach-learners"], queryFn: () => fetchLearners() });
-  const { data: subs = [] } = useRwSubmissions("coach");
+  const { data: allSubs = [] } = useRwSubmissions("coach");
+  // Staff can read every row; the coach space only lists this coach's learners.
+  const subs = useMemo(() => { const ids = new Set(data.map((l) => l.id)); return allSubs.filter((x) => ids.has(x.learner_id)); }, [allSubs, data]);
   const [tab, setTab] = useState<"submitted" | "redo" | "validated">("submitted");
   const count = (st: string) => subs.filter((x) => x.status === st).length;
   return (

@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Pause, Play, Square, Volume2, X } from "lucide-react";
+import { BookmarkPlus, Check, Loader2, Pause, Play, Square, Volume2, X } from "lucide-react";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { translateRwWord } from "@/lib/rw-lessons.functions";
 import { cn } from "@/lib/utils";
 
-type Vocab = { word: string; translation_fr: string; definition?: string };
-type Gloss = { translation_fr: string; phonetic?: string; note_fr?: string };
+type Vocab = { word: string; translation_fr: string; definition?: string; part_of_speech?: string };
+type Gloss = { translation_fr: string; phonetic?: string; note_fr?: string; part_of_speech_fr?: string };
 const SPEEDS = [0.6, 0.8, 1, 1.2];
 const cache = new Map<string, Gloss>();
 
@@ -17,8 +20,26 @@ function speak(text: string, voice: SpeechSynthesisVoice | null, rate: number) {
   return u;
 }
 
-export function SmartReader({ body, vocabulary }: { body: string; vocabulary: Vocab[] }) {
+export function SmartReader({ body, vocabulary, lessonId }: { body: string; vocabulary: Vocab[]; lessonId?: string }) {
   const translate = useServerFn(translateRwWord);
+  const qc = useQueryClient();
+  const [saved, setSaved] = useState<Set<string>>(new Set());
+  const [saving, setSaving] = useState(false);
+  async function saveWord() {
+    if (!picked?.gloss || saving) return;
+    setSaving(true);
+    const g = picked.gloss;
+    const { error } = await supabase.from("rw_saved_words").upsert({
+      word: picked.word.toLowerCase().slice(0, 40), translation_fr: g.translation_fr.slice(0, 200),
+      phonetic: g.phonetic?.slice(0, 80) ?? null, part_of_speech: g.part_of_speech_fr?.slice(0, 60) ?? null,
+      sentence: picked.sentence.slice(0, 400), lesson_id: lessonId ?? null,
+    }, { onConflict: "user_id,word" });
+    setSaving(false);
+    if (error) return toast.error("Mot non enregistré. Vérifiez votre connexion et réessayez.");
+    setSaved((s) => new Set(s).add(picked.word.toLowerCase()));
+    qc.invalidateQueries({ queryKey: ["rw-saved-words"] });
+    toast.success("Mot ajouté à votre dictionnaire.");
+  }
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [voiceUri, setVoiceUri] = useState("");
   const [rate, setRate] = useState(1);
@@ -84,7 +105,7 @@ export function SmartReader({ body, vocabulary }: { body: string; vocabulary: Vo
     if (supported) { window.speechSynthesis.cancel(); setState("idle"); window.speechSynthesis.speak(speak(word, voice, 0.85)); }
     const key = word.toLowerCase();
     const v = vocabMap.get(key);
-    if (v) return setPicked({ word, sentence, gloss: { translation_fr: v.translation_fr, note_fr: v.definition } });
+    if (v) return setPicked({ word, sentence, gloss: { translation_fr: v.translation_fr, note_fr: v.definition, part_of_speech_fr: v.part_of_speech } });
     if (cache.has(key + sentence)) return setPicked({ word, sentence, gloss: cache.get(key + sentence) });
     setPicked({ word, sentence });
     try {
@@ -137,6 +158,7 @@ export function SmartReader({ body, vocabulary }: { body: string; vocabulary: Vo
             <div>
               <p className="text-xl font-bold text-primary">{picked.word} {picked.gloss?.phonetic && <span className="text-sm font-normal text-muted-foreground">/{picked.gloss.phonetic.replace(/^\/|\/$/g, "")}/</span>}</p>
               {picked.gloss ? <>
+                {picked.gloss.part_of_speech_fr && <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{picked.gloss.part_of_speech_fr}</p>}
                 <p className="font-semibold">{picked.gloss.translation_fr}</p>
                 {picked.gloss.note_fr && <p className="mt-1 text-sm text-muted-foreground">{picked.gloss.note_fr}</p>}
               </> : picked.err ? <p className="text-sm text-destructive">{picked.err}</p>
@@ -144,6 +166,7 @@ export function SmartReader({ body, vocabulary }: { body: string; vocabulary: Vo
             </div>
             <div className="flex gap-1">
               {supported && <Button size="icon" variant="ghost" aria-label="Prononcer" onClick={() => { window.speechSynthesis.cancel(); window.speechSynthesis.speak(speak(picked.word, voice, 0.85)); }}><Volume2 className="size-4" /></Button>}
+              {picked.gloss && <Button size="icon" variant="ghost" aria-label="Ajouter au dictionnaire" disabled={saving || saved.has(picked.word.toLowerCase())} onClick={saveWord}>{saved.has(picked.word.toLowerCase()) ? <Check className="size-4" /> : saving ? <Loader2 className="size-4 animate-spin" /> : <BookmarkPlus className="size-4" />}</Button>}
               <Button size="icon" variant="ghost" aria-label="Fermer" onClick={() => setPicked(null)}><X className="size-4" /></Button>
             </div>
           </div>

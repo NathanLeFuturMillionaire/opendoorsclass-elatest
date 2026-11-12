@@ -8,6 +8,8 @@ import { RW_PROGRAM } from "@/lib/reading-workshop";
 import { computeRwProgress } from "@/lib/rw-progress";
 import { RwProgressPanel } from "@/components/reading-workshop/rw-progress";
 import { useMemo } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RwDictionary } from "@/components/reading-workshop/rw-dictionary";
 import { RwSubmissionsList, useRwSubmissions } from "@/components/reading-workshop/rw-submissions-list";
 
 export const Route = createFileRoute("/_authenticated/reading-workshop/learner")({
@@ -23,7 +25,9 @@ function LearnerHome() {
   const fetchMe = useServerFn(getRwMe);
   const { data } = useQuery({ queryKey: ["rw-me"], queryFn: () => fetchMe() });
   const me = data?.learner;
-  const { data: subs = [] } = useRwSubmissions("learner");
+  const { data: allSubs = [] } = useRwSubmissions("learner");
+  // Staff can read every row; this space only shows the signed-in learner's own work.
+  const subs = useMemo(() => (me ? allSubs.filter((x) => x.learner_id === me.id) : []), [allSubs, me]);
   const progress = useMemo(() => computeRwProgress(subs, me?.start_date ?? null), [subs, me?.start_date]);
   const week = RW_PROGRAM[progress.currentWeek - 1];
   return (
@@ -46,6 +50,16 @@ function LearnerHome() {
       <RwProgressPanel p={progress} />
       <div className="rounded-2xl border border-border bg-card p-4 text-sm"><span className="font-semibold">Niveau {me?.level ?? "non défini"}</span> · Semaine {progress.currentWeek} : {week?.title}</div>
       <Button asChild><Link to="/reading-workshop/library">Ouvrir la bibliothèque</Link></Button>
+      <Tabs defaultValue="subs">
+        <TabsList className="h-auto flex-wrap">
+          <TabsTrigger value="subs">Mes envois</TabsTrigger>
+          <TabsTrigger value="history">Lectures validées ({progress.validated})</TabsTrigger>
+          <TabsTrigger value="dict">Mon dictionnaire</TabsTrigger>
+        </TabsList>
+        <TabsContent value="subs" className="mt-4"><RwSubmissionsList items={subs} mode="learner" /></TabsContent>
+        <TabsContent value="history" className="mt-4"><RwSubmissionsList items={subs.filter((x) => x.status === "validated")} mode="learner" /></TabsContent>
+        <TabsContent value="dict" className="mt-4"><RwDictionary /></TabsContent>
+      </Tabs>
     </div>
   );
 }

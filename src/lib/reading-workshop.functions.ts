@@ -45,9 +45,13 @@ export const getRwAdminOverview = createServerFn({ method: "GET" })
 export const listRwCoachLearners = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const { data: coach } = await context.supabase.from("rw_coaches").select("id").eq("user_id", context.userId).maybeSingle();
+    if (!coach) return [];
+    // Explicit filter: staff who are also coaches must only see their own learners here.
     const { data, error } = await context.supabase
       .from("rw_learners")
       .select("id, full_name, level, is_active, photo_path, start_date")
+      .eq("coach_id", coach.id)
       .order("full_name");
     if (error) throw new Error(error.message);
     return data ?? [];
