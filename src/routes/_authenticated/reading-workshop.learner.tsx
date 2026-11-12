@@ -47,6 +47,13 @@ function LearnerHome() {
           )}
         </div>
       )}
+      <div className="flex items-start gap-3 rounded-2xl border border-border bg-[var(--rw-soft)] p-4 text-sm">
+        <span aria-hidden className="text-xl">🕤</span>
+        <div>
+          <p className="font-semibold">Horaire officiel du forum</p>
+          <p className="text-muted-foreground">Du lundi au samedi, de 21h30 à 23h30 (heure du Gabon, Libreville) : envois des lectures et échanges avec votre coach.</p>
+        </div>
+      </div>
       <RwProgressPanel p={progress} />
       <div className="rounded-2xl border border-border bg-card p-4 text-sm"><span className="font-semibold">Niveau {me?.level ?? "non défini"}</span> · Semaine {progress.currentWeek} : {week?.title}</div>
       <Button asChild><Link to="/reading-workshop/library">Ouvrir la bibliothèque</Link></Button>
