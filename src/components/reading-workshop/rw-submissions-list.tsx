@@ -10,10 +10,10 @@ import { RwAvatar, RwEmpty } from "@/components/reading-workshop/rw-shell";
 import { RW_STATUS_LABEL, signedRwMedia } from "@/lib/rw-submissions";
 import { cn } from "@/lib/utils";
 
-type Sub = {
+export type Sub = {
   id: string; kind: string; storage_path: string; status: keyof typeof RW_STATUS_LABEL; learner_note: string | null;
-  coach_feedback: string | null; score: number | null; created_at: string; lesson_id: string;
-  rw_lessons: { title: string; level: string } | null; rw_learners: { full_name: string } | null;
+  coach_feedback: string | null; score: number | null; created_at: string; lesson_id: string; learner_id: string;
+  rw_lessons: { title: string; level: string } | null; rw_learners: { full_name: string; level: string; start_date: string | null } | null;
 };
 
 export function useRwSubmissions(key: string, filter?: { lessonId?: string }) {
@@ -21,8 +21,8 @@ export function useRwSubmissions(key: string, filter?: { lessonId?: string }) {
     queryKey: ["rw-my-submissions", key, filter?.lessonId ?? ""],
     queryFn: async () => {
       let q = supabase.from("rw_submissions")
-        .select("id, kind, storage_path, status, learner_note, coach_feedback, score, created_at, lesson_id, rw_lessons(title, level), rw_learners(full_name)")
-        .order("created_at", { ascending: false }).limit(200);
+        .select("id, kind, storage_path, status, learner_note, coach_feedback, score, created_at, lesson_id, learner_id, rw_lessons(title, level), rw_learners(full_name, level, start_date)")
+        .order("created_at", { ascending: false }).limit(1000);
       if (filter?.lessonId) q = q.eq("lesson_id", filter.lessonId);
       const { data, error } = await q;
       if (error) throw new Error(error.message);

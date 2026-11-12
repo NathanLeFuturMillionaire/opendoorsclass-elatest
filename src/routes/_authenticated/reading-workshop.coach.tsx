@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { RwAvatar, RwEmpty, RwShell, RwStat } from "@/components/reading-workshop/rw-shell";
+import { RwShell, RwStat } from "@/components/reading-workshop/rw-shell";
 import { useState } from "react";
 import { listRwCoachLearners } from "@/lib/reading-workshop.functions";
 import { RwSubmissionsList, useRwSubmissions } from "@/components/reading-workshop/rw-submissions-list";
 import { cn } from "@/lib/utils";
+import { RwProgressTable } from "@/components/reading-workshop/rw-progress-table";
 
 export const Route = createFileRoute("/_authenticated/reading-workshop/coach")({
   head: () => ({ meta: [{ title: "Espace coach, Reading Workshop OpenDoorsClass" }] }),
@@ -37,19 +38,8 @@ function CoachHome() {
         </div>
         <RwSubmissionsList items={subs.filter((x) => x.status === tab)} mode="coach" />
       </section>
-      <h3 className="text-xl font-bold">Mes apprenants</h3>
-      {data.length === 0 ? (
-        <RwEmpty title="Aucun apprenant pour le moment" text="Les apprenants qui vous sont confiés apparaîtront ici." />
-      ) : (
-        <ul className="divide-y divide-border rounded-2xl border border-border bg-card">
-          {data.map((l) => (
-            <li key={l.id} className="flex items-center justify-between p-4">
-              <span className="flex items-center gap-3 font-medium"><RwAvatar name={l.full_name} url={null} size={36} />{l.full_name}</span>
-              <span className="rounded-full bg-[var(--rw-soft)] px-3 py-1 text-xs font-semibold text-primary">{l.level}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+      <h3 className="text-xl font-bold">Suivi de mes apprenants</h3>
+      <RwProgressTable learners={data} subs={subs} reportName="suivi-apprenants" />
     </div>
   );
 }

@@ -47,7 +47,7 @@ export const listRwCoachLearners = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("rw_learners")
-      .select("id, full_name, level, is_active, photo_path")
+      .select("id, full_name, level, is_active, photo_path, start_date")
       .order("full_name");
     if (error) throw new Error(error.message);
     return data ?? [];
