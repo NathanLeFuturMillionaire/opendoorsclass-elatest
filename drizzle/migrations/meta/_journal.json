@@ -57,6 +57,13 @@
       "when": 1794493878665,
       "tag": "0007_rw_saved_words",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794494302362,
+      "tag": "0008_rw_placement_suggestion",
+      "breakpoints": true
     }
   ]
 }

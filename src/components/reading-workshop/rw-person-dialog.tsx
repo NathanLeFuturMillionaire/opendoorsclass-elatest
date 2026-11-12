@@ -40,6 +40,22 @@ export function RwPersonDialog({ open, onOpenChange, kind, person, coaches, onSa
     setPreview(person?.photo_url ?? null);
   }, [open, person]);
 
+  // Placement test suggestion (staff-only database check); the admin keeps the final say.
+  const [suggest, setSuggest] = useState<{ level: RwLevel; tested_at: string | null } | null>(null);
+  useEffect(() => {
+    setSuggest(null);
+    const email = f.email.trim();
+    if (!open || kind !== "learner" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    let alive = true;
+    const t = setTimeout(async () => {
+      const { data, error } = await supabase.rpc("rw_placement_suggestion", { _email: email });
+      const row = Array.isArray(data) ? data[0] : null;
+      if (!alive || error || !row?.level || !RW_LEVELS.some((l) => l.code === row.level)) return;
+      setSuggest({ level: row.level as RwLevel, tested_at: row.tested_at });
+    }, 500);
+    return () => { alive = false; clearTimeout(t); };
+  }, [f.email, open, kind]);
+
   async function onPhoto(file?: File) {
     if (!file) return;
     if (!file.type.startsWith("image/")) return toast.error("Choisissez une image.");
@@ -91,6 +107,13 @@ export function RwPersonDialog({ open, onOpenChange, kind, person, coaches, onSa
             <Input id="rw-name" required value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} /></div>
           <div className="space-y-1.5"><Label htmlFor="rw-email">Adresse e-mail (pour le lien d'accès)</Label>
             <Input id="rw-email" type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
+          {kind === "learner" && suggest && (
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[var(--rw-soft)] p-3 text-sm">
+              <span>Niveau recommandé par le test de niveau : <strong>{suggest.level}</strong>{suggest.tested_at ? ` (test du ${new Date(suggest.tested_at).toLocaleDateString("fr-FR")})` : ""}</span>
+              {f.level !== suggest.level ? <Button type="button" size="sm" variant="outline" onClick={() => setF((cur) => ({ ...cur, level: suggest.level }))}>Appliquer</Button>
+                : <span className="text-xs font-semibold text-primary">Appliqué</span>}
+            </div>
+          )}
           {kind === "learner" ? (
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5"><Label>Niveau</Label>

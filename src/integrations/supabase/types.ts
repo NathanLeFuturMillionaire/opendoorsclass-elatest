@@ -1649,6 +1649,13 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      rw_placement_suggestion: {
+        Args: { _email: string }
+        Returns: {
+          level: string
+          tested_at: string
+        }[]
+      }
       save_english_speaking_answer: {
         Args: {
           _answer: string
