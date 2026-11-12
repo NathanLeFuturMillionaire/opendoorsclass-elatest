@@ -15,7 +15,7 @@ export const submitMyReview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => ReviewInput.parse(input))
   .handler(async ({ data, context }) => {
-    const clean = (s: string) => s.replace(/[—–]/g, ",");
+    const clean = (s: string) => s.replace(/[\u2014\u2013]/g, ",");
     const { data: last } = await context.supabase
       .from("test_sessions")
       .select("level_result")

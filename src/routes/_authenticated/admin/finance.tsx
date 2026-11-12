@@ -45,7 +45,7 @@ function formatUSD(n: number) {
   return `≈ $${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(Math.round(n / FCFA_PER_USD))}`;
 }
 function formatDateTime(iso: string | null) {
-  if (!iso) return "—";
+  if (!iso) return "Non renseigné";
   return new Date(iso).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
 }
 
@@ -570,16 +570,16 @@ function FinancePage() {
                     <TableRow key={r.id}>
                       <TableCell className="whitespace-nowrap text-xs">{formatDateTime(r.confirmed_at ?? r.created_at)}</TableCell>
                       <TableCell>
-                        <div className="font-medium">{r.first_name ?? "—"} {r.last_name ?? ""}</div>
+                        <div className="font-medium">{r.first_name ?? "Non renseigné"} {r.last_name ?? ""}</div>
                         {r.candidate_number && (
                           <div className="text-xs text-muted-foreground">{r.candidate_number}</div>
                         )}
                       </TableCell>
-                      <TableCell className="text-xs">{r.email ?? "—"}</TableCell>
+                      <TableCell className="text-xs">{r.email ?? "Non renseigné"}</TableCell>
                       <TableCell className="whitespace-nowrap text-xs tabular-nums">
-                        {r.phone ? toInternational(r.phone_country ?? "", r.phone) : "—"}
+                        {r.phone ? toInternational(r.phone_country ?? "", r.phone) : "Non renseigné"}
                       </TableCell>
-                      <TableCell className="text-xs">{r.country ?? "—"}</TableCell>
+                      <TableCell className="text-xs">{r.country ?? "Non renseigné"}</TableCell>
                       <TableCell className="text-right tabular-nums">
                         {new Intl.NumberFormat("fr-FR").format(r.amount)} {r.currency}
                       </TableCell>
@@ -604,12 +604,12 @@ function FinancePage() {
                           {r.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-xs">{r.level ?? "—"}</TableCell>
+                      <TableCell className="text-xs">{r.level ?? "Non renseigné"}</TableCell>
                       <TableCell className="max-w-[160px] truncate text-xs text-muted-foreground" title={r.transaction_id ?? ""}>
-                        {r.transaction_id ?? "—"}
+                        {r.transaction_id ?? "Non renseigné"}
                       </TableCell>
                       <TableCell className="max-w-[160px] truncate text-xs text-muted-foreground" title={r.reference ?? ""}>
-                        {r.reference ?? "—"}
+                        {r.reference ?? "Non renseigné"}
                       </TableCell>
                       <TableCell className="text-right">
                         {UNPAID_STATUSES.has(r.status) ? (
@@ -636,9 +636,7 @@ function FinancePage() {
                             <MessageCircle className="mr-1.5 size-3.5" />
                             Relancer
                           </Button>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
-                        )}
+                        ) : null}
                       </TableCell>
                     </TableRow>
                   ))
@@ -656,8 +654,8 @@ function FinancePage() {
                 <div key={r.id} className="rounded-xl border border-border/60 p-4 text-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="truncate font-medium">{r.first_name ?? "—"} {r.last_name ?? ""}</div>
-                      <div className="truncate text-xs text-muted-foreground">{r.email ?? r.candidate_number ?? "—"}</div>
+                      <div className="truncate font-medium">{r.first_name ?? "Non renseigné"} {r.last_name ?? ""}</div>
+                      <div className="truncate text-xs text-muted-foreground">{r.email ?? r.candidate_number ?? "Non renseigné"}</div>
                     </div>
                     <Badge
                       variant={r.status === "success" ? "default" : r.status === "pending" ? "secondary" : "destructive"}
@@ -680,17 +678,17 @@ function FinancePage() {
                     <dt className="text-muted-foreground">Produit</dt>
                     <dd className="truncate text-right">{productLabel(r.offer_code, r.credits_added)}</dd>
                     <dt className="text-muted-foreground">Téléphone</dt>
-                    <dd className="text-right tabular-nums">{r.phone ? toInternational(r.phone_country ?? "", r.phone) : "—"}</dd>
+                    <dd className="text-right tabular-nums">{r.phone ? toInternational(r.phone_country ?? "", r.phone) : "Non renseigné"}</dd>
                     <dt className="text-muted-foreground">Pays</dt>
-                    <dd className="text-right">{r.country ?? "—"}</dd>
+                    <dd className="text-right">{r.country ?? "Non renseigné"}</dd>
                     <dt className="text-muted-foreground">Moyen</dt>
                     <dd className="text-right capitalize">{r.method}</dd>
                     <dt className="text-muted-foreground">Niveau</dt>
-                    <dd className="text-right">{r.level ?? "—"}</dd>
+                    <dd className="text-right">{r.level ?? "Non renseigné"}</dd>
                     <dt className="text-muted-foreground">Transaction</dt>
-                    <dd className="truncate text-right text-muted-foreground">{r.transaction_id ?? "—"}</dd>
+                    <dd className="truncate text-right text-muted-foreground">{r.transaction_id ?? "Non renseigné"}</dd>
                     <dt className="text-muted-foreground">Référence</dt>
-                    <dd className="truncate text-right text-muted-foreground">{r.reference ?? "—"}</dd>
+                    <dd className="truncate text-right text-muted-foreground">{r.reference ?? "Non renseigné"}</dd>
                   </dl>
                   {UNPAID_STATUSES.has(r.status) ? (
                     <Button

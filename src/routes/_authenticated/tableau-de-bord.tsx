@@ -143,7 +143,7 @@ function DashboardPage() {
               <h2 className="text-lg font-semibold">{t("dash.best")}</h2>
             </div>
             <p className="mt-2 text-3xl font-black text-brand-gradient">
-              {bestLevel(history) ?? "—"}
+              {bestLevel(history) ?? "Aucun"}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
               {t("dash.best.hint").replace("{n}", String(history?.filter((h) => h.completed_at).length ?? 0))}
@@ -208,8 +208,8 @@ function DashboardPage() {
                           <Badge variant="secondary">{t("dash.status.progress")}</Badge>
                         )}
                       </td>
-                      <td className="px-4 py-3 font-semibold">{s.level_result ?? "—"}</td>
-                      <td className="px-4 py-3">{s.score != null ? `${s.score}%` : "—"}</td>
+                      <td className="px-4 py-3 font-semibold">{s.level_result ?? "Non renseigné"}</td>
+                      <td className="px-4 py-3">{s.score != null ? `${s.score}%` : "Non renseigné"}</td>
                       <td className="px-4 py-3 text-right">
                         {s.completed_at ? (
                           <Button asChild size="sm" variant="ghost">
@@ -217,9 +217,7 @@ function DashboardPage() {
                               {t("dash.view")} <ArrowRight className="ml-1 size-3.5" />
                             </Link>
                           </Button>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
-                        )}
+                        ) : null}
                       </td>
                     </tr>
                   ))}
@@ -270,7 +268,7 @@ function AssessmentBlock({
           <p className="mt-3 text-sm text-muted-foreground">
             {locale === "en" ? "Level" : "Niveau"} :{" "}
             <span className="text-base font-bold text-foreground">
-              {last.level_result ?? "—"}
+              {last.level_result ?? "Non renseigné"}
             </span>
           </p>
           <p className="text-sm text-muted-foreground">

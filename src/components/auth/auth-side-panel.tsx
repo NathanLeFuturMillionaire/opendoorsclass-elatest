@@ -20,7 +20,7 @@ function StatTile({
     <div className="rounded-2xl border border-primary-foreground/15 bg-primary-foreground/10 p-4 backdrop-blur">
       <Icon className="size-5 text-primary-foreground/80" aria-hidden />
       <p className="mt-3 font-display text-2xl font-bold text-primary-foreground">
-        {value === undefined ? "—" : new Intl.NumberFormat("fr-FR").format(value)}
+        {value === undefined ? "…" : new Intl.NumberFormat("fr-FR").format(value)}
       </p>
       <p className="mt-0.5 text-xs leading-snug text-primary-foreground/70">{label}</p>
     </div>

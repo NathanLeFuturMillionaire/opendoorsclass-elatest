@@ -240,7 +240,7 @@ export const generateAIRecommendations = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("Service IA indisponible.");
 
-    const prompt = `Tu es un coach d'anglais pour la plateforme OpenDoorsClass. Rédige un plan de travail personnalisé et motivant en français, 200 mots maximum, structuré en 3 sections courtes: 1) Points forts, 2) Points à travailler, 3) Plan sur 4 semaines avec 3 actions concrètes par semaine. Utilise un ton chaleureux et professionnel. N'utilise jamais de tiret cadratin (—) ni de tiret demi-cadratin (–). Utilise des virgules, deux-points ou points.
+    const prompt = `Tu es un coach d'anglais pour la plateforme OpenDoorsClass. Rédige un plan de travail personnalisé et motivant en français, 200 mots maximum, structuré en 3 sections courtes: 1) Points forts, 2) Points à travailler, 3) Plan sur 4 semaines avec 3 actions concrètes par semaine. Utilise un ton chaleureux et professionnel. N'utilise jamais de tiret cadratin ni de tiret demi-cadratin. Utilise des virgules, deux-points ou points.
 
 Prénom: ${profile?.first_name ?? "Candidat"}
 Objectifs: ${(profile?.objectives ?? []).join(", ") || "Non précisés"}
@@ -269,7 +269,7 @@ Détail par compétence (JSON): ${JSON.stringify(last.per_category_scores)}`;
     const content = json.choices?.[0]?.message?.content?.trim();
     if (!content) throw new Error("Aucune recommandation générée.");
 
-    const cleaned = content.replace(/[—–]/g, ",");
+    const cleaned = content.replace(/[\u2014\u2013]/g, ",");
     await context.supabase
       .from("profiles")
       .update({

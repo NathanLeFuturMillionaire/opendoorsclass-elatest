@@ -48,8 +48,8 @@ function UsersPage() {
                     const isMod = u.roles.includes("moderator");
                     return (
                       <tr key={u.user_id} className="border-b last:border-0 hover:bg-muted/20">
-                        <td className="p-3">{u.profile ? `${u.profile.first_name ?? ""} ${u.profile.last_name ?? ""}`.trim() || "—" : "—"}</td>
-                        <td className="p-3 text-xs">{u.email ?? "—"}</td>
+                        <td className="p-3">{u.profile ? `${u.profile.first_name ?? ""} ${u.profile.last_name ?? ""}`.trim() || "Non renseigné" : "Non renseigné"}</td>
+                        <td className="p-3 text-xs">{u.email ?? "Non renseigné"}</td>
                         <td className="p-3 space-x-1">
                           {u.roles.map((r: string) => <Badge key={r} variant={r === "owner" ? "default" : "outline"}>{r}</Badge>)}
                         </td>

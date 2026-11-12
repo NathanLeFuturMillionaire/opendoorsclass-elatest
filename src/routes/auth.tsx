@@ -445,7 +445,7 @@ function AuthPage() {
                       <span>
                         {detectedCountry.flag}{" "}
                         {locale === "fr" ? detectedCountry.fr : detectedCountry.en}
-                        {" — "}
+                        {" · "}
                         {t("authx.country.auto")}
                       </span>
                     ) : null}

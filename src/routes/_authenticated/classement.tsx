@@ -97,8 +97,8 @@ function LeaderboardPage() {
                       {r.rank === 1 ? "🥇" : r.rank === 2 ? "🥈" : r.rank === 3 ? "🥉" : `#${r.rank}`}
                     </td>
                     <td className="px-4 py-3">{r.display_name}</td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">{r.country ?? "—"}</td>
-                    <td className="px-4 py-3 font-semibold">{r.cefr_level ?? "—"}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{r.country ?? "Non renseigné"}</td>
+                    <td className="px-4 py-3 font-semibold">{r.cefr_level ?? "Non renseigné"}</td>
                     <td className="px-4 py-3 text-right font-bold text-amber-600">{r.total_xp.toLocaleString()}</td>
                     <td className="px-4 py-3 text-right">Lv. {r.current_level}</td>
                   </tr>

@@ -31,7 +31,7 @@ function CertificatesPage() {
                 <tbody>
                   {(data ?? []).map((c: any) => (
                     <tr key={c.id} className="border-b last:border-0 hover:bg-muted/20">
-                      <td className="p-3">{c.profile ? `${c.profile.first_name ?? ""} ${c.profile.last_name ?? ""}`.trim() : "—"}</td>
+                      <td className="p-3">{c.profile ? `${c.profile.first_name ?? ""} ${c.profile.last_name ?? ""}`.trim() : "Non renseigné"}</td>
                       <td className="p-3 font-mono text-xs">ODC-{c.id.slice(0, 8).toUpperCase()}</td>
                       <td className="p-3">{Math.round(c.score ?? 0)}%</td>
                       <td className="p-3"><Badge variant="outline">{c.level_result}</Badge></td>

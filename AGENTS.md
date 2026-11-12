@@ -11,3 +11,4 @@
 
 English Speaking captures complete PCM WAV through an AudioWorklet, saves immutable private original audio before transcription, and consumes authoritative final transcript events in ordered standalone segments, so browser preview recognition cannot lose or duplicate the submitted answer.
 Speaking answers use a service-only atomic JSON field update and recording references; original playback is restricted to the candidate and existing owner, admin or moderator roles, so concurrent saves and private coach review remain safe.
+Text shown to users never contains an em dash, en dash or non-breaking hyphen; `src/lib/no-em-dash.test.ts` scans every file in `src` for those code points, so write empty-value markers and separators with plain words or a middle dot, and keep AI prompts free of those characters too.

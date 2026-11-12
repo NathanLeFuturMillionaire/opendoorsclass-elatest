@@ -406,13 +406,13 @@ function ProfilePage() {
               <StatCard
                 icon={Trophy}
                 label="Meilleur score"
-                value={profile.bestScore != null ? `${profile.bestScore}%` : "—"}
+                value={profile.bestScore != null ? `${profile.bestScore}%` : "Aucun"}
                 sub={profile.bestLevel ? `Niveau ${profile.bestLevel}` : "Pas de test"}
               />
               <StatCard
                 icon={Award}
                 label="Dernier niveau"
-                value={profile.lastLevel ?? "—"}
+                value={profile.lastLevel ?? "Aucun"}
                 sub={
                   profile.lastScore != null ? `${profile.lastScore}% au dernier` : ""
                 }
@@ -423,7 +423,7 @@ function ProfilePage() {
                 value={
                   profile.avgDurationSeconds
                     ? `${Math.round(profile.avgDurationSeconds / 60)} min`
-                    : "—"
+                    : "Aucun"
                 }
                 sub="par session"
               />
@@ -573,7 +573,7 @@ function ProfilePage() {
                           {last ? (
                             <>
                               <div className="mt-1 text-xs text-muted-foreground">
-                                Niveau {last.level_result ?? "—"} , {fmtDate(last.completed_at)}
+                                Niveau {last.level_result ?? "Non renseigné"} , {fmtDate(last.completed_at)}
                               </div>
                               <Button asChild size="sm" variant="outline" className="mt-3">
                                 <Link to="/resultat/$id" params={{ id: last.id }}>
@@ -611,7 +611,7 @@ function ProfilePage() {
                               </div>
                               <div className="text-sm">
                                 {fmtDate(s.completed_at)} , Niveau{" "}
-                                {s.level_result ?? "—"}
+                                {s.level_result ?? "Non renseigné"}
                               </div>
                               <div className="text-xs text-muted-foreground">
                                 Score {s.score ?? 0}%

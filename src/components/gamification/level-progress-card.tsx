@@ -25,7 +25,7 @@ export function LevelProgressCard({ xp }: { xp: number }) {
               OpenDoors Level
             </p>
             <p className="text-lg font-bold">
-              Level {info.level} <span className="text-muted-foreground font-medium">— {info.name}</span>
+              Level {info.level} <span className="text-muted-foreground font-medium">· {info.name}</span>
             </p>
           </div>
         </div>

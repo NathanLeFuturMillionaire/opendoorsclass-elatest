@@ -31,10 +31,10 @@ function JournalPage() {
                   {(data ?? []).map((r: any) => (
                     <tr key={r.id} className="border-b last:border-0 hover:bg-muted/20">
                       <td className="p-3 text-xs">{new Date(r.created_at).toLocaleString("fr-FR")}</td>
-                      <td className="p-3">{r.actor ? `${r.actor.first_name ?? ""} ${r.actor.last_name ?? ""}`.trim() : "—"}</td>
+                      <td className="p-3">{r.actor ? `${r.actor.first_name ?? ""} ${r.actor.last_name ?? ""}`.trim() : "Non renseigné"}</td>
                       <td className="p-3"><Badge variant="outline">{r.action}</Badge></td>
-                      <td className="p-3 text-xs font-mono">{r.entity_type ? `${r.entity_type}:${(r.entity_id ?? "").slice(0, 8)}` : "—"}</td>
-                      <td className="p-3 text-xs">{r.ip_address ?? "—"}</td>
+                      <td className="p-3 text-xs font-mono">{r.entity_type ? `${r.entity_type}:${(r.entity_id ?? "").slice(0, 8)}` : "Non renseigné"}</td>
+                      <td className="p-3 text-xs">{r.ip_address ?? "Non renseigné"}</td>
                     </tr>
                   ))}
                   {(data ?? []).length === 0 && <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">Aucune activité.</td></tr>}
