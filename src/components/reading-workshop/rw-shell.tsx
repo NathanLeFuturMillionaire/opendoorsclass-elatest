@@ -53,8 +53,13 @@ export function RwShell({ need, title, subtitle, children }: { need: Need; title
           </div>
         ) : (
           <>
-            <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{title}</h1>
-            {subtitle && <p className="mt-1 text-muted-foreground">{subtitle}</p>}
+            <div className="relative overflow-hidden rounded-3xl p-7 text-primary-foreground shadow-[var(--rw-shadow)] sm:p-10" style={{ backgroundImage: "var(--rw-gradient)" }}>
+              <div aria-hidden className="absolute -right-16 -top-16 size-56 rounded-full bg-background/10" />
+              <div aria-hidden className="absolute -bottom-20 right-24 size-40 rounded-full bg-background/10" />
+              <p className="relative text-xs font-semibold uppercase tracking-[0.25em] opacity-80">Reading Workshop</p>
+              <h1 className="relative mt-2 text-2xl font-extrabold tracking-tight sm:text-4xl">{title}</h1>
+              {subtitle && <p className="relative mt-2 max-w-2xl opacity-90">{subtitle}</p>}
+            </div>
             <div className="mt-8">{children}</div>
           </>
         )}
@@ -73,8 +78,8 @@ function RwTab({ to, icon, label }: { to: "/reading-workshop/admin" | "/reading-
 
 export function RwStat({ label, value, hint }: { label: string; value: ReactNode; hint?: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-      <p className="text-sm text-muted-foreground">{label}</p>
+    <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-[var(--rw-shadow)] transition-transform hover:-translate-y-0.5">
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className="mt-1 text-3xl font-extrabold text-primary">{value}</p>
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </div>
@@ -87,5 +92,14 @@ export function RwEmpty({ title, text }: { title: string; text: string }) {
       <p className="font-semibold">{title}</p>
       <p className="mt-1 text-sm text-muted-foreground">{text}</p>
     </div>
+  );
+}
+
+export function RwAvatar({ name, url, size = 44 }: { name: string; url?: string | null; size?: number }) {
+  const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("");
+  return url ? (
+    <img src={url} alt={name} width={size} height={size} className="shrink-0 rounded-full object-cover ring-2 ring-background shadow" style={{ width: size, height: size }} />
+  ) : (
+    <span className="flex shrink-0 items-center justify-center rounded-full bg-[var(--rw-soft)] font-bold text-primary ring-2 ring-background" style={{ width: size, height: size, fontSize: size / 2.8 }}>{initials || "?"}</span>
   );
 }

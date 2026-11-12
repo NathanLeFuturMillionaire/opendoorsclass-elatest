@@ -296,6 +296,8 @@ html {
   --ring: oklch(0.6 0.14 162);
   --rw-deep: oklch(0.56 0.13 162);
   --rw-soft: oklch(0.97 0.02 162);
+  --rw-gradient: linear-gradient(135deg, oklch(0.56 0.13 162), oklch(0.7 0.15 158) 60%, oklch(0.78 0.13 150));
+  --rw-shadow: 0 18px 40px -22px color-mix(in oklab, oklch(0.56 0.13 162) 55%, transparent);
 }
 .dark .rw-theme {
   --primary: oklch(0.72 0.15 162);
