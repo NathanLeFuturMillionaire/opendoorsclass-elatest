@@ -71,6 +71,20 @@
       "when": 1794824170965,
       "tag": "0009_rw_comprehension_answers",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794824960513,
+      "tag": "0010_rw_progressive_unlock",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794824992569,
+      "tag": "0011_rw_lock_questions_answers",
+      "breakpoints": true
     }
   ]
 }

@@ -23,5 +23,5 @@
 - [x] Phase 0 : audit et plan d'intégration (en attente d'approbation)
 - [x] Phase 1 : questions sur 20, sauvegarde serveur, correction auto et coach, notes séparées
 - [ ] Phase 1 bis : passer les ~85 textes publiés de 5 à 10 questions (rédaction manuelle)
-- [ ] Phase 2 : déblocage progressif (corriger aussi : un apprenant ne doit pas pouvoir changer le statut de son envoi)
+- [x] Phase 2 : déblocage progressif (corriger aussi : un apprenant ne doit pas pouvoir changer le statut de son envoi)
 - [ ] Phases 3 à 8

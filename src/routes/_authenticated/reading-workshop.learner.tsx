@@ -9,6 +9,7 @@ import { computeRwProgress } from "@/lib/rw-progress";
 import { RwProgressPanel } from "@/components/reading-workshop/rw-progress";
 import { useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RwLessonPath } from "@/components/reading-workshop/rw-lesson-path";
 import { RwDictionary } from "@/components/reading-workshop/rw-dictionary";
 import { RwSubmissionsList, useRwSubmissions } from "@/components/reading-workshop/rw-submissions-list";
 
@@ -57,12 +58,14 @@ function LearnerHome() {
       <RwProgressPanel p={progress} />
       <div className="rounded-2xl border border-border bg-card p-4 text-sm"><span className="font-semibold">Niveau {me?.level ?? "non défini"}</span> · Semaine {progress.currentWeek} : {week?.title}</div>
       <Button asChild><Link to="/reading-workshop/library">Ouvrir la bibliothèque</Link></Button>
-      <Tabs defaultValue="subs">
+      <Tabs defaultValue="path">
         <TabsList className="h-auto flex-wrap">
+          <TabsTrigger value="path">Mon parcours</TabsTrigger>
           <TabsTrigger value="subs">Mes envois</TabsTrigger>
           <TabsTrigger value="history">Lectures validées ({progress.validated})</TabsTrigger>
           <TabsTrigger value="dict">Mon dictionnaire</TabsTrigger>
         </TabsList>
+        <TabsContent value="path" className="mt-4"><RwLessonPath /></TabsContent>
         <TabsContent value="subs" className="mt-4"><RwSubmissionsList items={subs} mode="learner" /></TabsContent>
         <TabsContent value="history" className="mt-4"><RwSubmissionsList items={subs.filter((x) => x.status === "validated")} mode="learner" /></TabsContent>
         <TabsContent value="dict" className="mt-4"><RwDictionary /></TabsContent>

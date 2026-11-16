@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 export type Sub = {
   id: string; kind: string; storage_path: string; status: keyof typeof RW_STATUS_LABEL; learner_note: string | null;
-  coach_feedback: string | null; score: number | null; reading_score: number | null; pronunciation_score: number | null; fluency_score: number | null; created_at: string; lesson_id: string; learner_id: string;
+  coach_feedback: string | null; score: number | null; reading_score: number | null; pronunciation_score: number | null; fluency_score: number | null; rework_passages?: string | null; created_at: string; lesson_id: string; learner_id: string;
   rw_lessons: { title: string; level: string } | null; rw_learners: { full_name: string; level: string; start_date: string | null } | null;
 };
 
@@ -22,7 +22,7 @@ export function useRwSubmissions(key: string, filter?: { lessonId?: string }) {
     queryKey: ["rw-my-submissions", key, filter?.lessonId ?? ""],
     queryFn: async () => {
       let q = supabase.from("rw_submissions")
-        .select("id, kind, storage_path, status, learner_note, coach_feedback, score, reading_score, pronunciation_score, fluency_score, created_at, lesson_id, learner_id, rw_lessons(title, level), rw_learners(full_name, level, start_date)")
+        .select("id, kind, storage_path, status, learner_note, coach_feedback, score, reading_score, pronunciation_score, fluency_score, rework_passages, created_at, lesson_id, learner_id, rw_lessons(title, level), rw_learners(full_name, level, start_date)")
         .order("created_at", { ascending: false }).limit(1000);
       if (filter?.lessonId) q = q.eq("lesson_id", filter.lessonId);
       const { data, error } = await q;
@@ -46,20 +46,24 @@ function Review({ s }: { s: Sub }) {
   const [score, setScore] = useState(s.score?.toString() ?? "");
   const [skills, setSkills] = useState({ reading: s.reading_score?.toString() ?? "", pronunciation: s.pronunciation_score?.toString() ?? "", fluency: s.fluency_score?.toString() ?? "" });
   const to20 = (v: string) => (v === "" ? null : Math.max(0, Math.min(20, Math.round(Number(v)))));
+  const [passages, setPassages] = useState(s.rework_passages ?? "");
   const [busy, setBusy] = useState(false);
   async function decide(status: "validated" | "redo") {
     if (status === "redo" && !fb.trim()) return toast.error("Expliquez à l'apprenant ce qu'il doit améliorer.");
     const n = score === "" ? null : Math.max(0, Math.min(20, Math.round(Number(score))));
     setBusy(true);
-    const { error } = await supabase.from("rw_submissions").update({ status, coach_feedback: fb.trim() || null, score: n, reading_score: to20(skills.reading), pronunciation_score: to20(skills.pronunciation), fluency_score: to20(skills.fluency) }).eq("id", s.id);
+    const { error } = await supabase.from("rw_submissions").update({ status, coach_feedback: fb.trim() || null, score: n, reading_score: to20(skills.reading), pronunciation_score: to20(skills.pronunciation), fluency_score: to20(skills.fluency), rework_passages: passages.trim() || null }).eq("id", s.id);
     setBusy(false);
-    if (error) return toast.error("Correction non enregistrée.");
+    if (error) return toast.error(error.message || "Correction non enregistrée.");
     toast.success(status === "validated" ? "Lecture validée." : "Reprise demandée.");
     qc.invalidateQueries({ queryKey: ["rw-my-submissions"] });
+    qc.invalidateQueries({ queryKey: ["rw-history"] });
+    qc.invalidateQueries({ queryKey: ["rw-lesson-states"] });
   }
   return (
     <div className="space-y-2 border-t border-border pt-3">
       <Textarea value={fb} onChange={(e) => setFb(e.target.value)} placeholder="Votre retour : prononciation, fluidité, intonation…" maxLength={2000} />
+      <Textarea value={passages} onChange={(e) => setPassages(e.target.value)} placeholder="Passages à retravailler (facultatif)" maxLength={2000} className="min-h-16" />
       <div className="flex flex-wrap items-center gap-2">
         <Input type="number" min={0} max={20} value={score} onChange={(e) => setScore(e.target.value)} placeholder="Note globale /20" className="w-36" aria-label="Reading Performance sur 20" />
         <Input type="number" min={0} max={20} value={skills.reading} onChange={(e) => setSkills({ ...skills, reading: e.target.value })} placeholder="Lecture /20" className="w-28" aria-label="Lecture orale sur 20" />
@@ -95,7 +99,7 @@ export function RwSubmissionsList({ items, mode }: { items: Sub[]; mode: "learne
             </div>
             <Media s={s} />
             {s.learner_note && <p className="text-sm italic text-muted-foreground">« {s.learner_note} »</p>}
-            {mode === "learner" && s.coach_feedback && <div className="rounded-xl bg-[var(--rw-soft)] p-3 text-sm"><p className="text-xs font-semibold text-primary">Retour du coach</p><p>{s.coach_feedback}</p></div>}
+            {mode === "learner" && s.coach_feedback && <div className="rounded-xl bg-[var(--rw-soft)] p-3 text-sm"><p className="text-xs font-semibold text-primary">Retour du coach</p><p>{s.coach_feedback}</p>{s.rework_passages && <><p className="mt-2 text-xs font-semibold text-primary">Passages à retravailler</p><p className="whitespace-pre-line">{s.rework_passages}</p></>}</div>}
             {(s.reading_score !== null || s.pronunciation_score !== null || s.fluency_score !== null) && (
               <div className="flex flex-wrap gap-2 text-xs">
                 {s.reading_score !== null && <span className="rounded-full bg-muted px-2.5 py-1">Reading Performance {s.reading_score}/20</span>}
@@ -104,10 +108,32 @@ export function RwSubmissionsList({ items, mode }: { items: Sub[]; mode: "learne
               </div>
             )}
             {mode === "coach" && <RwAnswersReview lessonId={s.lesson_id} learnerId={s.learner_id} />}
+            <History id={s.id} />
             {mode === "coach" && <Review s={s} />}
           </li>
         );
       })}
     </ul>
+  );
+}
+
+function History({ id }: { id: string }) {
+  const { data = [] } = useQuery({
+    queryKey: ["rw-history", id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("rw_submission_history").select("id, old_status, new_status, score, created_at").eq("submission_id", id).order("created_at");
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    },
+  });
+  if (data.length < 2) return null;
+  const label = (v: string | null) => (v ? RW_STATUS_LABEL[v as keyof typeof RW_STATUS_LABEL] ?? v : "Nouveau");
+  return (
+    <details className="text-xs text-muted-foreground">
+      <summary className="cursor-pointer font-medium">Historique ({data.length})</summary>
+      <ul className="mt-1 space-y-0.5">
+        {data.map((h) => <li key={h.id}>{new Date(h.created_at).toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} · {label(h.old_status)} vers {label(h.new_status)}{h.score !== null ? ` · ${h.score}/20` : ""}</li>)}
+      </ul>
+    </details>
   );
 }

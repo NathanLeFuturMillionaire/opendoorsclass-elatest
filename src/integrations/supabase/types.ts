@@ -1167,6 +1167,53 @@ export type Database = {
           },
         ]
       }
+      rw_submission_history: {
+        Row: {
+          actor: string | null
+          created_at: string
+          feedback: string | null
+          id: string
+          learner_id: string
+          lesson_id: string
+          new_status: string
+          old_status: string | null
+          score: number | null
+          submission_id: string
+        }
+        Insert: {
+          actor?: string | null
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          learner_id: string
+          lesson_id: string
+          new_status: string
+          old_status?: string | null
+          score?: number | null
+          submission_id: string
+        }
+        Update: {
+          actor?: string | null
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          learner_id?: string
+          lesson_id?: string
+          new_status?: string
+          old_status?: string | null
+          score?: number | null
+          submission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_submission_history_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "rw_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rw_submissions: {
         Row: {
           coach_feedback: string | null
@@ -1182,6 +1229,7 @@ export type Database = {
           reading_score: number | null
           reviewed_at: string | null
           reviewed_by: string | null
+          rework_passages: string | null
           score: number | null
           size_bytes: number | null
           status: Database["public"]["Enums"]["rw_submission_status"]
@@ -1202,6 +1250,7 @@ export type Database = {
           reading_score?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          rework_passages?: string | null
           score?: number | null
           size_bytes?: number | null
           status?: Database["public"]["Enums"]["rw_submission_status"]
@@ -1222,6 +1271,7 @@ export type Database = {
           reading_score?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          rework_passages?: string | null
           score?: number | null
           size_bytes?: number | null
           status?: Database["public"]["Enums"]["rw_submission_status"]
@@ -1238,6 +1288,48 @@ export type Database = {
           },
           {
             foreignKeyName: "rw_submissions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "rw_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rw_unlock_overrides: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          learner_id: string
+          lesson_id: string
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          learner_id: string
+          lesson_id: string
+          reason: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          learner_id?: string
+          lesson_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_unlock_overrides_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "rw_learners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rw_unlock_overrides_lesson_id_fkey"
             columns: ["lesson_id"]
             isOneToOne: false
             referencedRelation: "rw_lessons"
@@ -1709,6 +1801,17 @@ export type Database = {
         Returns: Json
       }
       rw_is_staff: { Args: { _uid: string }; Returns: boolean }
+      rw_learner_lesson_states: {
+        Args: { _learner: string }
+        Returns: {
+          day_index: number
+          lesson_id: string
+          pos: number
+          state: string
+          title: string
+          week_number: number
+        }[]
+      }
       rw_learner_row: {
         Args: { _uid: string }
         Returns: {
@@ -1732,6 +1835,25 @@ export type Database = {
         }
       }
       rw_lesson_questions: { Args: { _lesson: string }; Returns: Json }
+      rw_lesson_unlocked: {
+        Args: { _learner: string; _lesson: string }
+        Returns: boolean
+      }
+      rw_manual_unlock: {
+        Args: { _learner: string; _lesson: string; _reason: string }
+        Returns: undefined
+      }
+      rw_my_lesson_states: {
+        Args: never
+        Returns: {
+          day_index: number
+          lesson_id: string
+          pos: number
+          state: string
+          title: string
+          week_number: number
+        }[]
+      }
       rw_placement_suggestion: {
         Args: { _email: string }
         Returns: {
@@ -1742,6 +1864,17 @@ export type Database = {
       rw_save_answer: {
         Args: { _answer: string; _index: number; _lesson: string }
         Returns: Json
+      }
+      rw_states_for_learner: {
+        Args: { _learner: string }
+        Returns: {
+          day_index: number
+          lesson_id: string
+          pos: number
+          state: string
+          title: string
+          week_number: number
+        }[]
       }
       save_english_speaking_answer: {
         Args: {

@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createRwAccessLink, getRwAdminOverview, listRwPeople } from "@/lib/reading-workshop.functions";
 import { RW_PROGRAM } from "@/lib/reading-workshop";
+import { RwLessonPath } from "@/components/reading-workshop/rw-lesson-path";
 import { RwProgressTable } from "@/components/reading-workshop/rw-progress-table";
 import { useRwSubmissions } from "@/components/reading-workshop/rw-submissions-list";
 
@@ -32,6 +33,7 @@ function AdminHome() {
   const { data: people } = useQuery({ queryKey: ["rw-people"], queryFn: () => fetchPeople() });
   const [dialog, setDialog] = useState<{ kind: "learner" | "coach"; person: RwPerson | null } | null>(null);
   const [q, setQ] = useState("");
+  const [unlockFor, setUnlockFor] = useState("");
   const { data: subs = [] } = useRwSubmissions("admin");
   const [linking, setLinking] = useState<string | null>(null);
 
@@ -93,6 +95,7 @@ function AdminHome() {
             <TabsTrigger value="learners">Apprenants</TabsTrigger>
             <TabsTrigger value="coaches">Coachs</TabsTrigger>
             <TabsTrigger value="progress">Suivi</TabsTrigger>
+            <TabsTrigger value="unlock">Déblocage</TabsTrigger>
           </TabsList>
           <div className="relative sm:w-72">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -111,6 +114,13 @@ function AdminHome() {
         </TabsContent>
         <TabsContent value="progress" className="mt-4">
           <RwProgressTable learners={learners as any} subs={subs} coachName={coachName} reportName="rapport-reading-workshop" />
+        </TabsContent>
+        <TabsContent value="unlock" className="mt-4 space-y-3">
+          <select className="w-full max-w-sm rounded-lg border border-border bg-background px-3 py-2 text-sm" value={unlockFor} onChange={(e) => setUnlockFor(e.target.value)} aria-label="Choisir un apprenant">
+            <option value="">Choisir un apprenant</option>
+            {(people?.learners ?? []).map((l) => <option key={l.id} value={l.id}>{l.full_name} ({l.level})</option>)}
+          </select>
+          {unlockFor ? <RwLessonPath learnerId={unlockFor} canUnlock /> : <p className="text-sm text-muted-foreground">Sélectionnez un apprenant pour voir son parcours et débloquer un texte avec justification.</p>}
         </TabsContent>
       </Tabs>
       {dialog && (
