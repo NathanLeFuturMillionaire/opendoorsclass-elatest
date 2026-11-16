@@ -42,6 +42,7 @@ import { Route as AuthenticatedAdminNotificationsRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminQuestionsRouteImport } from './routes/_authenticated/admin/questions'
 import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin/utilisateurs'
 import { Route as AuthenticatedReadingWorkshopAdminRouteImport } from './routes/_authenticated/reading-workshop.admin'
+import { Route as AuthenticatedReadingWorkshopChatRouteImport } from './routes/_authenticated/reading-workshop.chat'
 import { Route as AuthenticatedReadingWorkshopCoachRouteImport } from './routes/_authenticated/reading-workshop.coach'
 import { Route as AuthenticatedReadingWorkshopContentRouteImport } from './routes/_authenticated/reading-workshop.content'
 import { Route as AuthenticatedReadingWorkshopLearnerRouteImport } from './routes/_authenticated/reading-workshop.learner'
@@ -231,6 +232,12 @@ const AuthenticatedReadingWorkshopAdminRoute =
     path: '/reading-workshop/admin',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedReadingWorkshopChatRoute =
+  AuthenticatedReadingWorkshopChatRouteImport.update({
+    id: '/reading-workshop/chat',
+    path: '/reading-workshop/chat',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedReadingWorkshopCoachRoute =
   AuthenticatedReadingWorkshopCoachRouteImport.update({
     id: '/reading-workshop/coach',
@@ -321,6 +328,7 @@ export interface FileRoutesByFullPath {
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/reading-workshop/admin': typeof AuthenticatedReadingWorkshopAdminRoute
+  '/reading-workshop/chat': typeof AuthenticatedReadingWorkshopChatRoute
   '/reading-workshop/coach': typeof AuthenticatedReadingWorkshopCoachRoute
   '/reading-workshop/content': typeof AuthenticatedReadingWorkshopContentRoute
   '/reading-workshop/learner': typeof AuthenticatedReadingWorkshopLearnerRoute
@@ -364,6 +372,7 @@ export interface FileRoutesByTo {
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/reading-workshop/admin': typeof AuthenticatedReadingWorkshopAdminRoute
+  '/reading-workshop/chat': typeof AuthenticatedReadingWorkshopChatRoute
   '/reading-workshop/coach': typeof AuthenticatedReadingWorkshopCoachRoute
   '/reading-workshop/content': typeof AuthenticatedReadingWorkshopContentRoute
   '/reading-workshop/learner': typeof AuthenticatedReadingWorkshopLearnerRoute
@@ -410,6 +419,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/_authenticated/reading-workshop/admin': typeof AuthenticatedReadingWorkshopAdminRoute
+  '/_authenticated/reading-workshop/chat': typeof AuthenticatedReadingWorkshopChatRoute
   '/_authenticated/reading-workshop/coach': typeof AuthenticatedReadingWorkshopCoachRoute
   '/_authenticated/reading-workshop/content': typeof AuthenticatedReadingWorkshopContentRoute
   '/_authenticated/reading-workshop/learner': typeof AuthenticatedReadingWorkshopLearnerRoute
@@ -456,6 +466,7 @@ export interface FileRouteTypes {
     | '/admin/questions'
     | '/admin/utilisateurs'
     | '/reading-workshop/admin'
+    | '/reading-workshop/chat'
     | '/reading-workshop/coach'
     | '/reading-workshop/content'
     | '/reading-workshop/learner'
@@ -499,6 +510,7 @@ export interface FileRouteTypes {
     | '/admin/questions'
     | '/admin/utilisateurs'
     | '/reading-workshop/admin'
+    | '/reading-workshop/chat'
     | '/reading-workshop/coach'
     | '/reading-workshop/content'
     | '/reading-workshop/learner'
@@ -544,6 +556,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/questions'
     | '/_authenticated/admin/utilisateurs'
     | '/_authenticated/reading-workshop/admin'
+    | '/_authenticated/reading-workshop/chat'
     | '/_authenticated/reading-workshop/coach'
     | '/_authenticated/reading-workshop/content'
     | '/_authenticated/reading-workshop/learner'
@@ -810,6 +823,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReadingWorkshopAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/reading-workshop/chat': {
+      id: '/_authenticated/reading-workshop/chat'
+      path: '/reading-workshop/chat'
+      fullPath: '/reading-workshop/chat'
+      preLoaderRoute: typeof AuthenticatedReadingWorkshopChatRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/reading-workshop/coach': {
       id: '/_authenticated/reading-workshop/coach'
       path: '/reading-workshop/coach'
@@ -926,6 +946,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTableauDeBordRoute: typeof AuthenticatedTableauDeBordRoute
   AuthenticatedTestRoute: typeof AuthenticatedTestRoute
   AuthenticatedReadingWorkshopAdminRoute: typeof AuthenticatedReadingWorkshopAdminRoute
+  AuthenticatedReadingWorkshopChatRoute: typeof AuthenticatedReadingWorkshopChatRoute
   AuthenticatedReadingWorkshopCoachRoute: typeof AuthenticatedReadingWorkshopCoachRoute
   AuthenticatedReadingWorkshopContentRoute: typeof AuthenticatedReadingWorkshopContentRoute
   AuthenticatedReadingWorkshopLearnerRoute: typeof AuthenticatedReadingWorkshopLearnerRoute
@@ -946,6 +967,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTestRoute: AuthenticatedTestRoute,
   AuthenticatedReadingWorkshopAdminRoute:
     AuthenticatedReadingWorkshopAdminRoute,
+  AuthenticatedReadingWorkshopChatRoute: AuthenticatedReadingWorkshopChatRoute,
   AuthenticatedReadingWorkshopCoachRoute:
     AuthenticatedReadingWorkshopCoachRoute,
   AuthenticatedReadingWorkshopContentRoute:

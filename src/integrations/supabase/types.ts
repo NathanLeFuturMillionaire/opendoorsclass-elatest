@@ -910,6 +910,225 @@ export type Database = {
           },
         ]
       }
+      rw_chat_conversations: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          kind: string
+          last_message_at: string
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          kind: string
+          last_message_at?: string
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: string
+          last_message_at?: string
+          title?: string | null
+        }
+        Relationships: []
+      }
+      rw_chat_members: {
+        Row: {
+          conversation_id: string
+          joined_at: string
+          last_read_at: string
+          last_seen_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          joined_at?: string
+          last_read_at?: string
+          last_seen_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          joined_at?: string
+          last_read_at?: string
+          last_seen_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_chat_members_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "rw_chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rw_chat_messages: {
+        Row: {
+          attachment_kind: string | null
+          attachment_name: string | null
+          attachment_path: string | null
+          attachment_size: number | null
+          body: string
+          conversation_id: string
+          created_at: string
+          deleted_at: string | null
+          edited_at: string | null
+          id: string
+          pinned: boolean
+          reply_to: string | null
+          sender_id: string
+        }
+        Insert: {
+          attachment_kind?: string | null
+          attachment_name?: string | null
+          attachment_path?: string | null
+          attachment_size?: number | null
+          body?: string
+          conversation_id: string
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          id?: string
+          pinned?: boolean
+          reply_to?: string | null
+          sender_id: string
+        }
+        Update: {
+          attachment_kind?: string | null
+          attachment_name?: string | null
+          attachment_path?: string | null
+          attachment_size?: number | null
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          id?: string
+          pinned?: boolean
+          reply_to?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "rw_chat_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rw_chat_messages_reply_to_fkey"
+            columns: ["reply_to"]
+            isOneToOne: false
+            referencedRelation: "rw_chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rw_chat_moderation_log: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          detail: string | null
+          id: string
+          message_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          message_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          message_id?: string | null
+        }
+        Relationships: []
+      }
+      rw_chat_reactions: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          emoji: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          emoji: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          emoji?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_chat_reactions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "rw_chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rw_chat_reports: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: string
+          reason: string
+          reporter_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id: string
+          reason: string
+          reporter_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: string
+          reason?: string
+          reporter_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_chat_reports_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "rw_chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rw_coaches: {
         Row: {
           bio: string | null
@@ -1916,6 +2135,76 @@ export type Database = {
         Returns: string
       }
       record_streak: { Args: { _user_id: string }; Returns: Json }
+      rw_chat_can_contact: { Args: { _other: string }; Returns: boolean }
+      rw_chat_close_report: { Args: { _id: string }; Returns: undefined }
+      rw_chat_contacts: {
+        Args: never
+        Returns: {
+          full_name: string
+          role: string
+          user_id: string
+        }[]
+      }
+      rw_chat_create_group: {
+        Args: { _announcement?: boolean; _members: string[]; _title: string }
+        Returns: string
+      }
+      rw_chat_delete: { Args: { _id: string }; Returns: undefined }
+      rw_chat_edit: { Args: { _body: string; _id: string }; Returns: undefined }
+      rw_chat_is_member: {
+        Args: { _conv: string; _uid: string }
+        Returns: boolean
+      }
+      rw_chat_mark_read: { Args: { _conv: string }; Returns: undefined }
+      rw_chat_mark_seen: { Args: never; Returns: undefined }
+      rw_chat_members_of: {
+        Args: { _conv: string }
+        Returns: {
+          full_name: string
+          last_read_at: string
+          last_seen_at: string
+          role: string
+          user_id: string
+        }[]
+      }
+      rw_chat_my_conversations: {
+        Args: never
+        Returns: {
+          can_post: boolean
+          id: string
+          kind: string
+          last_body: string
+          last_message_at: string
+          title: string
+          unread: number
+        }[]
+      }
+      rw_chat_name: { Args: { _uid: string }; Returns: string }
+      rw_chat_open_direct: { Args: { _other: string }; Returns: string }
+      rw_chat_pin: {
+        Args: { _id: string; _pinned: boolean }
+        Returns: undefined
+      }
+      rw_chat_react: {
+        Args: { _emoji: string; _id: string }
+        Returns: undefined
+      }
+      rw_chat_report: {
+        Args: { _id: string; _reason: string }
+        Returns: undefined
+      }
+      rw_chat_send: {
+        Args: {
+          _body: string
+          _conv: string
+          _kind?: string
+          _name?: string
+          _path?: string
+          _reply?: string
+          _size?: number
+        }
+        Returns: string
+      }
       rw_coach_id: { Args: { _uid: string }; Returns: string }
       rw_coaches_learner: {
         Args: { _learner: string; _uid: string }

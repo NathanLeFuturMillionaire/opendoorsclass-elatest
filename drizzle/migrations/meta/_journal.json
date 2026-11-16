@@ -99,6 +99,13 @@
       "when": 1794828088952,
       "tag": "0013_rw_secure_removals",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794829415235,
+      "tag": "0014_rw_chat",
+      "breakpoints": true
     }
   ]
 }
