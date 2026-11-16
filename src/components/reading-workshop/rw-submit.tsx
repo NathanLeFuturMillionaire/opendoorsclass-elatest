@@ -1,3 +1,4 @@
+import { RwMediaPlayer } from "@/components/reading-workshop/rw-media-player";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type * as tus from "tus-js-client";
@@ -114,8 +115,8 @@ export function RwSubmit({ learnerId, lessonId }: { learnerId: string; lessonId:
       )}
 
       {preview && (kind === "video"
-        ? <video src={preview} controls playsInline className="aspect-video w-full rounded-2xl bg-muted" />
-        : <audio src={preview} controls className="w-full" />)}
+        ? <RwMediaPlayer src={preview} kind="video" />
+        : <RwMediaPlayer src={preview} kind="audio" />)}
 
       {blob && !busy && (
         <>

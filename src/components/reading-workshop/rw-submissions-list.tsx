@@ -1,3 +1,4 @@
+import { RwMediaPlayer } from "@/components/reading-workshop/rw-media-player";
 import { RwAnswersReview } from "@/components/reading-workshop/rw-comprehension";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -37,7 +38,7 @@ const ICON = { submitted: Clock, redo: RotateCcw, validated: CheckCircle2 };
 function Media({ s }: { s: Sub }) {
   const { data: url } = useQuery({ queryKey: ["rw-media", s.storage_path], queryFn: () => signedRwMedia(s.storage_path), staleTime: 30 * 60 * 1000 });
   if (!url) return <p className="text-xs text-muted-foreground">Chargement du média…</p>;
-  return s.kind === "video" ? <video src={url} controls playsInline className="aspect-video w-full rounded-xl bg-muted" /> : <audio src={url} controls className="w-full" />;
+  return <RwMediaPlayer src={url} kind={s.kind === "video" ? "video" : "audio"} />;
 }
 
 function Review({ s }: { s: Sub }) {

@@ -26,4 +26,5 @@
 - [x] Phase 2 : déblocage progressif (corriger aussi : un apprenant ne doit pas pouvoir changer le statut de son envoi)
 - [x] Phase 3 : horaires 12h30 à 22h30, lundi au samedi (serveur, exceptions, historique)
 - [x] Phase 4 : suppressions sécurisées (désactivation réversible, motif, journal, réaffectation coach, admins protégés)
-- [ ] Phases 5 à 8
+- [x] Phase 5 : fiche mot enrichie, lecteur du texte (phrases, vitesses, accents, volume, reprise), lecteur audio et vidéo des envois
+- [ ] Phases 6 à 8

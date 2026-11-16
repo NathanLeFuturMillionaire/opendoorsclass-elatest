@@ -96,7 +96,7 @@ Return strict JSON with keys: title, body (paragraphs separated by blank lines),
 export const countWords = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
 
 /** Short French gloss for one word in its sentence context. */
-export async function glossRwWord(word: string, sentence: string): Promise<{ translation_fr: string; phonetic: string; part_of_speech_fr: string; note_fr: string }> {
+export async function glossRwWord(word: string, sentence: string): Promise<{ translation_fr: string; phonetic: string; part_of_speech_fr: string; note_fr: string; meaning_in_context_fr: string; other_meanings_fr: string[]; base_form: string; example_en: string; example_fr: string }> {
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) throw new Error("Service IA indisponible.");
   const s = { type: "string" };
@@ -107,9 +107,9 @@ export async function glossRwWord(word: string, sentence: string): Promise<{ tra
       model: "openai/gpt-6-astra",
       store: false,
       reasoning: { effort: "low" },
-      instructions: "Translate one English word into French for a learner, using the sentence as context. Give translation_fr (short), phonetic (IPA, British), part_of_speech_fr (grammatical category in French, for example nom, verbe, adjectif, adverbe), note_fr (one short sentence in French on meaning or usage). Never use em dashes or en dashes.",
+      instructions: "Translate one English word into French for a learner, using the sentence as context. Give translation_fr (short), phonetic (IPA, British), part_of_speech_fr (grammatical category in French, for example nom, verbe, adjectif, adverbe), note_fr (one short sentence in French on usage), meaning_in_context_fr (what the word means in this exact sentence, in French), other_meanings_fr (up to 3 other common French translations or senses, empty array if none), base_form (dictionary form, for example infinitive or singular), example_en (a new simple English example sentence using the word), example_fr (its French translation). Never use em dashes or en dashes.",
       input: `Word: ${word}\nSentence: ${sentence}`,
-      text: { format: { type: "json_schema", name: "gloss", strict: true, schema: { type: "object", additionalProperties: false, required: ["translation_fr", "phonetic", "part_of_speech_fr", "note_fr"], properties: { translation_fr: s, phonetic: s, part_of_speech_fr: s, note_fr: s } } } },
+      text: { format: { type: "json_schema", name: "gloss", strict: true, schema: { type: "object", additionalProperties: false, required: ["translation_fr", "phonetic", "part_of_speech_fr", "note_fr", "meaning_in_context_fr", "other_meanings_fr", "base_form", "example_en", "example_fr"], properties: { translation_fr: s, phonetic: s, part_of_speech_fr: s, note_fr: s, meaning_in_context_fr: s, other_meanings_fr: { type: "array", items: s }, base_form: s, example_en: s, example_fr: s } } } },
     }),
   });
   if (res.status === 429) throw new Error("Trop de demandes. Réessayez dans un instant.");
