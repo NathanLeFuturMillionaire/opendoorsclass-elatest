@@ -3,7 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Link2, Pencil, Plus, Search } from "lucide-react";
+import { Link2, Pencil, Plus, RotateCcw, Search, UserMinus } from "lucide-react";
+import { RwRemovalLog, RwRemoveDialog, type RwRemoveTarget } from "@/components/reading-workshop/rw-remove-dialog";
 import { RwAvatar, RwEmpty, RwShell, RwStat } from "@/components/reading-workshop/rw-shell";
 import { RwPersonDialog, type RwPerson } from "@/components/reading-workshop/rw-person-dialog";
 import { Button } from "@/components/ui/button";
@@ -37,11 +38,12 @@ function AdminHome() {
   const [unlockFor, setUnlockFor] = useState("");
   const { data: subs = [] } = useRwSubmissions("admin");
   const [linking, setLinking] = useState<string | null>(null);
+  const [removing, setRemoving] = useState<RwRemoveTarget | null>(null);
 
   const coaches = people?.coaches ?? [];
   const coachName = useMemo(() => Object.fromEntries(coaches.map((c) => [c.id, c.full_name])), [coaches]);
   const match = (n: string, e: string | null) => (n + " " + (e ?? "")).toLowerCase().includes(q.toLowerCase());
-  const refresh = () => { qc.invalidateQueries({ queryKey: ["rw-people"] }); qc.invalidateQueries({ queryKey: ["rw-admin-overview"] }); };
+  const refresh = () => { ["rw-people", "rw-admin-overview", "rw-removal-log"].forEach((k) => qc.invalidateQueries({ queryKey: [k] })); };
 
   async function link(kind: "learner" | "coach", id: string) {
     setLinking(id);
@@ -72,6 +74,10 @@ function AdminHome() {
           <Link2 className="mr-1 size-4" /> {p.user_id ? "Nouveau lien" : "Lien d'accès"}
         </Button>
         <Button size="sm" variant="ghost" aria-label="Modifier" onClick={() => setDialog({ kind, person: p })}><Pencil className="size-4" /></Button>
+        <Button size="sm" variant="ghost" aria-label={p.is_active ? "Retirer" : "Réactiver"}
+          onClick={() => setRemoving({ kind, id: p.id, name: p.full_name, active: p.is_active, learnerCount: kind === "coach" ? (people?.learners ?? []).filter((l) => l.coach_id === p.id).length : 0 })}>
+          {p.is_active ? <UserMinus className="size-4 text-destructive" /> : <RotateCcw className="size-4" />}
+        </Button>
       </div>
     </li>
   );
@@ -98,6 +104,7 @@ function AdminHome() {
             <TabsTrigger value="progress">Suivi</TabsTrigger>
             <TabsTrigger value="unlock">Déblocage</TabsTrigger>
             <TabsTrigger value="hours">Horaires</TabsTrigger>
+            <TabsTrigger value="log">Journal</TabsTrigger>
           </TabsList>
           <div className="relative sm:w-72">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -118,6 +125,7 @@ function AdminHome() {
           <RwProgressTable learners={learners as any} subs={subs} coachName={coachName} reportName="rapport-reading-workshop" />
         </TabsContent>
         <TabsContent value="hours" className="mt-4"><RwHoursAdmin /></TabsContent>
+        <TabsContent value="log" className="mt-4"><RwRemovalLog /></TabsContent>
         <TabsContent value="unlock" className="mt-4 space-y-3">
           <select className="w-full max-w-sm rounded-lg border border-border bg-background px-3 py-2 text-sm" value={unlockFor} onChange={(e) => setUnlockFor(e.target.value)} aria-label="Choisir un apprenant">
             <option value="">Choisir un apprenant</option>
@@ -126,6 +134,7 @@ function AdminHome() {
           {unlockFor ? <RwLessonPath learnerId={unlockFor} canUnlock /> : <p className="text-sm text-muted-foreground">Sélectionnez un apprenant pour voir son parcours et débloquer un texte avec justification.</p>}
         </TabsContent>
       </Tabs>
+      {removing && <RwRemoveDialog target={removing} coaches={coaches.filter((c) => c.is_active)} onClose={() => setRemoving(null)} onDone={refresh} />}
       {dialog && (
         <RwPersonDialog open onOpenChange={(o) => !o && setDialog(null)} kind={dialog.kind} person={dialog.person}
           coaches={coaches.filter((c) => c.is_active)} onSaved={refresh} />

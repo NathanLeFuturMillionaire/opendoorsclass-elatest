@@ -6,6 +6,9 @@ import { useMemo, useState } from "react";
 import { listRwCoachLearners } from "@/lib/reading-workshop.functions";
 import { RwSubmissionsList, useRwSubmissions } from "@/components/reading-workshop/rw-submissions-list";
 import { cn } from "@/lib/utils";
+import { RwRemoveDialog, useInvalidateRwPeople, type RwRemoveTarget } from "@/components/reading-workshop/rw-remove-dialog";
+import { Button } from "@/components/ui/button";
+import { UserMinus } from "lucide-react";
 import { RwProgressTable } from "@/components/reading-workshop/rw-progress-table";
 
 export const Route = createFileRoute("/_authenticated/reading-workshop/coach")({
@@ -24,6 +27,8 @@ function CoachHome() {
   // Staff can read every row; the coach space only lists this coach's learners.
   const subs = useMemo(() => { const ids = new Set(data.map((l) => l.id)); return allSubs.filter((x) => ids.has(x.learner_id)); }, [allSubs, data]);
   const [tab, setTab] = useState<"submitted" | "redo" | "validated">("submitted");
+  const [removing, setRemoving] = useState<RwRemoveTarget | null>(null);
+  const refresh = useInvalidateRwPeople();
   const count = (st: string) => subs.filter((x) => x.status === st).length;
   return (
     <div className="space-y-6">
@@ -42,6 +47,21 @@ function CoachHome() {
       </section>
       <h3 className="text-xl font-bold">Suivi de mes apprenants</h3>
       <RwProgressTable learners={data} subs={subs} reportName="suivi-apprenants" />
+      <section className="space-y-2">
+        <h3 className="text-lg font-bold">Gérer mes apprenants</h3>
+        <ul className="divide-y divide-border rounded-2xl border border-border bg-card shadow-sm">
+          {data.filter((l) => l.is_active).map((l) => (
+            <li key={l.id} className="flex items-center justify-between gap-3 p-3 text-sm">
+              <span className="font-semibold">{l.full_name} <span className="font-normal text-muted-foreground">· {l.level}</span></span>
+              <Button size="sm" variant="ghost" onClick={() => setRemoving({ kind: "learner", id: l.id, name: l.full_name, active: true })}>
+                <UserMinus className="mr-1 size-4 text-destructive" /> Retirer
+              </Button>
+            </li>
+          ))}
+        </ul>
+        <p className="text-xs text-muted-foreground">Un retrait est réversible : seul un administrateur peut réactiver l'apprenant.</p>
+      </section>
+      {removing && <RwRemoveDialog target={removing} onClose={() => setRemoving(null)} onDone={refresh} />}
     </div>
   );
 }

@@ -92,6 +92,13 @@
       "when": 1794825631834,
       "tag": "0012_rw_opening_hours",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794828088952,
+      "tag": "0013_rw_secure_removals",
+      "breakpoints": true
     }
   ]
 }

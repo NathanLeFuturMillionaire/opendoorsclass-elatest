@@ -1091,6 +1091,48 @@ export type Database = {
           },
         ]
       }
+      rw_removal_log: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          id: string
+          moved_learners: number
+          pending_reviews: number
+          reason: string
+          reassigned_to: string | null
+          target_id: string
+          target_kind: string
+          target_name: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          id?: string
+          moved_learners?: number
+          pending_reviews?: number
+          reason: string
+          reassigned_to?: string | null
+          target_id: string
+          target_kind: string
+          target_name: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          id?: string
+          moved_learners?: number
+          pending_reviews?: number
+          reason?: string
+          reassigned_to?: string | null
+          target_id?: string
+          target_kind?: string
+          target_name?: string
+        }
+        Relationships: []
+      }
       rw_saved_words: {
         Row: {
           created_at: string
@@ -1887,6 +1929,7 @@ export type Database = {
         Args: { _answer: string; _comment: string; _points: number }
         Returns: Json
       }
+      rw_is_protected_user: { Args: { _uid: string }; Returns: boolean }
       rw_is_staff: { Args: { _uid: string }; Returns: boolean }
       rw_learner_lesson_states: {
         Args: { _learner: string }
@@ -1973,6 +2016,16 @@ export type Database = {
           _open: string
         }
         Returns: undefined
+      }
+      rw_set_active: {
+        Args: {
+          _active: boolean
+          _id: string
+          _kind: string
+          _reason: string
+          _reassign_to?: string
+        }
+        Returns: Json
       }
       rw_states_for_learner: {
         Args: { _learner: string }
