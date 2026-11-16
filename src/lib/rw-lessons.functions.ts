@@ -65,12 +65,15 @@ export const getRwLesson = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: l, error } = await context.supabase
       .from("rw_lessons")
-      .select("*, rw_sessions(day_index, title, rw_weeks(week_number, title))")
+      .select("id, session_id, level, title, body, word_count, source_author, source_title, source_date, source_institution, source_url, content_type, rights_status, mention, status, summary_fr, translation_fr, knowledge_point, vocabulary, grammar, discussion, published_at, rw_sessions(day_index, title, rw_weeks(week_number, title))")
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!l) throw new Error("Texte introuvable ou non disponible pour votre niveau.");
-    return l as any;
+    // Learners receive questions without answers; coaches and staff get the full key.
+    const { data: questions, error: qErr } = await context.supabase.rpc("rw_lesson_questions", { _lesson: data.id });
+    if (qErr) throw new Error(qErr.message);
+    return { ...(l as any), questions: (questions as any[]) ?? [] } as any;
   });
 
 export type RwLessonEdit = {

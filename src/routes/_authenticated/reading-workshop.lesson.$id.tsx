@@ -2,12 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ArrowLeft, BookOpenCheck, CheckCircle2, Languages, Lightbulb, XCircle } from "lucide-react";
+import { ArrowLeft, Languages, Lightbulb } from "lucide-react";
+import { RwComprehension } from "@/components/reading-workshop/rw-comprehension";
 import { RwShell } from "@/components/reading-workshop/rw-shell";
 import { Button } from "@/components/ui/button";
 import { getRwLesson } from "@/lib/rw-lessons.functions";
 import { RW_DAYS } from "@/lib/reading-workshop";
-import { cn } from "@/lib/utils";
 import { RwSubmit } from "@/components/reading-workshop/rw-submit";
 import { RwSubmissionsList, useRwSubmissions } from "@/components/reading-workshop/rw-submissions-list";
 import { getRwMe } from "@/lib/reading-workshop.functions";
@@ -31,13 +31,11 @@ function Lesson() {
   const learnerId = me?.learner?.id;
   const { data: mine = [] } = useRwSubmissions("lesson", { lessonId: id });
   const [showFr, setShowFr] = useState(false);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
   if (error) return <p className="rounded-2xl border border-border p-6 text-muted-foreground">{error.message}</p>;
   if (!l) return null;
   const s = l.rw_sessions;
   const mention = l.mention === "original" ? "Original educational text, OpenDoorsClass Reading Workshop."
     : `Educational adaptation inspired by ${[l.source_author, l.source_title].filter(Boolean).join(", ") || "a public source"}.`;
-  const score = (l.questions ?? []).filter((q: any, i: number) => answers[i] === q.answer).length;
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
@@ -56,33 +54,7 @@ function Lesson() {
         <Button variant="outline" onClick={() => setShowFr(!showFr)}><Languages className="mr-2 size-4" />{showFr ? "Masquer la traduction" : "Voir la traduction en français"}</Button>
         {showFr && l.translation_fr && <div className="space-y-3 rounded-2xl border border-dashed border-border p-6 text-muted-foreground">{l.translation_fr.split(/\n\s*\n/).map((p: string, i: number) => <p key={i}>{p}</p>)}</div>}
 
-        {(l.questions ?? []).length > 0 && (
-          <section className="space-y-4">
-            <h3 className="flex items-center gap-2 text-xl font-bold"><BookOpenCheck className="size-5 text-primary" /> Compréhension</h3>
-            {l.questions.map((q: any, i: number) => (
-              <div key={i} className="rounded-2xl border border-border bg-card p-5">
-                <p className="font-semibold">{i + 1}. {q.question}</p>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  {q.options.map((o: string) => {
-                    const picked = answers[i] === o; const done = answers[i] !== undefined;
-                    return (
-                      <button key={o} type="button" disabled={done} onClick={() => setAnswers({ ...answers, [i]: o })}
-                        className={cn("rounded-xl border px-4 py-2.5 text-left text-sm transition", !done && "hover:border-primary",
-                          done && o === q.answer && "border-primary bg-[var(--rw-soft)] font-semibold",
-                          picked && o !== q.answer && "border-destructive text-destructive")}>{o}</button>
-                    );
-                  })}
-                </div>
-                {answers[i] !== undefined && (
-                  <p className="mt-3 flex items-start gap-2 text-sm text-muted-foreground">
-                    {answers[i] === q.answer ? <CheckCircle2 className="size-4 shrink-0 text-primary" /> : <XCircle className="size-4 shrink-0 text-destructive" />}{q.explanation_fr}
-                  </p>
-                )}
-              </div>
-            ))}
-            {Object.keys(answers).length === l.questions.length && <p className="text-lg font-bold">Score : {score} / {l.questions.length}</p>}
-          </section>
-        )}
+        <RwComprehension lessonId={id} learnerId={learnerId} questions={l.questions ?? []} />
         {(l.grammar ?? []).length > 0 && (
           <section className="space-y-3">
             <h3 className="text-xl font-bold">Grammar discovery</h3>

@@ -841,6 +841,75 @@ export type Database = {
         }
         Relationships: []
       }
+      rw_answers: {
+        Row: {
+          answer: string
+          coach_comment: string | null
+          created_at: string
+          expected: string | null
+          graded_at: string | null
+          graded_by: string | null
+          id: string
+          learner_id: string
+          lesson_id: string
+          max_points: number
+          points: number | null
+          question_index: number
+          question_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          coach_comment?: string | null
+          created_at?: string
+          expected?: string | null
+          graded_at?: string | null
+          graded_by?: string | null
+          id?: string
+          learner_id: string
+          lesson_id: string
+          max_points?: number
+          points?: number | null
+          question_index: number
+          question_type?: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          coach_comment?: string | null
+          created_at?: string
+          expected?: string | null
+          graded_at?: string | null
+          graded_by?: string | null
+          id?: string
+          learner_id?: string
+          lesson_id?: string
+          max_points?: number
+          points?: number | null
+          question_index?: number
+          question_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_answers_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "rw_learners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rw_answers_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "rw_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rw_coaches: {
         Row: {
           bio: string | null
@@ -1102,12 +1171,15 @@ export type Database = {
         Row: {
           coach_feedback: string | null
           created_at: string
+          fluency_score: number | null
           id: string
           kind: string
           learner_id: string
           learner_note: string | null
           lesson_id: string
           mime_type: string | null
+          pronunciation_score: number | null
+          reading_score: number | null
           reviewed_at: string | null
           reviewed_by: string | null
           score: number | null
@@ -1119,12 +1191,15 @@ export type Database = {
         Insert: {
           coach_feedback?: string | null
           created_at?: string
+          fluency_score?: number | null
           id?: string
           kind: string
           learner_id: string
           learner_note?: string | null
           lesson_id: string
           mime_type?: string | null
+          pronunciation_score?: number | null
+          reading_score?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           score?: number | null
@@ -1136,12 +1211,15 @@ export type Database = {
         Update: {
           coach_feedback?: string | null
           created_at?: string
+          fluency_score?: number | null
           id?: string
           kind?: string
           learner_id?: string
           learner_note?: string | null
           lesson_id?: string
           mime_type?: string | null
+          pronunciation_score?: number | null
+          reading_score?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           score?: number | null
@@ -1626,6 +1704,10 @@ export type Database = {
         Args: { _folder: string; _uid: string }
         Returns: boolean
       }
+      rw_grade_answer: {
+        Args: { _answer: string; _comment: string; _points: number }
+        Returns: Json
+      }
       rw_is_staff: { Args: { _uid: string }; Returns: boolean }
       rw_learner_row: {
         Args: { _uid: string }
@@ -1649,12 +1731,17 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      rw_lesson_questions: { Args: { _lesson: string }; Returns: Json }
       rw_placement_suggestion: {
         Args: { _email: string }
         Returns: {
           level: string
           tested_at: string
         }[]
+      }
+      rw_save_answer: {
+        Args: { _answer: string; _index: number; _lesson: string }
+        Returns: Json
       }
       save_english_speaking_answer: {
         Args: {

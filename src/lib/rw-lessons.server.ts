@@ -12,7 +12,7 @@ function noDash<T>(v: T): T {
 export type RwDraft = {
   title: string; body: string; summary_fr: string; translation_fr: string; knowledge_point: string;
   vocabulary: { word: string; part_of_speech: string; translation_fr: string; definition: string; example: string }[];
-  questions: { question: string; options: string[]; answer: string; explanation_fr: string }[];
+  questions: { type?: string; question: string; options: string[]; answer: string; explanation_fr: string }[];
   grammar: { point: string; explanation_fr: string; example: string }[];
   discussion: string[];
   mention: "original" | "adapted"; source_author: string | null; source_title: string | null; source_date: string | null; content_type: string;
@@ -28,14 +28,14 @@ Rules:
 - Never use em dashes, en dashes or hyphen dashes as punctuation. Use commas, colons, parentheses and periods.
 - Never invent quotations, dates, sources or URLs. Do not present invented sentences as real quotes.
 - If the text is inspired by a real, well known person or speech, set mention "adapted" and give author, original title and date ONLY if you are certain; otherwise null. Otherwise mention "original" with null sources.
-Return strict JSON with keys: title, body (paragraphs separated by blank lines), summary_fr, translation_fr (full French translation), knowledge_point (one sentence in French: what the learner learns), vocabulary (8 to 12 items: word, part_of_speech, translation_fr, definition in simple English, example), questions (5 multiple choice: question, options array of 4, answer exactly equal to one option, explanation_fr), grammar (2 items: point, explanation_fr, example from the text), discussion (3 open questions in English), mention, source_author, source_title, source_date, content_type (one of: original text, biography, historical speech adaptation, article, story).`;
+Return strict JSON with keys: title, body (paragraphs separated by blank lines), summary_fr, translation_fr (full French translation), knowledge_point (one sentence in French: what the learner learns), vocabulary (8 to 12 items: word, part_of_speech, translation_fr, definition in simple English, example), questions (exactly 10, each worth 2 points: mostly type "mcq" with options array of 4 and answer exactly equal to one option, plus 2 of type "true_false" with answer "True" or "False", and 1 of type "open" with a model answer; every item has type, question, options (empty for open), answer, explanation_fr), grammar (2 items: point, explanation_fr, example from the text), discussion (3 open questions in English), mention, source_author, source_title, source_date, content_type (one of: original text, biography, historical speech adaptation, article, story).`;
   const str = { type: "string" };
   const nstr = { type: ["string", "null"] };
   const obj = (props: Record<string, unknown>) => ({ type: "object", additionalProperties: false, required: Object.keys(props), properties: props });
   const schema = obj({
     title: str, body: str, summary_fr: str, translation_fr: str, knowledge_point: str,
     vocabulary: { type: "array", items: obj({ word: str, part_of_speech: str, translation_fr: str, definition: str, example: str }) },
-    questions: { type: "array", items: obj({ question: str, options: { type: "array", items: str }, answer: str, explanation_fr: str }) },
+    questions: { type: "array", items: obj({ type: str, question: str, options: { type: "array", items: str }, answer: str, explanation_fr: str }) },
     grammar: { type: "array", items: obj({ point: str, explanation_fr: str, example: str }) },
     discussion: { type: "array", items: str },
     mention: { type: "string", enum: ["original", "adapted"] },
@@ -87,7 +87,7 @@ Return strict JSON with keys: title, body (paragraphs separated by blank lines),
     ...d,
     mention: d.mention === "adapted" ? "adapted" : "original",
     vocabulary: Array.isArray(d.vocabulary) ? d.vocabulary : [],
-    questions: (Array.isArray(d.questions) ? d.questions : []).filter((q) => Array.isArray(q.options) && q.options.includes(q.answer)),
+    questions: (Array.isArray(d.questions) ? d.questions : []).filter((q: any) => q.type === "open" || q.type === "short" || (q.type === "true_false" && /^(True|False)$/.test(q.answer)) || (Array.isArray(q.options) && q.options.includes(q.answer))).slice(0, 10),
     grammar: Array.isArray(d.grammar) ? d.grammar : [],
     discussion: Array.isArray(d.discussion) ? d.discussion : [],
   };
