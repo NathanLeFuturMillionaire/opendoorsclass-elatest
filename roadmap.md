@@ -13,3 +13,12 @@
 - [x] Phase 5: envois audio/vidéo et corrections
 - [ ] Phase 6: suivi et rapports
 - [ ] Phase 7: les 30 scénarios de vérification
+
+## Reading Workshop textes manuels
+- [x] Semaine 2 (30 textes)
+- [ ] Semaine 3 : séances 1 à 3 publiées; séances 4 à 6 restent (15 textes)
+- [ ] Semaines 4 à 20
+
+## Évolution Reading Workshop (prompt maître)
+- [x] Phase 0 : audit et plan d'intégration (en attente d'approbation)
+- [ ] Phases 1 à 8 selon le plan approuvé
