@@ -85,6 +85,13 @@
       "when": 1794824992569,
       "tag": "0011_rw_lock_questions_answers",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794825631834,
+      "tag": "0012_rw_opening_hours",
+      "breakpoints": true
     }
   ]
 }

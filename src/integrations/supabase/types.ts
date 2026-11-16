@@ -1135,6 +1135,93 @@ export type Database = {
           },
         ]
       }
+      rw_schedule_exceptions: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          created_by: string | null
+          ends_at: string
+          id: string
+          kind: string
+          message: string | null
+          starts_at: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          ends_at: string
+          id?: string
+          kind: string
+          message?: string | null
+          starts_at: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string
+          id?: string
+          kind?: string
+          message?: string | null
+          starts_at?: string
+        }
+        Relationships: []
+      }
+      rw_schedule_log: {
+        Row: {
+          action: string
+          actor: string | null
+          created_at: string
+          details: Json
+          id: string
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+        }
+        Relationships: []
+      }
+      rw_schedule_settings: {
+        Row: {
+          close_time: string
+          closed_message: string | null
+          days: number[]
+          id: boolean
+          open_time: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          close_time?: string
+          closed_message?: string | null
+          days?: number[]
+          id?: boolean
+          open_time?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          close_time?: string
+          closed_message?: string | null
+          days?: number[]
+          id?: boolean
+          open_time?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       rw_sessions: {
         Row: {
           created_at: string
@@ -1865,6 +1952,28 @@ export type Database = {
         Args: { _answer: string; _index: number; _lesson: string }
         Returns: Json
       }
+      rw_schedule_add_exception: {
+        Args: {
+          _ends: string
+          _kind: string
+          _message: string
+          _starts: string
+        }
+        Returns: string
+      }
+      rw_schedule_cancel_exception: {
+        Args: { _id: string }
+        Returns: undefined
+      }
+      rw_schedule_update: {
+        Args: {
+          _close: string
+          _days: number[]
+          _message: string
+          _open: string
+        }
+        Returns: undefined
+      }
       rw_states_for_learner: {
         Args: { _learner: string }
         Returns: {
@@ -1876,6 +1985,12 @@ export type Database = {
           week_number: number
         }[]
       }
+      rw_workshop_allows: {
+        Args: { _grace?: boolean; _uid: string }
+        Returns: boolean
+      }
+      rw_workshop_open_at: { Args: { _ts: string }; Returns: boolean }
+      rw_workshop_status: { Args: never; Returns: Json }
       save_english_speaking_answer: {
         Args: {
           _answer: string

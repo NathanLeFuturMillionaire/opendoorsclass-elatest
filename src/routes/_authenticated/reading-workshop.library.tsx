@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Lock } from "lucide-react";
 import { RwShell, useRwContext } from "@/components/reading-workshop/rw-shell";
 import { RwLessonPath } from "@/components/reading-workshop/rw-lesson-path";
+import { RwHoursBanner } from "@/components/reading-workshop/rw-hours-banner";
 import { Button } from "@/components/ui/button";
 import { listRwProgram } from "@/lib/rw-lessons.functions";
 import { RW_DAYS } from "@/lib/reading-workshop";
@@ -22,7 +23,7 @@ function Library() {
   const fetchProgram = useServerFn(listRwProgram);
   const { data: weeks = [] } = useQuery({ queryKey: ["rw-program"], queryFn: () => fetchProgram() });
   const myLevel = ctx?.learner?.level;
-  if (ctx?.learner && !ctx?.isStaff && !ctx?.isCoach) return <RwLessonPath />;
+  if (ctx?.learner && !ctx?.isStaff && !ctx?.isCoach) return <div className="space-y-4"><RwHoursBanner /><RwLessonPath /></div>;
   return (
     <div className="space-y-4">
       {ctx?.isStaff && <Button asChild><Link to="/reading-workshop/content">Gérer les textes</Link></Button>}

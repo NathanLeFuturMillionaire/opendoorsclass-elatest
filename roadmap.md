@@ -24,4 +24,5 @@
 - [x] Phase 1 : questions sur 20, sauvegarde serveur, correction auto et coach, notes séparées
 - [ ] Phase 1 bis : passer les ~85 textes publiés de 5 à 10 questions (rédaction manuelle)
 - [x] Phase 2 : déblocage progressif (corriger aussi : un apprenant ne doit pas pouvoir changer le statut de son envoi)
-- [ ] Phases 3 à 8
+- [x] Phase 3 : horaires 12h30 à 22h30, lundi au samedi (serveur, exceptions, historique)
+- [ ] Phases 4 à 8

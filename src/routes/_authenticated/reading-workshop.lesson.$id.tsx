@@ -8,6 +8,7 @@ import { RwShell } from "@/components/reading-workshop/rw-shell";
 import { Button } from "@/components/ui/button";
 import { getRwLesson } from "@/lib/rw-lessons.functions";
 import { RW_DAYS } from "@/lib/reading-workshop";
+import { RwHoursBanner, useRwWorkshopStatus } from "@/components/reading-workshop/rw-hours-banner";
 import { RwSubmit } from "@/components/reading-workshop/rw-submit";
 import { RwSubmissionsList, useRwSubmissions } from "@/components/reading-workshop/rw-submissions-list";
 import { getRwMe } from "@/lib/reading-workshop.functions";
@@ -29,8 +30,11 @@ function Lesson() {
   const fetchMe = useServerFn(getRwMe);
   const { data: me } = useQuery({ queryKey: ["rw-me"], queryFn: () => fetchMe() });
   const learnerId = me?.learner?.id;
+  const { data: status } = useRwWorkshopStatus();
   const { data: mine = [] } = useRwSubmissions("lesson", { lessonId: id });
   const [showFr, setShowFr] = useState(false);
+  const exempt = !!me && !me.learner;
+  if (status && !status.open && !exempt && !l) return <RwHoursBanner />;
   if (error) return <p className="rounded-2xl border border-border p-6 text-muted-foreground">{error.message}</p>;
   if (!l) return null;
   const s = l.rw_sessions;
@@ -68,6 +72,7 @@ function Lesson() {
         )}
         {learnerId && (
           <>
+            {status && !status.open && <RwHoursBanner />}
             <RwSubmit learnerId={learnerId} lessonId={id} />
             {mine.length > 0 && <section className="space-y-3"><h3 className="text-xl font-bold">Mes envois pour ce texte</h3><RwSubmissionsList items={mine} mode="learner" /></section>}
           </>

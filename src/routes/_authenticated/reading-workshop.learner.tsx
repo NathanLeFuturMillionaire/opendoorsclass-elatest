@@ -10,6 +10,7 @@ import { RwProgressPanel } from "@/components/reading-workshop/rw-progress";
 import { useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RwLessonPath } from "@/components/reading-workshop/rw-lesson-path";
+import { RwHoursBanner } from "@/components/reading-workshop/rw-hours-banner";
 import { RwDictionary } from "@/components/reading-workshop/rw-dictionary";
 import { RwSubmissionsList, useRwSubmissions } from "@/components/reading-workshop/rw-submissions-list";
 
@@ -48,13 +49,7 @@ function LearnerHome() {
           )}
         </div>
       )}
-      <div className="flex items-start gap-3 rounded-2xl border border-border bg-[var(--rw-soft)] p-4 text-sm">
-        <span aria-hidden className="text-xl">🕤</span>
-        <div>
-          <p className="font-semibold">Horaire officiel du forum</p>
-          <p className="text-muted-foreground">Du lundi au samedi, de 21h30 à 23h30 (heure du Gabon, Libreville) : envois des lectures et échanges avec votre coach.</p>
-        </div>
-      </div>
+      <RwHoursBanner />
       <RwProgressPanel p={progress} />
       <div className="rounded-2xl border border-border bg-card p-4 text-sm"><span className="font-semibold">Niveau {me?.level ?? "non défini"}</span> · Semaine {progress.currentWeek} : {week?.title}</div>
       <Button asChild><Link to="/reading-workshop/library">Ouvrir la bibliothèque</Link></Button>

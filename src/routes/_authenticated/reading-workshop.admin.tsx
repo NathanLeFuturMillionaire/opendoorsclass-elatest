@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createRwAccessLink, getRwAdminOverview, listRwPeople } from "@/lib/reading-workshop.functions";
 import { RW_PROGRAM } from "@/lib/reading-workshop";
 import { RwLessonPath } from "@/components/reading-workshop/rw-lesson-path";
+import { RwHoursAdmin } from "@/components/reading-workshop/rw-hours-admin";
 import { RwProgressTable } from "@/components/reading-workshop/rw-progress-table";
 import { useRwSubmissions } from "@/components/reading-workshop/rw-submissions-list";
 
@@ -96,6 +97,7 @@ function AdminHome() {
             <TabsTrigger value="coaches">Coachs</TabsTrigger>
             <TabsTrigger value="progress">Suivi</TabsTrigger>
             <TabsTrigger value="unlock">Déblocage</TabsTrigger>
+            <TabsTrigger value="hours">Horaires</TabsTrigger>
           </TabsList>
           <div className="relative sm:w-72">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -115,6 +117,7 @@ function AdminHome() {
         <TabsContent value="progress" className="mt-4">
           <RwProgressTable learners={learners as any} subs={subs} coachName={coachName} reportName="rapport-reading-workshop" />
         </TabsContent>
+        <TabsContent value="hours" className="mt-4"><RwHoursAdmin /></TabsContent>
         <TabsContent value="unlock" className="mt-4 space-y-3">
           <select className="w-full max-w-sm rounded-lg border border-border bg-background px-3 py-2 text-sm" value={unlockFor} onChange={(e) => setUnlockFor(e.target.value)} aria-label="Choisir un apprenant">
             <option value="">Choisir un apprenant</option>
