@@ -1,3 +1,4 @@
+import { RwChatModeration } from "@/components/reading-workshop/rw-chat";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -127,6 +128,7 @@ function AdminHome() {
         </TabsContent>
         <TabsContent value="hours" className="mt-4"><RwHoursAdmin /></TabsContent>
         <TabsContent value="log" className="mt-4"><RwRemovalLog /></TabsContent>
+        <TabsContent value="chat" className="mt-4"><RwChatModeration /></TabsContent>
         <TabsContent value="unlock" className="mt-4 space-y-3">
           <select className="w-full max-w-sm rounded-lg border border-border bg-background px-3 py-2 text-sm" value={unlockFor} onChange={(e) => setUnlockFor(e.target.value)} aria-label="Choisir un apprenant">
             <option value="">Choisir un apprenant</option>

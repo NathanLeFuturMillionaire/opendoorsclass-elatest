@@ -27,4 +27,5 @@
 - [x] Phase 3 : horaires 12h30 à 22h30, lundi au samedi (serveur, exceptions, historique)
 - [x] Phase 4 : suppressions sécurisées (désactivation réversible, motif, journal, réaffectation coach, admins protégés)
 - [x] Phase 5 : fiche mot enrichie, lecteur du texte (phrases, vitesses, accents, volume, reprise), lecteur audio et vidéo des envois
-- [ ] Phases 6 à 8
+- [x] Phase 6 : OpenDoorsClass Chat (privé, groupes, annonces, pièces jointes, notes vocales, réactions, lu, signalements)
+- [ ] Phases 7 et 8
