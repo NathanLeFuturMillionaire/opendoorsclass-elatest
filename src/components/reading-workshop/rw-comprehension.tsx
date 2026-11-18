@@ -139,6 +139,7 @@ export function RwComprehension({
       return;
     }
     setByIdx((m) => ({ ...m, [i]: data as unknown as Answer }));
+    delete pendingValues.current[i];
     setState((s) => ({ ...s, [i]: "saved" }));
     qc.invalidateQueries({ queryKey: ["rw-answers", lessonId, learnerId] });
   }
@@ -205,7 +206,11 @@ export function RwComprehension({
             {t === "mcq" || t === "true_false" ? (
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 {options.map((o) => {
-                  const picked = a?.answer === o;
+                  const picked =
+                    a?.answer === o ||
+                    (!a &&
+                      pendingValues.current[i] === o &&
+                      (state[i] === "saving" || state[i] === "error"));
                   return (
                     <button
                       key={o}
@@ -216,6 +221,7 @@ export function RwComprehension({
                         "rounded-xl border px-4 py-2.5 text-left text-sm transition",
                         !a && learnerId && "hover:border-primary",
                         a && o === a.expected && "border-primary bg-[var(--rw-soft)] font-semibold",
+                        picked && !a && "border-primary bg-[var(--rw-soft)] font-semibold",
                         picked && a?.points === 0 && "border-destructive text-destructive",
                       )}
                     >

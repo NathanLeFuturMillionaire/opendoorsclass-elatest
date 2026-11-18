@@ -139,6 +139,7 @@ function Lesson() {
           </p>
         ) : (
           <RwComprehension
+            key={id}
             lessonId={id}
             learnerId={learnerId}
             questions={l.questions ?? []}
