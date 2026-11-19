@@ -2306,6 +2306,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      rw_send_weekly_report: {
+        Args: { _learner: string; _week_start: string }
+        Returns: Json
+      }
       rw_set_active: {
         Args: {
           _active: boolean

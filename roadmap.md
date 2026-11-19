@@ -28,4 +28,5 @@
 - [x] Phase 4 : suppressions sécurisées (désactivation réversible, motif, journal, réaffectation coach, admins protégés)
 - [x] Phase 5 : fiche mot enrichie, lecteur du texte (phrases, vitesses, accents, volume, reprise), lecteur audio et vidéo des envois
 - [x] Phase 6 : OpenDoorsClass Chat (privé, groupes, annonces, pièces jointes, notes vocales, réactions, lu, signalements)
-- [ ] Phases 7 et 8
+- [ ] Phase 7 : progression détaillée, rapports hebdomadaires et individuels, exports et notifications
+- [ ] Phase 8 : scénarios de vérification

@@ -120,6 +120,13 @@
       "when": 1795048101688,
       "tag": "0016_aligner_sauvegarde_reponses_horaires",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1795048437777,
+      "tag": "0017_rw_weekly_reports_and_badge_notifications",
+      "breakpoints": true
     }
   ]
 }
