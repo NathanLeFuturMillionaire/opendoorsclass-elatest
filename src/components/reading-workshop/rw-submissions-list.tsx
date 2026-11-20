@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 export type Sub = {
   id: string; kind: string; storage_path: string; status: keyof typeof RW_STATUS_LABEL; learner_note: string | null;
-  coach_feedback: string | null; score: number | null; reading_score: number | null; pronunciation_score: number | null; fluency_score: number | null; rework_passages?: string | null; created_at: string; lesson_id: string; learner_id: string;
+  coach_feedback: string | null; score: number | null; reading_score: number | null; pronunciation_score: number | null; fluency_score: number | null; rework_passages?: string | null; created_at: string; reviewed_at: string | null; updated_at: string; lesson_id: string; learner_id: string;
   rw_lessons: { title: string; level: string } | null; rw_learners: { full_name: string; level: string; start_date: string | null } | null;
 };
 
@@ -23,7 +23,7 @@ export function useRwSubmissions(key: string, filter?: { lessonId?: string }) {
     queryKey: ["rw-my-submissions", key, filter?.lessonId ?? ""],
     queryFn: async () => {
       let q = supabase.from("rw_submissions")
-        .select("id, kind, storage_path, status, learner_note, coach_feedback, score, reading_score, pronunciation_score, fluency_score, rework_passages, created_at, lesson_id, learner_id, rw_lessons(title, level), rw_learners(full_name, level, start_date)")
+        .select("id, kind, storage_path, status, learner_note, coach_feedback, score, reading_score, pronunciation_score, fluency_score, rework_passages, created_at, reviewed_at, updated_at, lesson_id, learner_id, rw_lessons(title, level), rw_learners(full_name, level, start_date)")
         .order("created_at", { ascending: false }).limit(1000);
       if (filter?.lessonId) q = q.eq("lesson_id", filter.lessonId);
       const { data, error } = await q;

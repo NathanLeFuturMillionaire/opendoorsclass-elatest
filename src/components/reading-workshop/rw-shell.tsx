@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import type { ReactNode } from "react";
-import { BookOpen, GraduationCap, LayoutDashboard, Library, Loader2, ShieldCheck , MessageCircle } from "lucide-react";
+import { Bell, BookOpen, GraduationCap, LayoutDashboard, Library, Loader2, ShieldCheck, MessageCircle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { getRwContext } from "@/lib/reading-workshop.functions";
@@ -37,6 +37,7 @@ export function RwShell({ need, title, subtitle, children }: { need: Need; title
           {(data?.isStaff || data?.isLearner) && <RwTab to="/reading-workshop/learner" icon={<GraduationCap className="size-4" />} label="Mon espace" />}
           {data && (data.isStaff || data.isCoach || data.isLearner) && <RwTab to="/reading-workshop/library" icon={<Library className="size-4" />} label="Bibliothèque" />}
           {data && (data.isStaff || data.isCoach || data.isLearner) && <RwTab to="/reading-workshop/chat" icon={<MessageCircle className="size-4" />} label="Chat" />}
+          {data && (data.isStaff || data.isCoach || data.isLearner) && <RwTab to="/notifications" icon={<Bell className="size-4" />} label="Notifications" />}
         </div>
       </div>
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -69,7 +70,7 @@ export function RwShell({ need, title, subtitle, children }: { need: Need; title
   );
 }
 
-function RwTab({ to, icon, label }: { to: "/reading-workshop/admin" | "/reading-workshop/coach" | "/reading-workshop/learner" | "/reading-workshop/library" | "/reading-workshop/chat"; icon: ReactNode; label: string }) {
+function RwTab({ to, icon, label }: { to: "/reading-workshop/admin" | "/reading-workshop/coach" | "/reading-workshop/learner" | "/reading-workshop/library" | "/reading-workshop/chat" | "/notifications"; icon: ReactNode; label: string }) {
   return (
     <Link to={to} className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-muted-foreground hover:bg-background hover:text-foreground" activeProps={{ className: "bg-background text-foreground shadow-sm" }}>
       {icon} {label}

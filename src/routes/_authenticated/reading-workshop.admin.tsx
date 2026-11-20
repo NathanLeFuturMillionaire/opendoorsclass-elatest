@@ -15,11 +15,18 @@ import { createRwAccessLink, getRwAdminOverview, listRwPeople } from "@/lib/read
 import { RW_PROGRAM } from "@/lib/reading-workshop";
 import { RwLessonPath } from "@/components/reading-workshop/rw-lesson-path";
 import { RwHoursAdmin } from "@/components/reading-workshop/rw-hours-admin";
-import { RwProgressTable } from "@/components/reading-workshop/rw-progress-table";
+import { RwProgressReports } from "@/components/reading-workshop/rw-progress-reports";
 import { useRwSubmissions } from "@/components/reading-workshop/rw-submissions-list";
 
 export const Route = createFileRoute("/_authenticated/reading-workshop/admin")({
-  head: () => ({ meta: [{ title: "Administration, Reading Workshop OpenDoorsClass" }] }),
+  head: () => ({ meta: [
+    { title: "Administration et rapports, Reading Workshop OpenDoorsClass" },
+    { name: "description", content: "Gérez les participants et consultez les rapports hebdomadaires et individuels du Reading Workshop." },
+    { property: "og:title", content: "Administration du Reading Workshop OpenDoorsClass" },
+    { property: "og:description", content: "Suivi pédagogique, rapports et gestion des apprenants et des coachs." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: () => (
     <RwShell need="admin" title="Administration" subtitle="Créez les apprenants et les coachs, ajoutez leur photo, fixez le niveau et envoyez leur lien d'accès.">
       <AdminHome />
@@ -124,7 +131,7 @@ function AdminHome() {
             : <RwEmpty title="Aucun coach" text="Ajoutez un coach pour pouvoir lui confier des apprenants." />}
         </TabsContent>
         <TabsContent value="progress" className="mt-4">
-          <RwProgressTable learners={learners as any} subs={subs} coachName={coachName} reportName="rapport-reading-workshop" />
+          <RwProgressReports learners={learners as any} subs={subs} coachName={coachName} reportName="rapport-reading-workshop" />
         </TabsContent>
         <TabsContent value="hours" className="mt-4"><RwHoursAdmin /></TabsContent>
         <TabsContent value="log" className="mt-4"><RwRemovalLog /></TabsContent>

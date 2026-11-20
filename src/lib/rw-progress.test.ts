@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { computeRwProgress, rwCurrentWeek, rwReportCsv } from "./rw-progress";
+import {
+  buildRwAlerts,
+  buildRwWeeklySeries,
+  computeRwComprehensionScore,
+  computeRwProgress,
+  computeRwWeek,
+  rwCurrentWeek,
+  rwReportCsv,
+  rwWeekWindow,
+  type RwProgressAnswer,
+} from "./rw-progress";
 
 const now = new Date("2026-11-12T12:00:00");
 const s = (lesson_id: string, status: "submitted" | "redo" | "validated", score: number | null = null) => ({ lesson_id, status, score, created_at: "2026-11-01" });
@@ -24,7 +34,7 @@ describe("rw progress", () => {
     expect(computeRwProgress(subs, null, now).percent).toBe(50);
   });
   it("delay counts 6 sessions per elapsed week", () => {
-    const p = computeRwProgress([s("a", "validated")], "2026-10-22", now); // week 4
+    const p = computeRwProgress([s("a", "validated")], "2026-10-22", now);
     expect(p.expected).toBe(18);
     expect(p.behind).toBe(17);
   });
@@ -37,7 +47,65 @@ describe("rw progress", () => {
     expect(computeRwProgress([s("a", "validated", 99)], null, now).averageScore).toBeNull();
     expect(computeRwProgress(undefined as never, null, now).validated).toBe(0);
   });
-  it("csv escapes separators", () => {
-    expect(rwReportCsv([{ name: "Doe; Jane", level: "A1", coach: "X", p: computeRwProgress([], null, now) }]).split("\n")[1]).toContain('"Doe; Jane"');
+  it("csv escapes separators and spreadsheet formulas", () => {
+    const report = rwReportCsv([{ name: "Doe; Jane", level: "A1", coach: "=FORMULA()", p: computeRwProgress([], null, now) }]);
+    expect(report.split("\n")[1]).toContain('"Doe; Jane"');
+    expect(report).toContain("'=FORMULA()");
   });
 });
+
+describe("weekly reports", () => {
+  const localNow = new Date(2026, 10, 19, 12, 0, 0);
+  const monday = rwWeekWindow(0, localNow);
+
+  it("starts on Monday and excludes the following Monday", () => {
+    expect(monday.start.getDay()).toBe(1);
+    expect(localDateKey(monday.start)).toBe("2026-11-16");
+    expect(localDateKey(monday.end)).toBe("2026-11-23");
+    expect(monday.key).toBe("2026-11-16");
+  });
+
+  it("counts six weekly validations once per lesson and uses review time", () => {
+    const subs = Array.from({ length: 8 }, (_, index) => ({
+      lesson_id: `lesson-${index}`,
+      status: "validated" as const,
+      score: 10 + index,
+      created_at: "2026-11-15T10:00:00",
+      reviewed_at: `2026-11-${String(16 + (index % 6)).padStart(2, "0")}T10:00:00`,
+    }));
+    const duplicate = { ...subs[0], score: 20, reviewed_at: "2026-11-18T12:00:00" };
+    const weekly = computeRwWeek([...subs, duplicate], [], monday);
+    expect(weekly.validated).toBe(8);
+    expect(weekly.percent).toBe(100);
+    expect(weekly.submissions).toBe(0);
+    expect(weekly.averageScore).toBe(14.8);
+  });
+
+  it("computes comprehension on 20 and ignores pending answers", () => {
+    const answers: RwProgressAnswer[] = [
+      { lesson_id: "a", points: 2, max_points: 2, status: "auto_graded", created_at: "2026-11-17T10:00:00" },
+      { lesson_id: "a", points: 1, max_points: 2, status: "graded", created_at: "2026-11-17T10:00:00" },
+      { lesson_id: "a", points: null, max_points: 2, status: "pending", created_at: "2026-11-17T10:00:00" },
+    ];
+    expect(computeRwComprehensionScore(answers, monday)).toBe(15);
+    expect(computeRwWeek([], answers, monday).comprehensionScore).toBe(15);
+  });
+
+  it("returns six chronological weekly windows", () => {
+    const series = buildRwWeeklySeries([], [], localNow);
+    expect(series).toHaveLength(6);
+    expect(series[5].window.key).toBe(monday.key);
+    expect(series[0].window.start.getTime()).toBeLessThan(series[1].window.start.getTime());
+  });
+
+  it("alerts on two sessions of delay and on requested rework", () => {
+    const progress = computeRwProgress([{ ...s("a", "redo") }], "2026-10-19", localNow);
+    const alerts = buildRwAlerts(progress, localNow);
+    expect(alerts.some((alert) => alert.id === "redo")).toBe(true);
+    expect(alerts.some((alert) => alert.id === "behind")).toBe(true);
+  });
+});
+
+function localDateKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}

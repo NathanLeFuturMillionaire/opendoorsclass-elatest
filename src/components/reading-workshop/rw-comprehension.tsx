@@ -37,6 +37,7 @@ type Answer = {
 };
 type SaveState = "saving" | "saved" | "error";
 
+const EMPTY_ANSWERS: Answer[] = [];
 const typeOf = (q: RwQuestion) => q.type ?? "mcq";
 const TYPE_LABEL: Record<string, string> = {
   mcq: "Choix multiple",
@@ -99,7 +100,7 @@ export function RwComprehension({
   accessState?: RwLessonState | "unavailable";
 }) {
   const qc = useQueryClient();
-  const { data: saved = [] } = useRwAnswers(lessonId, learnerId);
+  const { data: saved = EMPTY_ANSWERS } = useRwAnswers(lessonId, learnerId);
   const [byIdx, setByIdx] = useState<Record<number, Answer>>({});
   const [drafts, setDrafts] = useState<Record<number, string>>({});
   const [state, setState] = useState<Record<number, SaveState>>({});

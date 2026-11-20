@@ -9,10 +9,17 @@ import { cn } from "@/lib/utils";
 import { RwRemoveDialog, useInvalidateRwPeople, type RwRemoveTarget } from "@/components/reading-workshop/rw-remove-dialog";
 import { Button } from "@/components/ui/button";
 import { UserMinus } from "lucide-react";
-import { RwProgressTable } from "@/components/reading-workshop/rw-progress-table";
+import { RwProgressReports } from "@/components/reading-workshop/rw-progress-reports";
 
 export const Route = createFileRoute("/_authenticated/reading-workshop/coach")({
-  head: () => ({ meta: [{ title: "Espace coach, Reading Workshop OpenDoorsClass" }] }),
+  head: () => ({ meta: [
+    { title: "Suivi coach et bilans, Reading Workshop OpenDoorsClass" },
+    { name: "description", content: "Corrigez les lectures et suivez la progression hebdomadaire de vos apprenants Reading Workshop." },
+    { property: "og:title", content: "Espace coach du Reading Workshop OpenDoorsClass" },
+    { property: "og:description", content: "Corrections, alertes et rapports individuels de vos apprenants." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: () => (
     <RwShell need="coach" title="Espace coach" subtitle="Vos apprenants et leurs travaux à corriger.">
       <CoachHome />
@@ -45,8 +52,8 @@ function CoachHome() {
         </div>
         <RwSubmissionsList items={subs.filter((x) => x.status === tab)} mode="coach" />
       </section>
-      <h3 className="text-xl font-bold">Suivi de mes apprenants</h3>
-      <RwProgressTable learners={data} subs={subs} reportName="suivi-apprenants" />
+      <h3 className="text-xl font-bold">Suivi et rapports de mes apprenants</h3>
+      <RwProgressReports learners={data} subs={subs} reportName="suivi-apprenants" />
       <section className="space-y-2">
         <h3 className="text-lg font-bold">Gérer mes apprenants</h3>
         <ul className="divide-y divide-border rounded-2xl border border-border bg-card shadow-sm">
