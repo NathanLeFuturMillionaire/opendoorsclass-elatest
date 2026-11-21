@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ArrowLeft, Languages, Lightbulb } from "lucide-react";
+import { ArrowLeft, Languages, Lightbulb, Lock } from "lucide-react";
 import { RwComprehension } from "@/components/reading-workshop/rw-comprehension";
 import { RwShell } from "@/components/reading-workshop/rw-shell";
 import { Button } from "@/components/ui/button";
@@ -69,7 +69,24 @@ function Lesson() {
     return (
       <p className="rounded-2xl border border-border p-6 text-muted-foreground">{error.message}</p>
     );
-  if (!l) return null;
+  if (!l) {
+    if (statesLoading) {
+      return <p className="rounded-2xl border border-border bg-card p-5 text-sm text-muted-foreground">Vérification de l'accès au texte…</p>;
+    }
+    return (
+      <section className="rounded-3xl border border-border bg-card p-8 text-center shadow-[var(--rw-shadow)]">
+        <Lock className="mx-auto size-8 text-primary" />
+        <h2 className="mt-3 text-xl font-bold">Texte verrouillé ou indisponible</h2>
+        <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
+          Ce texte n'est pas accessible dans votre parcours actuel. Ouvrez Mon parcours pour vérifier la prochaine lecture disponible et les validations nécessaires.
+        </p>
+        <div className="mt-5 flex flex-wrap justify-center gap-2">
+          <Button asChild><Link to="/reading-workshop/learner">Voir mon parcours</Link></Button>
+          <Button asChild variant="outline"><Link to="/reading-workshop/library">Retour à la bibliothèque</Link></Button>
+        </div>
+      </section>
+    );
+  }
   const s = l.rw_sessions;
   const mention =
     l.mention === "original"
