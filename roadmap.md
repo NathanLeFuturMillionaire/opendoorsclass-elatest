@@ -29,4 +29,4 @@
 - [x] Phase 5 : fiche mot enrichie, lecteur du texte (phrases, vitesses, accents, volume, reprise), lecteur audio et vidéo des envois
 - [x] Phase 6 : OpenDoorsClass Chat (privé, groupes, annonces, pièces jointes, notes vocales, réactions, lu, signalements)
 - [x] Phase 7 : progression détaillée, rapports hebdomadaires et individuels, exports PDF/CSV et notifications, vérifiés dans le navigateur
-- [ ] Phase 8 : scénarios de vérification
+- [ ] Phase 8 : scénarios de vérification en cours, corrections et tests de non-régression
