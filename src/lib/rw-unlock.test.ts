@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeRwStates } from "./rw-unlock";
+import { computeRwStates, rwLessonAccess } from "./rw-unlock";
 
 describe("déblocage progressif", () => {
   it("seul le premier texte est ouvert au départ", () => {
@@ -51,5 +51,17 @@ describe("déblocage progressif", () => {
       { id: "d", validated: false },
     ]);
     expect(states).toEqual(["validated", "validated", "in_progress", "locked"]);
+  });
+});
+
+describe("accès direct à un texte indisponible", () => {
+  it("attend la fin du chargement avant de conclure", () => {
+    expect(rwLessonAccess(null, true)).toBe("loading");
+  });
+  it("confirme l'indisponibilité quand le texte et son accès sont absents", () => {
+    expect(rwLessonAccess(null, false)).toBe("unavailable");
+  });
+  it("laisse le texte accessible dès que son contenu est chargé", () => {
+    expect(rwLessonAccess({ id: "leçon" }, true)).toBe("ready");
   });
 });

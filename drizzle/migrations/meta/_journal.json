@@ -127,6 +127,13 @@
       "when": 1795048437777,
       "tag": "0017_rw_weekly_reports_and_badge_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1795334273171,
+      "tag": "0018_restrict_rw_reactivation_and_reported_messages",
+      "breakpoints": true
     }
   ]
 }

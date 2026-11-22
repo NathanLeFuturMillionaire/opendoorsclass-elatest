@@ -17,6 +17,7 @@ import {
 import { getRwMe } from "@/lib/reading-workshop.functions";
 import { SmartReader } from "@/components/reading-workshop/smart-reader";
 import { useRwLessonStates } from "@/components/reading-workshop/rw-lesson-path";
+import { rwLessonAccess } from "@/lib/rw-unlock";
 
 type GrammarItem = { point: string; explanation_fr: string; example: string };
 type VocabularyItem = {
@@ -70,7 +71,7 @@ function Lesson() {
       <p className="rounded-2xl border border-border p-6 text-muted-foreground">{error.message}</p>
     );
   if (!l) {
-    if (statesLoading) {
+    if (rwLessonAccess(l, statesLoading) === "loading") {
       return <p className="rounded-2xl border border-border bg-card p-5 text-sm text-muted-foreground">Vérification de l'accès au texte…</p>;
     }
     return (

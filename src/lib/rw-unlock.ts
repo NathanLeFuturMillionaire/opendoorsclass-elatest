@@ -1,5 +1,13 @@
 export type RwLessonState = "locked" | "available" | "in_progress" | "submitted" | "resubmitted" | "redo" | "validated";
 
+export type RwLessonAccess = "loading" | "ready" | "unavailable";
+
+/** Distinguishes a pending lesson request from a confirmed unavailable lesson. */
+export function rwLessonAccess(lesson: unknown, statesLoading: boolean): RwLessonAccess {
+  if (lesson) return "ready";
+  return statesLoading ? "loading" : "unavailable";
+}
+
 export const RW_LESSON_STATE_LABEL: Record<RwLessonState, string> = {
   locked: "Verrouillé",
   available: "Disponible",
