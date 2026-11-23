@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { isCellAwaitingEvaluation } from "@/lib/assessment-scoring";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import QRCode from "qrcode";
@@ -439,7 +440,7 @@ function ResultPage() {
                               {CATEGORY_EN[cat] ?? cat}
                             </span>
                             <span style={{ color: "#C9A24B", fontWeight: 700 }}>
-                              {s.percent}%
+                              {isCellAwaitingEvaluation(s) ? "Pending review" : `${s.percent}%`}
                             </span>
                           </div>
                         ))}
@@ -594,6 +595,13 @@ function ResultPage() {
               </div>
               </div>
             </div>
+
+            {Object.values(r.perCategory).some((c) => (c.pending ?? 0) > 0) ? (
+              <div className="mt-6 rounded-xl border border-border bg-card p-4 text-sm text-muted-foreground">
+                Une partie de votre expression écrite ou orale est en attente d'évaluation. Elle n'est
+                pas comptée comme zéro : votre résultat sera mis à jour dès qu'elle sera corrigée.
+              </div>
+            ) : null}
 
             {/* Recommendation, outside the certificate */}
             <ClubRecommendationCard level={r.levelResult} />

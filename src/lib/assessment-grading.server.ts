@@ -51,9 +51,14 @@ export async function loadGradingContext(
     level: question.level as string,
     prompt: question.question_text,
     persist: async (payload) => {
-      const next = { ...((session.answers as Record<string, string>) ?? {}) };
-      next[questionId] = JSON.stringify(payload);
-      await supabaseAdmin.from("test_sessions").update({ answers: next }).eq("id", sessionId);
+      // Atomic single key update: never overwrites answers saved in parallel.
+      const { data: saved, error } = await supabaseAdmin.rpc("save_english_speaking_answer", {
+        _session: sessionId,
+        _user: context.userId,
+        _question: questionId,
+        _answer: JSON.stringify(payload),
+      });
+      if (error || !saved) throw new Error("ANSWER_SAVE_FAILED");
     },
   };
 }
@@ -132,11 +137,86 @@ export async function gradeProduction(input: {
   const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
   try {
     const parsed = JSON.parse(json.choices?.[0]?.message?.content ?? "{}");
+    const raw = Number(parsed.score);
+    // A missing or invalid score is a grading failure, never a zero.
+    if (parsed.score === undefined || parsed.score === null || !Number.isFinite(raw)) {
+      throw new Error("AI_GRADING_FAILED");
+    }
     return {
-      score: Math.max(0, Math.min(100, Math.round(Number(parsed.score) || 0))),
+      score: Math.max(0, Math.min(100, Math.round(raw))),
       feedback: typeof parsed.feedback === "string" ? parsed.feedback : "",
     };
   } catch {
-    return { score: 0, feedback: "" };
+    throw new Error("AI_GRADING_FAILED");
   }
+}
+
+/**
+ * Before a session is scored, evaluates every production that is still
+ * pending: written text, a stored transcript, or an English recording whose
+ * transcript exists but was never graded. Successful grades are saved
+ * atomically; failures stay pending (never turned into 0).
+ */
+export async function gradePendingProductions(input: {
+  sessionId: string;
+  userId: string;
+  language: string;
+  examinerLanguage: string;
+  items: Array<{ id: string; level: string; category: string; question_text?: string | null }>;
+  answers: Record<string, unknown>;
+}): Promise<Record<string, unknown>> {
+  const { parseProduction, isProductiveCategory } = await import("@/lib/assessment-scoring");
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const next = { ...input.answers };
+  for (const item of input.items) {
+    if (!isProductiveCategory(item.category)) continue;
+    const state = parseProduction(next[item.id]);
+    let content = state.state === "pending" ? state.content : "";
+    let recordingId: string | null = null;
+    if (state.state === "missing" && item.category === "speaking") {
+      const { data: rec } = await supabaseAdmin
+        .from("speaking_recordings")
+        .select("id, transcript")
+        .eq("session_id", input.sessionId)
+        .eq("question_id", item.id)
+        .eq("user_id", input.userId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (rec?.transcript?.trim()) {
+        content = rec.transcript.trim();
+        recordingId = rec.id;
+      }
+    }
+    if (!content) continue;
+    let prompt = item.question_text ?? "";
+    if (!prompt) {
+      const { data: q } = await supabaseAdmin.from("questions").select("question_text").eq("id", item.id).maybeSingle();
+      prompt = q?.question_text ?? "";
+    }
+    try {
+      const result = await gradeProduction({
+        kind: item.category as "writing" | "speaking",
+        examinerLanguage: input.examinerLanguage,
+        level: item.level,
+        prompt,
+        content,
+      });
+      const payload =
+        item.category === "writing"
+          ? { text: content, ...result }
+          : { ...(recordingId ? { recordingId } : {}), transcript: content, ...result };
+      const serialized = JSON.stringify(payload);
+      const { data: saved } = await supabaseAdmin.rpc("save_english_speaking_answer", {
+        _session: input.sessionId,
+        _user: input.userId,
+        _question: item.id,
+        _answer: serialized,
+      });
+      if (saved) next[item.id] = serialized;
+    } catch {
+      // Stays pending: excluded from scores and shown as awaiting evaluation.
+    }
+  }
+  return next;
 }

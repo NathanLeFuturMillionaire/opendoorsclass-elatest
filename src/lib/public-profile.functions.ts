@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { isCellAwaitingEvaluation } from "@/lib/assessment-scoring";
 import { z } from "zod";
 
 export type PublicSkill = { category: string; percent: number };
@@ -76,7 +77,7 @@ export const getPublicProfile = createServerFn({ method: "GET" })
     const skills: PublicSkill[] = [];
     const cats = (best?.per_category_scores ?? {}) as Record<string, { percent?: number }>;
     for (const [category, v] of Object.entries(cats)) {
-      if (v && typeof v.percent === "number") skills.push({ category, percent: Math.round(v.percent) });
+      if (v && typeof v.percent === "number" && !isCellAwaitingEvaluation(v as never)) skills.push({ category, percent: Math.round(v.percent) });
     }
     skills.sort((a, b) => b.percent - a.percent);
 

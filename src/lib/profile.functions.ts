@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { isCellAwaitingEvaluation } from "@/lib/assessment-scoring";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -60,6 +61,7 @@ export const getProfileFull = createServerFn({ method: "GET" })
     for (const s of completedList) {
       const pc = (s.per_category_scores ?? {}) as Record<string, SkillScore>;
       for (const [cat, val] of Object.entries(pc)) {
+        if (isCellAwaitingEvaluation(val as never)) continue;
         const pct = val?.percent ?? 0;
         skillsAgg[cat] ??= { best: 0, last: 0 };
         if (pct > skillsAgg[cat].best) skillsAgg[cat].best = pct;
@@ -71,6 +73,7 @@ export const getProfileFull = createServerFn({ method: "GET" })
         SkillScore
       >;
       for (const [cat, val] of Object.entries(pc)) {
+        if (isCellAwaitingEvaluation(val as never)) continue;
         skillsAgg[cat] = { ...(skillsAgg[cat] ?? { best: 0, last: 0 }), last: val?.percent ?? 0 };
       }
     }

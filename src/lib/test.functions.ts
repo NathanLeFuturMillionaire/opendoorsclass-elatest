@@ -136,7 +136,6 @@ export type TestResult = {
   recommendation: string;
 };
 
-const LEVEL_ORDER = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
 
 export const submitTestAnswers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -147,7 +146,7 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
     // Verify session belongs to user and not already completed.
     const { data: session, error: sErr } = await context.supabase
       .from("test_sessions")
-      .select("id, user_id, completed_at, question_ids")
+      .select("id, user_id, completed_at, question_ids, answers, language")
       .eq("id", data.sessionId)
       .maybeSingle();
     if (sErr) throw new Error(sErr.message);
@@ -156,61 +155,43 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
 
     // Grade only the questions that were actually served for this attempt.
     const servedIds = ((session.question_ids as string[] | null) ?? []).filter(Boolean);
-    let query = supabaseAdmin.from("questions").select("id, level, category, correct_answer");
+    let query = supabaseAdmin
+      .from("questions")
+      .select("id, level, category, correct_answer, question_text");
     query = servedIds.length ? query.in("id", servedIds) : query.eq("is_active", true).eq("language", "en");
     const { data: questions, error: qErr } = await query;
     if (qErr) throw new Error(qErr.message);
-
-    const perLevel: Record<string, { correct: number; total: number; percent: number }> = {};
-    const perCategory: Record<string, { correct: number; total: number; percent: number }> = {};
-    let totalCorrect = 0;
     const total = questions?.length ?? 0;
 
+    // Writing and speaking evaluations come only from the server copy of the
+    // answers (written by the graders), never from the browser payload.
+    const { isProductiveCategory, computeAssessmentScore } = await import("@/lib/assessment-scoring");
+    const stored = ((session.answers as Record<string, string> | null) ?? {});
+    const merged: Record<string, string> = { ...data.answers };
     for (const q of questions ?? []) {
-      const userAns = data.answers[q.id];
-      let isCorrect = false;
-      if (q.category === "speaking" || q.category === "writing") {
-        // Production answers are stored as JSON {transcript|text, score} produced by the AI graders.
-        try {
-          const parsed = userAns ? JSON.parse(userAns) : null;
-          if (parsed && typeof parsed.score === "number" && parsed.score >= 60) isCorrect = true;
-        } catch {
-          isCorrect = false;
-        }
-      } else {
-        isCorrect = userAns === q.correct_answer;
-      }
-      const lvl = q.level as string;
-      const cat = q.category as string;
-      perLevel[lvl] ??= { correct: 0, total: 0, percent: 0 };
-      perCategory[cat] ??= { correct: 0, total: 0, percent: 0 };
-      perLevel[lvl].total++;
-      perCategory[cat].total++;
-      if (isCorrect) {
-        totalCorrect++;
-        perLevel[lvl].correct++;
-        perCategory[cat].correct++;
-      }
+      if (!isProductiveCategory(q.category)) continue;
+      if (stored[q.id] !== undefined) merged[q.id] = stored[q.id] as string;
+      else delete merged[q.id];
     }
-    for (const k of Object.keys(perLevel)) {
-      perLevel[k].percent = perLevel[k].total ? Math.round((perLevel[k].correct / perLevel[k].total) * 100) : 0;
-    }
-    for (const k of Object.keys(perCategory)) {
-      perCategory[k].percent = perCategory[k].total ? Math.round((perCategory[k].correct / perCategory[k].total) * 100) : 0;
-    }
-
-    // Determine CEFR: highest consecutive level with >=70% starting from A1.
-    let levelResult: (typeof LEVEL_ORDER)[number] = "A1";
-    for (const lvl of LEVEL_ORDER) {
-      const cell = perLevel[lvl];
-      // Un niveau non servi ne doit pas interrompre la progression.
-      if (!cell || cell.total === 0) continue;
-      if (cell.percent >= 70) {
-        levelResult = lvl;
-      } else {
-        break;
-      }
-    }
+    // Persist objective answers first so the atomic grader writes stack on top.
+    await supabaseAdmin
+      .from("test_sessions")
+      .update({ answers: merged })
+      .eq("id", data.sessionId)
+      .is("completed_at", null);
+    const { gradePendingProductions } = await import("@/lib/assessment-grading.server");
+    const finalAnswers = (await gradePendingProductions({
+      sessionId: data.sessionId,
+      userId: context.userId,
+      language: "en",
+      examinerLanguage: "English",
+      items: questions ?? [],
+      answers: merged,
+    })) as Record<string, string>;
+    const computed = computeAssessmentScore(questions ?? [], finalAnswers);
+    const perLevel = computed.perLevel;
+    const perCategory = computed.perCategory;
+    const levelResult = computed.levelResult;
 
     // Fetch level range message.
     const range: "A1-A2" | "B1-B2" | "C1-C2" =
@@ -225,7 +206,7 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
       .eq("level_range", range)
       .maybeSingle();
 
-    const scorePercent = total ? Math.round((totalCorrect / total) * 100) : 0;
+    const scorePercent = computed.score;
 
     // Previous best score, read before this session is marked completed.
     const { data: previousSessions } = await supabaseAdmin
@@ -246,10 +227,19 @@ export const submitTestAnswers = createServerFn({ method: "POST" })
         completed_at: new Date().toISOString(),
         score: scorePercent,
         level_result: levelResult,
-        answers: data.answers,
+        status: "completed",
+        answers: finalAnswers,
         per_category_scores: perCategory,
+        skill_scores: perLevel,
+        progress: {
+          answered: Object.keys(finalAnswers).length,
+          total,
+          grading_pending: computed.pendingCount,
+          updated_at: new Date().toISOString(),
+        },
       })
-      .eq("id", data.sessionId);
+      .eq("id", data.sessionId)
+      .is("completed_at", null);
     if (uErr) throw new Error(uErr.message);
 
     // Gamification: award XP + badges for this completed session (idempotent).
@@ -363,7 +353,7 @@ export const getSessionResult = createServerFn({ method: "GET" })
       levelResult: session.level_result,
       perCategory: (session.per_category_scores ?? {}) as Record<
         string,
-        { correct: number; total: number; percent: number }
+        { correct: number; total: number; percent: number; pending?: number; missing?: number }
       >,
       recommendation: msg?.message_text ?? "",
       completedAt: session.completed_at,
@@ -432,7 +422,7 @@ export const scoreWritingAnswer = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!question || question.category !== "writing") throw new Error("Question invalide.");
 
-    let score = 0;
+    let score: number | null = null;
     let feedback = "";
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -458,19 +448,28 @@ export const scoreWritingAnswer = createServerFn({ method: "POST" })
       const gj = (await res.json()) as { choices?: { message?: { content?: string } }[] };
       try {
         const parsed = JSON.parse(gj.choices?.[0]?.message?.content ?? "{}");
-        score = Math.max(0, Math.min(100, Math.round(Number(parsed.score) || 0)));
-        feedback = typeof parsed.feedback === "string" ? parsed.feedback : "";
+        const raw = Number(parsed.score);
+        if (parsed.score !== undefined && parsed.score !== null && Number.isFinite(raw)) {
+          score = Math.max(0, Math.min(100, Math.round(raw)));
+          feedback = typeof parsed.feedback === "string" ? parsed.feedback : "";
+        }
       } catch {
-        score = 0;
+        score = null;
       }
     }
 
-    const nextAnswers = { ...((session.answers as Record<string, string>) ?? {}) };
-    nextAnswers[data.questionId] = JSON.stringify({ text: data.text, score, feedback });
-    await supabaseAdmin
-      .from("test_sessions")
-      .update({ answers: nextAnswers })
-      .eq("id", data.sessionId);
-
+    // Atomic single key write. A failed evaluation is stored as pending (never
+    // as 0) and graded again when the test is submitted.
+    const payload = score === null ? { text: data.text, pending: true } : { text: data.text, score, feedback };
+    const { data: saved } = await supabaseAdmin.rpc("save_english_speaking_answer", {
+      _session: data.sessionId,
+      _user: context.userId,
+      _question: data.questionId,
+      _answer: JSON.stringify(payload),
+    });
+    if (!saved) throw new Error("Sauvegarde de la réponse impossible.");
+    if (score === null) {
+      throw new Error("Correction momentanément indisponible. Votre texte est enregistré et sera corrigé à la fin du test.");
+    }
     return { score, feedback };
   });

@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { isCellAwaitingEvaluation } from "@/lib/assessment-scoring";
 import { z } from "zod";
 
 export const LEADERBOARD_CATEGORIES = [
@@ -92,7 +93,7 @@ export const getLeaderboard = createServerFn({ method: "GET" })
       } else {
         const cats = (r.per_category_scores ?? {}) as Record<string, { percent?: number }>;
         const cat = cats?.[data.category];
-        value = cat && typeof cat.percent === "number" ? cat.percent : null;
+        value = cat && typeof cat.percent === "number" && !isCellAwaitingEvaluation(cat as never) ? cat.percent : null;
       }
       if (value === null) continue;
       const prev = best.get(r.user_id);

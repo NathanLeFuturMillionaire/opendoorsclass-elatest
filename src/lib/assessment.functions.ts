@@ -364,13 +364,31 @@ export const saveAssessmentAnswer = createServerFn({ method: "POST" })
     for (const [k, v] of Object.entries((session.answers ?? {}) as Record<string, unknown>)) {
       if (typeof v === "string") answers[k] = v;
     }
-    answers[data.questionId] = data.answer;
+    // Writing and speaking evaluations are written only by the server graders.
+    // A browser copy can neither forge a score nor overwrite a stored grade.
+    const { supabaseAdmin: admin } = await import("@/integrations/supabase/client.server");
+    const { data: target } = await admin
+      .from("questions")
+      .select("category")
+      .eq("id", data.questionId)
+      .maybeSingle();
+    const productive = target?.category === "writing" || target?.category === "speaking";
+    if (!productive) {
+      answers[data.questionId] = data.answer;
+      // Atomic single key write, so a grade saved in parallel is never lost.
+      const { data: saved, error: saveError } = await admin.rpc("save_english_speaking_answer", {
+        _session: session.id,
+        _user: context.userId,
+        _question: data.questionId,
+        _answer: data.answer,
+      });
+      if (saveError || !saved) throw new Error("ANSWER_SAVE_FAILED");
+    }
     const answered = Object.keys(answers).length;
 
     const { error: updateError } = await context.supabase
       .from("test_sessions")
       .update({
-        answers,
         current_question: data.currentQuestion,
         progress: {
           answered,
@@ -435,77 +453,27 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: graded } = await supabaseAdmin
       .from("questions")
-      .select("id, level, category, correct_answer")
+      .select("id, level, category, correct_answer, question_text")
       .in("id", served.length ? served : ["00000000-0000-0000-0000-000000000000"]);
 
-    // Weighted scoring (part VI): an item counts as much as its CEFR weight,
-    // A1 = 1 up to C2 = 6. Deterministic, no randomness, no adaptive logic.
-    const { levelWeight } = await import("@/lib/assessment-difficulty");
-    const perLevel: Record<string, { correct: number; total: number; percent: number }> = {};
-    const perCategory: Record<string, { correct: number; total: number; percent: number }> = {};
-    // Weighted numerator and denominator per category, used for the percent.
-    const catWeights: Record<string, { correct: number; total: number }> = {};
-    let totalCorrect = 0;
-    let weightedCorrect = 0;
-    let weightedTotal = 0;
-    const totalGraded = graded?.length ?? 0;
-
-    for (const q of graded ?? []) {
-      const raw = answers[q.id];
-      let isCorrect = false;
-      if (q.category === "speaking" || q.category === "writing") {
-        try {
-          const parsed = raw ? JSON.parse(raw) : null;
-          if (parsed && typeof parsed.score === "number" && parsed.score >= 60) isCorrect = true;
-        } catch {
-          isCorrect = false;
-        }
-      } else {
-        isCorrect = raw === q.correct_answer;
-      }
-      const lvl = q.level as string;
-      const cat = q.category as string;
-      const weight = levelWeight(lvl);
-      weightedTotal += weight;
-      perLevel[lvl] ??= { correct: 0, total: 0, percent: 0 };
-      perCategory[cat] ??= { correct: 0, total: 0, percent: 0 };
-      catWeights[cat] ??= { correct: 0, total: 0 };
-      catWeights[cat].total += weight;
-      perLevel[lvl].total++;
-      perCategory[cat].total++;
-      if (isCorrect) {
-        totalCorrect++;
-        weightedCorrect += weight;
-        catWeights[cat].correct += weight;
-        perLevel[lvl].correct++;
-        perCategory[cat].correct++;
-      }
-    }
-    for (const cell of Object.values(perLevel)) {
-      cell.percent = cell.total ? Math.round((cell.correct / cell.total) * 100) : 0;
-    }
-    for (const [cat, cell] of Object.entries(perCategory)) {
-      const w = catWeights[cat];
-      cell.percent = w && w.total ? Math.round((w.correct / w.total) * 100) : 0;
-    }
-
-    // CEFR ceiling: the highest level mastered without a break in the ladder.
-    // A candidate strong on A1 to B1 but failing B2 stays at B1, whatever the
-    // raw percentage of correct answers looks like.
-    let levelResult: string = "A1";
-    for (const lvl of LEVEL_ORDER) {
-      const cell = perLevel[lvl];
-      if (!cell || cell.total === 0) continue;
-      if (cell.percent >= 70) levelResult = lvl;
-      else break;
-    }
-    // Score reported to the candidate: weighted by level, so a C2 item won
-    // weighs six times an A1 item. Falls back to the flat ratio if no weight.
-    const scorePercent = weightedTotal
-      ? Math.round((weightedCorrect / weightedTotal) * 100)
-      : totalGraded
-        ? Math.round((totalCorrect / totalGraded) * 100)
-        : 0;
+    // Productions still awaiting evaluation are graded now; failures stay
+    // pending and are never counted as zero (assessment-scoring.ts).
+    const { gradePendingProductions } = await import("@/lib/assessment-grading.server");
+    const finalAnswers = await gradePendingProductions({
+      sessionId: session.id,
+      userId: context.userId,
+      language: session.language as string,
+      examinerLanguage:
+        ASSESSMENT_LANGUAGE_LABELS[session.language as string]?.examiner ?? "Spanish",
+      items: graded ?? [],
+      answers,
+    });
+    const { computeAssessmentScore } = await import("@/lib/assessment-scoring");
+    const computed = computeAssessmentScore(graded ?? [], finalAnswers);
+    const perLevel = computed.perLevel;
+    const perCategory = computed.perCategory;
+    const levelResult = computed.levelResult;
+    const scorePercent = computed.score;
 
     // Single conditional write: two parallel submissions cannot both succeed.
     const { data: updated, error: updateError } = await context.supabase
@@ -521,6 +489,7 @@ export const completeAssessmentSession = createServerFn({ method: "POST" })
         progress: {
           answered,
           total: served.length,
+          grading_pending: computed.pendingCount,
           updated_at: new Date().toISOString(),
         },
       })
@@ -573,13 +542,20 @@ export const scoreAssessmentWriting = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ score: number; feedback: string }> => {
     const { gradeProduction, loadGradingContext } = await import("@/lib/assessment-grading.server");
     const ctx = await loadGradingContext(context, data.sessionId, data.questionId, "writing");
-    const result = await gradeProduction({
-      kind: "writing",
-      examinerLanguage: ASSESSMENT_LANGUAGE_LABELS[ctx.language]?.examiner ?? "Spanish",
-      level: ctx.level,
-      prompt: ctx.prompt,
-      content: data.text,
-    });
+    let result: { score: number; feedback: string };
+    try {
+      result = await gradeProduction({
+        kind: "writing",
+        examinerLanguage: ASSESSMENT_LANGUAGE_LABELS[ctx.language]?.examiner ?? "Spanish",
+        level: ctx.level,
+        prompt: ctx.prompt,
+        content: data.text,
+      });
+    } catch (e) {
+      // The text is kept and evaluated again when the test is submitted.
+      await ctx.persist({ text: data.text, pending: true });
+      throw e;
+    }
     await ctx.persist({ text: data.text, ...result });
     return result;
   });
@@ -601,15 +577,23 @@ export const scoreAssessmentSpeaking = createServerFn({ method: "POST" })
       const ctx = await loadGradingContext(context, data.sessionId, data.questionId, "speaking");
       const transcript = await transcribeAudio(data.audioBase64, data.mimeType);
       const examinerLanguage = ASSESSMENT_LANGUAGE_LABELS[ctx.language]?.examiner ?? "Spanish";
-      const result = transcript
-        ? await gradeProduction({
+      let result: { score: number; feedback: string };
+      if (!transcript) {
+        result = { score: 0, feedback: "Aucune parole audible n'a été détectée." };
+      } else {
+        try {
+          result = await gradeProduction({
             kind: "speaking",
             examinerLanguage,
             level: ctx.level,
             prompt: ctx.prompt,
             content: transcript,
-          })
-        : { score: 0, feedback: "" };
+          });
+        } catch (e) {
+          await ctx.persist({ transcript, pending: true });
+          throw e;
+        }
+      }
       await ctx.persist({ transcript, ...result });
       return { transcript, ...result };
     },

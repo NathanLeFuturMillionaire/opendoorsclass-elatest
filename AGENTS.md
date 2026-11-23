@@ -21,3 +21,4 @@ Reading Workshop lessons are AI-drafted server-side into `rw_lessons` as drafts 
 
 - Public homepage statistics come only from `getPublicStats` (server aggregates, 10 min cache, rules in `src/lib/public-stats.ts`), so no personal data or table access reaches visitors.
 - Services are listed from the `src/lib/services.ts` registry, so a new service appears on home, services page and footer from one entry.
+- Level test scoring (English and Spanish) goes only through `src/lib/assessment-scoring.ts`: writing/speaking earn partial credit (score/100), answers awaiting evaluation are flagged `pending` and excluded (never counted as 0, and counted as 0 for the CEFR ladder so they cannot lift a level), and graders write single answers atomically; so displayed skills always match stored evaluations.
