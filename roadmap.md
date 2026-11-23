@@ -56,3 +56,12 @@
 - [x] Rejouer les scénarios réels, contrôler l'absence d'appels IA et conserver les données et permissions
 - [x] Rédiger le compte rendu des dépendances supprimées et des limites lexicales restantes
 - Résultat : 85 010 entrées, 123 188 formes, 98,7 % de couverture brute sur les 75 textes, 96 tests et scénario réel validés
+
+## Grammar Discovery : tracé interactif des phrases
+- [x] Auditer Grammar Discovery, les accès aux leçons et le suivi administratif existants
+- [x] Créer cinq phrases pédagogiques déterministes par leçon, sans appel IA
+- [x] Implémenter le tracé tactile, souris et stylet avec validation géométrique et limites strictes
+- [x] Enregistrer progression, tentatives, tracés, temps et résultats avec permissions strictes
+- [x] Ajouter la consultation phrase par phrase et caractère par caractère dans l administration
+- [x] Tester les règles, les scénarios réels, le mobile et l absence d appels IA
+- Résultat : 94 modèles vectoriels, cinq phrases et 175 caractères validés en scénario réel, 98 % de précision, tactile confirmé, 115 tests. Essais physiques Safari/iPhone et Android toujours suivis séparément.

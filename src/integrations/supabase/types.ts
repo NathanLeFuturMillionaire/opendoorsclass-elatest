@@ -1661,6 +1661,150 @@ export type Database = {
           },
         ]
       }
+      rw_trace_characters: {
+        Row: {
+          attempts: number
+          character: string
+          character_index: number
+          coverage: number
+          duration_ms: number
+          exercise_id: string
+          id: string
+          invalid_attempts: number
+          learner_id: string
+          precision: number
+          score: number
+          sentence_index: number
+          stroke_coverage: number
+          trace: Json
+          updated_at: string
+          validated_at: string | null
+        }
+        Insert: {
+          attempts?: number
+          character: string
+          character_index: number
+          coverage: number
+          duration_ms?: number
+          exercise_id: string
+          id?: string
+          invalid_attempts?: number
+          learner_id: string
+          precision: number
+          score: number
+          sentence_index: number
+          stroke_coverage: number
+          trace?: Json
+          updated_at?: string
+          validated_at?: string | null
+        }
+        Update: {
+          attempts?: number
+          character?: string
+          character_index?: number
+          coverage?: number
+          duration_ms?: number
+          exercise_id?: string
+          id?: string
+          invalid_attempts?: number
+          learner_id?: string
+          precision?: number
+          score?: number
+          sentence_index?: number
+          stroke_coverage?: number
+          trace?: Json
+          updated_at?: string
+          validated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_trace_characters_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "rw_trace_exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rw_trace_characters_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "rw_learners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rw_trace_exercises: {
+        Row: {
+          completed_at: string | null
+          current_character: number
+          current_sentence: number
+          grammar_index: number
+          grammar_point: string
+          id: string
+          invalid_attempts: number
+          learner_id: string
+          lesson_id: string
+          score: number | null
+          sentences: Json
+          started_at: string
+          status: string
+          total_attempts: number
+          total_duration_ms: number
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          current_character?: number
+          current_sentence?: number
+          grammar_index: number
+          grammar_point: string
+          id?: string
+          invalid_attempts?: number
+          learner_id: string
+          lesson_id: string
+          score?: number | null
+          sentences: Json
+          started_at?: string
+          status?: string
+          total_attempts?: number
+          total_duration_ms?: number
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          current_character?: number
+          current_sentence?: number
+          grammar_index?: number
+          grammar_point?: string
+          id?: string
+          invalid_attempts?: number
+          learner_id?: string
+          lesson_id?: string
+          score?: number | null
+          sentences?: Json
+          started_at?: string
+          status?: string
+          total_attempts?: number
+          total_duration_ms?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_trace_exercises_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "rw_learners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rw_trace_exercises_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "rw_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rw_unlock_overrides: {
         Row: {
           created_at: string
@@ -2358,6 +2502,24 @@ export type Database = {
           title: string
           week_number: number
         }[]
+      }
+      rw_trace_next_character: {
+        Args: { _from: number; _sentence: string }
+        Returns: number
+      }
+      rw_trace_record_attempt: {
+        Args: {
+          _character_index: number
+          _coverage: number
+          _duration_ms: number
+          _exercise: string
+          _out_of_bounds: boolean
+          _precision: number
+          _sentence_index: number
+          _stroke_coverage: number
+          _trace: Json
+        }
+        Returns: Json
       }
       rw_workshop_allows: {
         Args: { _grace?: boolean; _uid: string }

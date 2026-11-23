@@ -38,6 +38,7 @@ import {
   downloadRwIndividualPdf,
 } from "@/lib/rw-report-pdf";
 import { cn } from "@/lib/utils";
+import { RwTraceReview } from "@/components/reading-workshop/rw-trace-review";
 
 export type RwReportLearner = {
   id: string;
@@ -428,18 +429,21 @@ export function RwProgressReports({
       </div>
 
       {selected && (
-        <RwIndividualReport
-          learner={selected.learner}
-          subs={selected.subs}
-          answers={selected.answers}
-          coach={selected.learner.coach_id ? coachName[selected.learner.coach_id] : undefined}
-          weekOffset={weekOffset}
-          onWeekChange={setWeekOffset}
-          onNotify={notify}
-          notifying={busy === "notify"}
-          onDownload={exportIndividual}
-          downloading={busy === "individual"}
-        />
+        <>
+          <RwIndividualReport
+            learner={selected.learner}
+            subs={selected.subs}
+            answers={selected.answers}
+            coach={selected.learner.coach_id ? coachName[selected.learner.coach_id] : undefined}
+            weekOffset={weekOffset}
+            onWeekChange={setWeekOffset}
+            onNotify={notify}
+            notifying={busy === "notify"}
+            onDownload={exportIndividual}
+            downloading={busy === "individual"}
+          />
+          <RwTraceReview learnerId={selected.learner.id} />
+        </>
       )}
       <p className="flex items-center justify-center gap-2 text-center text-xs text-muted-foreground"><Bell className="size-3.5" />Les validations, reprises, badges et bilans apparaissent aussi dans le centre de notifications.</p>
       {attention === 0 && <p className="flex items-center justify-center gap-2 text-sm text-primary"><CheckCircle2 className="size-4" />Tous les apprenants sont à jour.</p>}

@@ -18,6 +18,7 @@ import { getRwMe } from "@/lib/reading-workshop.functions";
 import { SmartReader } from "@/components/reading-workshop/smart-reader";
 import { useRwLessonStates } from "@/components/reading-workshop/rw-lesson-path";
 import { rwLessonAccess } from "@/lib/rw-unlock";
+import { RwTraceExercisePanel } from "@/components/reading-workshop/rw-trace-exercise";
 
 type GrammarItem = { point: string; explanation_fr: string; example: string };
 type VocabularyItem = {
@@ -172,6 +173,16 @@ function Lesson() {
                 <p className="font-semibold">{g.point}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{g.explanation_fr}</p>
                 <p className="mt-2 text-sm italic">« {g.example} »</p>
+                {canSubmit && (
+                  <RwTraceExercisePanel
+                    lessonId={id}
+                    grammarIndex={i}
+                    grammar={g}
+                    level={l.level}
+                    title={l.title}
+                    learnerId={learnerId}
+                  />
+                )}
               </div>
             ))}
           </section>
