@@ -1,0 +1,69 @@
+OpenDoorsClass Reading Workshop local lexicon
+
+CeCILL-C Free Software License Agreement
+https://cecill.info/licences/Licence_CeCILL-C_V1-en.html
+
+This dictionary is a compilation of the sources listed in ATTRIBUTION.
+Each source's own terms are reproduced there and continue to apply to the
+material it contributed.
+
+  * CeCILL-C Free Software License Agreement (CECILL-C) -- https://cecill.info/licences/Licence_CeCILL-C_V1-en.html
+  * WordNet 3.0 License (Princeton University) (WordNet-3.0) -- https://wordnet.princeton.edu/license-and-commercial-use
+
+
+This dictionary is distributed under CeCILL-C Free Software License Agreement (CECILL-C).
+https://cecill.info/licences/Licence_CeCILL-C_V1-en.html
+
+It is built from the following sources:
+
+  * omw-fr: WOLF (Wordnet Libre du Français), via Open Multilingual Wordnet 1.4
+  * pwn30: Princeton University WordNet 3.0
+
+-- CeCILL-C Free Software License Agreement --
+Contains material from WOLF, distributed under the CeCILL-C licence. CeCILL-C material may not be redistributed under a Creative Commons ShareAlike licence.
+
+-- WordNet 3.0 License (Princeton University) --
+WordNet Release 3.0 Copyright 2006 by Princeton University. All rights reserved. This copyright notice must be retained on all copies, including modified copies. The name of Princeton University or Princeton may not be used in advertising or publicity pertaining to distribution of the software and/or database without specific, written prior permission.
+
+
+CMU Pronouncing Dictionary
+Copyright (C) 1993-2015 Carnegie Mellon University. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+   The contents of this file are deemed to be source code.
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+
+This work was supported in part by funding from the Defense Advanced
+Research Projects Agency, the Office of Naval Research and the National
+Science Foundation of the United States of America, and by member
+companies of the Carnegie Mellon Sphinx Speech Consortium. We acknowledge
+the contributions of many volunteers to the expansion and improvement of
+this dictionary.
+
+THIS SOFTWARE IS PROVIDED BY CARNEGIE MELLON UNIVERSITY ``AS IS'' AND
+ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY
+NOR ITS EMPLOYEES BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+OpenDoorsClass manual supplement
+Copyright OpenDoorsClass. The manual supplement contains editorial function-word translations and reviewed lesson vocabulary.
+
+The compromise grammatical analyzer is distributed under the MIT license.
+https://github.com/spencermountain/compromise/blob/master/LICENSE

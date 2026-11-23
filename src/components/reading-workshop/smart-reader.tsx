@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import {
   BookmarkPlus,
   Check,
@@ -16,7 +15,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { translateRwWord } from "@/lib/rw-lessons.functions";
+import { getCachedRwGloss, lookupRwWord, type RwGloss } from "@/lib/rw-lexicon";
 import { pickVoice, playEnd, splitReaderText, type RwToken } from "@/lib/rw-reader";
 import { cn } from "@/lib/utils";
 
@@ -26,18 +25,7 @@ type Vocab = {
   definition?: string;
   part_of_speech?: string;
 };
-type Gloss = {
-  translation_fr: string;
-  phonetic?: string;
-  note_fr?: string;
-  part_of_speech_fr?: string;
-  meaning_in_context_fr?: string;
-  other_meanings_fr?: string[];
-  base_form?: string;
-  example_en?: string;
-  example_fr?: string;
-  lookup_text?: string;
-};
+type Gloss = RwGloss;
 type Picked = {
   word: string;
   sentence: string;
@@ -49,7 +37,6 @@ type Picked = {
 };
 
 const SPEEDS = [0.75, 1, 1.25, 1.5, 2];
-const cache = new Map<string, Gloss>();
 
 function speak(text: string, voice: SpeechSynthesisVoice | null, rate: number) {
   const utterance = new SpeechSynthesisUtterance(text);
@@ -74,7 +61,6 @@ export function SmartReader({
   vocabulary: Vocab[];
   lessonId?: string;
 }) {
-  const translate = useServerFn(translateRwWord);
   const qc = useQueryClient();
   const [saved, setSaved] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
@@ -248,8 +234,7 @@ export function SmartReader({
     }
 
     const requestId = ++pickId.current;
-    const key = `${word.toLowerCase()}|${sentence}`;
-    const cached = cache.get(key);
+    const cached = getCachedRwGloss(word, sentence);
     const vocab = vocabMap.get(word.toLowerCase());
     const fallback: Gloss | undefined = vocab
       ? {
@@ -269,8 +254,7 @@ export function SmartReader({
     if (cached) return;
 
     try {
-      const gloss = await translate({ data: { word, sentence } });
-      cache.set(key, gloss);
+      const gloss = await lookupRwWord(word, sentence);
       setPicked((currentPicked) =>
         requestId === pickId.current && currentPicked?.tokenStart === tokenStart
           ? { ...currentPicked, gloss, loading: false }
@@ -505,6 +489,12 @@ export function SmartReader({
                   {picked.gloss.note_fr && (
                     <p className="text-muted-foreground">{picked.gloss.note_fr}</p>
                   )}
+                  {picked.gloss.definition_en && (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Definition in English</p>
+                      <p className="mt-0.5 text-muted-foreground">{picked.gloss.definition_en}</p>
+                    </div>
+                  )}
                   {!!picked.gloss.other_meanings_fr?.length && (
                     <p>
                       <span className="font-semibold">Autres sens : </span>
@@ -585,6 +575,9 @@ export function SmartReader({
               </Button>
             </div>
           </div>
+          <p className="mt-4 border-t border-border pt-3 text-xs text-muted-foreground">
+            Base lexicale locale sans IA · <a href="/licenses/rw-lexicon.txt" target="_blank" rel="noreferrer" className="underline underline-offset-2">Sources et licences</a>
+          </p>
         </section>
       )}
     </div>

@@ -46,3 +46,13 @@
 - [x] Exercice de compréhension gratuit, sans enregistrement
 - [x] Vérification des liens, de l'exercice, du mobile et des erreurs
 - [ ] Captures des écrans membres (passage du test, lecteur, dictionnaire, bilans). Blocker: besoin de comptes de démonstration avec données anonymes validées par l'équipe
+
+## Reading Workshop autonome, sans crédits IA
+- [x] Auditer tous les appels IA du dictionnaire et des fonctions pédagogiques courantes
+- [x] Intégrer une base lexicale anglais-français autonome, documentée et compatible avec un usage commercial
+- [x] Gérer lemmes, formes irrégulières, sens multiples, expressions et phrasal verbs sans IA
+- [x] Ajouter la sélection contextuelle par règles et un cache local persistant, sans repli IA
+- [x] Vérifier que correction objective, scores, progression, audio et activités restent sans crédits IA
+- [x] Rejouer les scénarios réels, contrôler l'absence d'appels IA et conserver les données et permissions
+- [x] Rédiger le compte rendu des dépendances supprimées et des limites lexicales restantes
+- Résultat : 85 010 entrées, 123 188 formes, 98,7 % de couverture brute sur les 75 textes, 96 tests et scénario réel validés
