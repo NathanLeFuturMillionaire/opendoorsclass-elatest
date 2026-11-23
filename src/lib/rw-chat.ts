@@ -5,6 +5,10 @@ const DOC_TYPES = [
   "application/pdf",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   "text/plain",
 ];
 
@@ -31,6 +35,11 @@ export function rwSafeFileName(name: string): string {
 }
 
 export type RwReceipt = "sent" | "delivered" | "read";
+
+export function rwCanPostToConversation(kind: string, canPost: boolean, blocked: boolean): boolean {
+  return kind === "direct" ? !blocked : canPost;
+}
+
 /** Status of my message given the other members' last seen / read times. */
 export function rwReceipt(createdAt: string, others: { last_read_at: string; last_seen_at: string }[]): RwReceipt {
   if (others.length === 0) return "sent";

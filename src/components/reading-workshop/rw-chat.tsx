@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import {
   ArrowLeft, Check, CheckCheck, FileText, Megaphone, Mic, MoreVertical, Paperclip, Pause, Pin, Play, Plus, Reply, Search, Send, Square, Trash2, Users, X,
 } from "lucide-react";
-import { RW_CHAT_REACTIONS, rwAttachmentKind, rwCheckAttachment, rwReceipt, rwSafeFileName } from "@/lib/rw-chat";
+import { RW_CHAT_REACTIONS, rwAttachmentKind, rwCanPostToConversation, rwCheckAttachment, rwReceipt, rwSafeFileName } from "@/lib/rw-chat";
 import { useRwContext } from "./rw-shell";
 
 type Conv = { id: string; kind: string; title: string | null; last_message_at: string; unread: number; last_body: string | null; can_post: boolean };
@@ -183,6 +183,18 @@ function Thread({ conv, me, onBack }: { conv: Conv; me: string; onBack: () => vo
   const qc = useQueryClient();
   const ctx = useRwContext();
   const isStaff = !!ctx.data?.isStaff;
+  const blockStatus = useQuery({
+    queryKey: ["rw-chat-block", conv.id],
+    enabled: conv.kind === "direct",
+    refetchInterval: 15_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("rw_chat_block_status", { _conv: conv.id });
+      if (error) throw error;
+      return (data?.[0] ?? { blocked: false, blocked_by_me: false }) as { blocked: boolean; blocked_by_me: boolean };
+    },
+  });
+  const blocked = !!blockStatus.data?.blocked;
+  const blockedByMe = !!blockStatus.data?.blocked_by_me;
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [reactions, setReactions] = useState<Reaction[]>([]);
@@ -198,6 +210,17 @@ function Thread({ conv, me, onBack }: { conv: Conv; me: string; onBack: () => vo
   const lastTyping = useRef(0);
   const names = useMemo(() => Object.fromEntries(members.map((m) => [m.user_id, m.full_name])), [members]);
   const others = members.filter((m) => m.user_id !== me);
+
+  async function toggleBlock() {
+    const other = others[0]?.user_id;
+    if (!other || (blocked && !blockedByMe)) return;
+    const { error } = await supabase.rpc(blockedByMe ? "rw_chat_unblock" : "rw_chat_block", { _other: other });
+    if (error) return err(error);
+    toast.success(blockedByMe ? "Contact débloqué." : "Contact bloqué. Vous pouvez le débloquer à tout moment.");
+    await blockStatus.refetch();
+    qc.invalidateQueries({ queryKey: ["rw-chat-convs"] });
+    qc.invalidateQueries({ queryKey: ["rw-chat-contacts"] });
+  }
 
   async function loadMembers() {
     const { data } = await supabase.rpc("rw_chat_members_of", { _conv: conv.id });
@@ -305,6 +328,16 @@ function Thread({ conv, me, onBack }: { conv: Conv; me: string; onBack: () => vo
             {typers.length ? `${typers.join(", ")} ${typers.length > 1 ? "écrivent" : "est en train d'écrire"}...` : conv.kind === "direct" ? "Conversation privée" : `${members.length} membres`}
           </p>
         </div>
+        {conv.kind === "direct" && others.length > 0 && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild><Button size="icon" variant="ghost" aria-label="Actions de conversation"><MoreVertical className="size-4" /></Button></DropdownMenuTrigger>
+            <DropdownMenuContent className="rw-theme">
+              <DropdownMenuItem disabled={blocked && !blockedByMe} onClick={toggleBlock}>
+                {blockedByMe ? "Débloquer le contact" : blocked ? "Contact bloqué" : "Bloquer le contact"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         <Button size="icon" variant="ghost" onClick={() => { setShowSearch((s) => !s); setSearch(""); }} aria-label="Rechercher dans la conversation"><Search className="size-4" /></Button>
       </header>
       {showSearch && <div className="border-b border-border p-2"><Input autoFocus value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher un message" /></div>}
@@ -325,11 +358,15 @@ function Thread({ conv, me, onBack }: { conv: Conv; me: string; onBack: () => vo
         ))}
         <div ref={bottom} />
       </div>
-      {conv.can_post ? (
+      {rwCanPostToConversation(conv.kind, conv.can_post, blocked) ? (
         <Composer text={text} onType={onType} busy={busy} replyTo={replyTo} editing={editing} quotedName={replyTo ? names[replyTo.sender_id] ?? "" : ""}
           onCancel={() => { setReplyTo(null); setEditing(null); if (editing) setText(""); }} onSend={() => send()} onFile={upload} />
       ) : (
-        <p className="border-t border-border p-3 text-center text-sm text-muted-foreground">Seule l'administration publie dans les annonces.</p>
+        <p className="border-t border-border p-3 text-center text-sm text-muted-foreground">
+          {conv.kind === "direct" && blocked
+            ? blockedByMe ? "Vous avez bloqué ce contact. Débloquez-le pour reprendre la conversation." : "Cette conversation est bloquée. Les nouveaux messages sont désactivés."
+            : "Seule l'administration publie dans les annonces."}
+        </p>
       )}
     </>
   );
@@ -494,7 +531,7 @@ function Composer(props: {
         </div>
       ) : (
         <div className="flex items-end gap-2">
-          <input ref={fileRef} type="file" hidden accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt" onChange={(e) => { const f = e.target.files?.[0]; if (f) props.onFile(f); e.target.value = ""; }} />
+          <input ref={fileRef} type="file" hidden accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" onChange={(e) => { const f = e.target.files?.[0]; if (f) props.onFile(f); e.target.value = ""; }} />
           {!props.editing && <Button size="icon" variant="ghost" disabled={props.busy} onClick={() => fileRef.current?.click()} aria-label="Joindre un fichier"><Paperclip className="size-4" /></Button>}
           <Textarea value={props.text} onChange={(e) => props.onType(e.target.value)} rows={1} maxLength={4000} placeholder="Écrire un message"
             className="max-h-32 min-h-10 flex-1 resize-none"

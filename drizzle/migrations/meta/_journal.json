@@ -134,6 +134,20 @@
       "when": 1795334273171,
       "tag": "0018_restrict_rw_reactivation_and_reported_messages",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1795415231564,
+      "tag": "0019_add_rw_chat_blocking",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1795415454979,
+      "tag": "0020_allow_staff_delete_rw_chat_files",
+      "breakpoints": true
     }
   ]
 }

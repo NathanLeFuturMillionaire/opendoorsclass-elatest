@@ -910,6 +910,24 @@ export type Database = {
           },
         ]
       }
+      rw_chat_blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       rw_chat_conversations: {
         Row: {
           created_at: string
@@ -2135,6 +2153,14 @@ export type Database = {
         Returns: string
       }
       record_streak: { Args: { _user_id: string }; Returns: Json }
+      rw_chat_block: { Args: { _other: string }; Returns: undefined }
+      rw_chat_block_status: {
+        Args: { _conv: string }
+        Returns: {
+          blocked: boolean
+          blocked_by_me: boolean
+        }[]
+      }
       rw_chat_can_contact: { Args: { _other: string }; Returns: boolean }
       rw_chat_close_report: { Args: { _id: string }; Returns: undefined }
       rw_chat_contacts: {
@@ -2151,6 +2177,7 @@ export type Database = {
       }
       rw_chat_delete: { Args: { _id: string }; Returns: undefined }
       rw_chat_edit: { Args: { _body: string; _id: string }; Returns: undefined }
+      rw_chat_is_blocked: { Args: { _a: string; _b: string }; Returns: boolean }
       rw_chat_is_member: {
         Args: { _conv: string; _uid: string }
         Returns: boolean
@@ -2205,6 +2232,7 @@ export type Database = {
         }
         Returns: string
       }
+      rw_chat_unblock: { Args: { _other: string }; Returns: undefined }
       rw_coach_id: { Args: { _uid: string }; Returns: string }
       rw_coaches_learner: {
         Args: { _learner: string; _uid: string }
