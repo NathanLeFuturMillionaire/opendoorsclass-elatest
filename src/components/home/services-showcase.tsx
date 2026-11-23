@@ -30,7 +30,7 @@ export function ServicesShowcase({ withHeading = true }: { withHeading?: boolean
                     ))}
                   </ul>
                   <Button asChild size="lg" className="mt-8 w-fit bg-brand-green text-brand-green-foreground hover:bg-brand-green/90">
-                    <Link to={s.to}>{s.cta} <ArrowRight className="ml-1 size-4 transition-transform group-hover:translate-x-1" /></Link>
+                    <Link {...s.link}>{s.cta} <ArrowRight className="ml-1 size-4 transition-transform group-hover:translate-x-1" /></Link>
                   </Button>
                 </div>
                 <div className="relative min-h-72 overflow-hidden bg-brand-green-soft/60 p-6 sm:p-10">

@@ -17,7 +17,7 @@ export function SiteFooter() {
             <h4 className="text-sm font-semibold">Nos services</h4>
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
               {SERVICES.map((s) => (
-                <li key={s.id}><Link to={s.to} className="hover:text-foreground">{s.short}</Link></li>
+                <li key={s.id}><Link {...s.link} className="hover:text-foreground">{s.short}</Link></li>
               ))}
               <li><Link to="/spanish-test" className="hover:text-foreground">Test de niveau d'espagnol</Link></li>
               <li><Link to="/formation-anglais-programme" className="hover:text-foreground">Formation anglais professionnel</Link></li>

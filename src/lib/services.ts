@@ -7,7 +7,7 @@ export type ServiceEntry = {
   description: string;
   features: string[];
   cta: string;
-  to: "/leveltest/en" | "/reading-workshop";
+  link: { to: "/leveltest/$lang"; params: { lang: "en" } } | { to: "/reading-workshop" };
   capture: { desktop: string; mobile: string; alt: string };
   status: "available";
 };
@@ -28,7 +28,7 @@ export const SERVICES: ServiceEntry[] = [
       "Orientation de votre apprentissage",
     ],
     cta: "Évaluer mon niveau",
-    to: "/leveltest/en",
+    link: { to: "/leveltest/$lang", params: { lang: "en" } },
     capture: { desktop: "/showcase/assessment.webp", mobile: "/showcase/assessment-mobile.webp", alt: "Page réelle de l'English Level Assessment" },
     status: "available",
   },
@@ -48,7 +48,7 @@ export const SERVICES: ServiceEntry[] = [
       "Suivi des performances et bilans",
     ],
     cta: "Découvrir le Reading Workshop",
-    to: "/reading-workshop",
+    link: { to: "/reading-workshop" },
     capture: { desktop: "/showcase/workshop.webp", mobile: "/showcase/workshop-mobile.webp", alt: "Page réelle du Reading Workshop" },
     status: "available",
   },
