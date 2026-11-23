@@ -37,3 +37,12 @@
 - [x] Sons doux après correction objective, un seul son par réponse, préférence de désactivation
 - [x] Confettis et félicitations une seule fois si toutes les réponses sont corrigées et la note dépasse strictement 15/20
 - [x] Tests unitaires, base de données et scénarios navigateur sur ordinateur et mobile
+
+## Refonte stratégique de l'accueil OpenDoorsClass
+- [ ] Auditer les routes, interfaces, captures, permissions et sources de statistiques sans modifier les services
+- [ ] Créer la vitrine EdTech et la navigation publique vers les pages de services, à propos et contact
+- [ ] Intégrer de vraies captures des deux produits et des animations accessibles
+- [ ] Connecter uniquement des statistiques publiques agrégées et vérifiables
+- [ ] Ajouter la démonstration de compréhension indépendante, sans enregistrement de performance
+- [ ] Vérifier routes, boutons, données, mobile, utilisateurs authentifiés et non régression des deux services
+- [ ] Fournir le rapport de refonte et committer les changements
