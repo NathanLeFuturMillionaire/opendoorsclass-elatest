@@ -15,6 +15,7 @@ import { RwLessonPath } from "@/components/reading-workshop/rw-lesson-path";
 import { RwHoursBanner } from "@/components/reading-workshop/rw-hours-banner";
 import { RwDictionary } from "@/components/reading-workshop/rw-dictionary";
 import { RwSubmissionsList, useRwSubmissions } from "@/components/reading-workshop/rw-submissions-list";
+import { RwWeeklyChallenge } from "@/components/reading-workshop/rw-weekly-challenge";
 
 export const Route = createFileRoute("/_authenticated/reading-workshop/learner")({
   head: () => ({ meta: [
@@ -81,6 +82,7 @@ function LearnerHome() {
           )}
         </div>
       )}
+      {me && <RwWeeklyChallenge />}
       <RwHoursBanner />
       {me && <RwIndividualReport
         learner={me}

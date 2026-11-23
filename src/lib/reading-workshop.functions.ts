@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { RwWeeklyChallengeData, RwWeeklyChallengeRpcData } from "@/lib/rw-weekly-challenge";
 
 export type RwSpace = "admin" | "coach" | "learner" | "none";
 
@@ -186,9 +187,36 @@ export const getRwMe = createServerFn({ method: "GET" })
     }
     const urls = await signPhotos([learner?.photo_path ?? null, coach?.photo_path ?? null, myCoach?.photo_path ?? null]);
     const u = (p?: string | null) => (p ? urls[p] ?? null : null);
+  return {
+    learner: learner ? { ...learner, photo_url: u(learner.photo_path) } : null,
+    coach: coach ? { ...coach, photo_url: u(coach.photo_path) } : null,
+    myCoach: myCoach ? { full_name: myCoach.full_name, photo_url: u(myCoach.photo_path) } : null,
+  };
+});
+
+/** Active learner: shared weekly Top 3 and own progress, with private photos signed after RPC authorization. */
+export const getRwWeeklyChallenge = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((value: { weekOffset?: number }) => {
+    const weekOffset = Number(value?.weekOffset ?? 0);
+    if (!Number.isInteger(weekOffset) || weekOffset < 0 || weekOffset > 52) {
+      throw new Error("Période de challenge invalide.");
+    }
+    return { weekOffset };
+  })
+  .handler(async ({ data, context }): Promise<RwWeeklyChallengeData> => {
+    const { data: raw, error } = await context.supabase.rpc("rw_weekly_challenge", { _weeks_ago: data.weekOffset });
+    if (error) throw new Error(error.message);
+    const result = raw as unknown as RwWeeklyChallengeRpcData;
+    if (!result || !Array.isArray(result.top) || !result.own) {
+      throw new Error("Le classement hebdomadaire est incomplet.");
+    }
+    const urls = await signPhotos(result.top.map((entry) => entry.photo_path));
     return {
-      learner: learner ? { ...learner, photo_url: u(learner.photo_path) } : null,
-      coach: coach ? { ...coach, photo_url: u(coach.photo_path) } : null,
-      myCoach: myCoach ? { full_name: myCoach.full_name, photo_url: u(myCoach.photo_path) } : null,
+      ...result,
+      top: result.top.map(({ photo_path, ...entry }) => ({
+        ...entry,
+        photo_url: photo_path ? urls[photo_path] ?? null : null,
+      })),
     };
   });

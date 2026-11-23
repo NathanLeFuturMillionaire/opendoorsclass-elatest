@@ -65,3 +65,11 @@
 - [x] Ajouter la consultation phrase par phrase et caractère par caractère dans l administration
 - [x] Tester les règles, les scénarios réels, le mobile et l absence d appels IA
 - Résultat : 94 modèles vectoriels, cinq phrases et 175 caractères validés en scénario réel, 98 % de précision, tactile confirmé, 115 tests. Essais physiques Safari/iPhone et Android toujours suivis séparément.
+
+## Weekly Reading Challenge
+- [x] Auditer le profil apprenant, les indicateurs de progression et les activités hebdomadaires existantes
+- [x] Calculer un classement commun, déterministe et sécurisé selon la semaine de Libreville, avec seuil strictement supérieur à 2 %
+- [x] Ajouter la piste aérienne, les trois avions, les messages personnalisés et les animations sobres au profil
+- [x] Conserver le Top 3 hebdomadaire et permettre la consultation de la semaine précédente
+- [x] Vérifier les règles, les égalités, les permissions, le mobile, l'absence d'appels IA et les scénarios réels
+- Résultat : données réelles, photos privées signées, semaine clôturée conservée, 121 tests, affichage vérifié à 390, 768 et 1280 px, aucun appel IA ni erreur JavaScript

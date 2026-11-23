@@ -169,6 +169,13 @@
       "when": 1795472157638,
       "tag": "0023_fix_rw_trace_coordinate_validation",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1795477633101,
+      "tag": "0024_add_rw_weekly_reading_challenge",
+      "breakpoints": true
     }
   ]
 }

@@ -1847,6 +1847,72 @@ export type Database = {
           },
         ]
       }
+      rw_weekly_challenge_weeks: {
+        Row: {
+          finalized_at: string
+          week_start: string
+        }
+        Insert: {
+          finalized_at?: string
+          week_start: string
+        }
+        Update: {
+          finalized_at?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
+      rw_weekly_challenge_winners: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          first_name: string
+          learner_id: string
+          photo_path: string | null
+          progress: number
+          rank: number
+          validated_count: number
+          week_start: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          first_name: string
+          learner_id: string
+          photo_path?: string | null
+          progress: number
+          rank: number
+          validated_count: number
+          week_start: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          first_name?: string
+          learner_id?: string
+          photo_path?: string | null
+          progress?: number
+          rank?: number
+          validated_count?: number
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_weekly_challenge_winners_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: false
+            referencedRelation: "rw_learners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rw_weekly_challenge_winners_week_start_fkey"
+            columns: ["week_start"]
+            isOneToOne: false
+            referencedRelation: "rw_weekly_challenge_weeks"
+            referencedColumns: ["week_start"]
+          },
+        ]
+      }
       rw_weeks: {
         Row: {
           created_at: string
@@ -2386,6 +2452,10 @@ export type Database = {
         Args: { _folder: string; _uid: string }
         Returns: boolean
       }
+      rw_finalize_weekly_challenge: {
+        Args: { _week_start: string }
+        Returns: undefined
+      }
       rw_grade_answer: {
         Args: { _answer: string; _comment: string; _points: number }
         Returns: Json
@@ -2520,6 +2590,19 @@ export type Database = {
           _trace: Json
         }
         Returns: Json
+      }
+      rw_weekly_challenge: { Args: { _weeks_ago?: number }; Returns: Json }
+      rw_weekly_challenge_ranked: {
+        Args: { _week_start: string }
+        Returns: {
+          completed_at: string
+          first_name: string
+          learner_id: string
+          photo_path: string
+          progress: number
+          rank: number
+          validated_count: number
+        }[]
       }
       rw_workshop_allows: {
         Args: { _grace?: boolean; _uid: string }

@@ -234,7 +234,7 @@ export function RwIndividualReport({
       )}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div>
+        <div className="min-w-0">
           <h4 className="mb-3 font-bold">Activité récente</h4>
           {recent.length ? (
             <ul className="divide-y divide-border rounded-2xl border border-border/70">
@@ -250,7 +250,7 @@ export function RwIndividualReport({
             </ul>
           ) : <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">Aucun envoi enregistré pour le moment.</p>}
         </div>
-        <div className="rounded-2xl bg-[var(--rw-soft)] p-5">
+        <div className="min-w-0 rounded-2xl bg-[var(--rw-soft)] p-5">
           <h4 className="mb-3 flex items-center gap-2 font-bold"><BookOpenCheck className="size-4 text-primary" />Prochaines actions</h4>
           <ul className="space-y-2 text-sm">
             {progress.recommendations.slice(0, 4).map((recommendation) => <li key={recommendation}>· {recommendation}</li>)}

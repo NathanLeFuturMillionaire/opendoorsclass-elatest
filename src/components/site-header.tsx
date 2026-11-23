@@ -66,7 +66,7 @@ export function SiteHeader() {
           />
         </Link>
 
-        <nav className="hidden items-center gap-5 lg:gap-6 md:flex">
+        <nav className="hidden items-center gap-5 lg:gap-6 lg:flex">
           {NAV.map((item) => (
             <a
               key={item.to}
@@ -78,7 +78,7 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <LanguageSwitcher />
           {loading ? null : user ? (
             <>
@@ -107,7 +107,7 @@ export function SiteHeader() {
           )}
         </div>
 
-        <div className="flex items-center gap-1 md:hidden">
+        <div className="flex items-center gap-1 lg:hidden">
           <Link
             to="/reading-workshop"
             className="flex items-center gap-1.5 rounded-full border border-brand-green/40 bg-brand-green/10 px-2.5 py-1.5 text-xs font-semibold text-brand-green transition-colors hover:bg-brand-green/20"
