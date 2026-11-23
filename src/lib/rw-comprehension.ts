@@ -14,3 +14,17 @@ export function computeComprehension(answers: RwAnswerLite[], questionCount: num
   const scoreOn20 = max ? Math.round((points / max) * 20 * 10) / 10 : 0;
   return { points, max, answered, pending, complete, scoreOn20, percent: max ? Math.round((points / max) * 100) : 0 };
 }
+
+export type RwComprehensionResult = ReturnType<typeof computeComprehension>;
+
+/** Confetti requires a fully corrected lesson and a score strictly above 15/20. */
+export function shouldCelebrateComprehension(result: RwComprehensionResult) {
+  return result.complete && result.scoreOn20 > 15;
+}
+
+export function congratulationMessage(scoreOn20: number) {
+  if (scoreOn20 >= 19) return "Félicitations ! Tu as réalisé une excellente performance !";
+  if (scoreOn20 >= 17) return "Excellent travail ! Tes efforts commencent à porter leurs fruits !";
+  if (scoreOn20 > 15) return "Très bien ! Tu progresses, continue ainsi !";
+  return "";
+}

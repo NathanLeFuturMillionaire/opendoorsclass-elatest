@@ -22,7 +22,7 @@
 ## Évolution Reading Workshop (prompt maître)
 - [x] Phase 0 : audit et plan d'intégration (en attente d'approbation)
 - [x] Phase 1 : questions sur 20, sauvegarde serveur, correction auto et coach, notes séparées
-- [ ] Phase 1 bis : passer les ~85 textes publiés de 5 à 10 questions (rédaction manuelle)
+- [x] Phase 1 bis : les 75 textes publiés ont exactement 10 questions, sans génération IA
 - [x] Phase 2 : déblocage progressif (corriger aussi : un apprenant ne doit pas pouvoir changer le statut de son envoi)
 - [x] Phase 3 : horaires 12h30 à 22h30, lundi au samedi (serveur, exceptions, historique)
 - [x] Phase 4 : suppressions sécurisées (désactivation réversible, motif, journal, réaffectation coach, admins protégés)
@@ -30,3 +30,10 @@
 - [x] Phase 6 : OpenDoorsClass Chat (privé, groupes, annonces, pièces jointes, notes vocales, réactions, lu, signalements, blocage)
 - [x] Phase 7 : progression détaillée, rapports hebdomadaires et individuels, exports PDF/CSV et notifications, vérifiés dans le navigateur
 - [x] Phase 8 : scénarios techniques vérifiés, corrections, tests de non-régression et nettoyage; essais physiques sur appareils et contenu manuel suivis séparément
+
+## Finalisation interactive Reading Workshop
+- [x] Dictionnaire contextuel : sélection visible, fiche complète, expressions composées, chargement et erreurs fiables
+- [x] Standardisation : exactement 10 questions de 2 points sur chaque texte publié, sans toucher aux réponses historiques
+- [x] Sons doux après correction objective, un seul son par réponse, préférence de désactivation
+- [x] Confettis et félicitations une seule fois si toutes les réponses sont corrigées et la note dépasse strictement 15/20
+- [x] Tests unitaires, base de données et scénarios navigateur sur ordinateur et mobile

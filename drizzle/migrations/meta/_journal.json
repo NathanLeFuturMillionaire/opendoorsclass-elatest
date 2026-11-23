@@ -148,6 +148,13 @@
       "when": 1795415454979,
       "tag": "0020_allow_staff_delete_rw_chat_files",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1795442189842,
+      "tag": "0021_enforce_ten_questions_for_published_rw_lessons",
+      "breakpoints": true
     }
   ]
 }

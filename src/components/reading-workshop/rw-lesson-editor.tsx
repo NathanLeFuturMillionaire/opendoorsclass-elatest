@@ -81,9 +81,14 @@ export function RwLessonEditor({ id, onClose, onSaved }: { id: string; onClose: 
               </div>
               <div className="mt-3">{field("rights_status", "Droits de réutilisation")}</div>
             </div>
+            {data?.questions?.length !== 10 && (
+              <p className="rounded-xl bg-muted p-3 text-sm text-muted-foreground" role="status">
+                La publication exige exactement 10 questions de 2 points. Ce texte en contient {data?.questions?.length ?? 0}.
+              </p>
+            )}
             <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
               <Button variant="outline" disabled={busy} onClick={() => submit("draft")}>{f.status === "published" ? "Repasser en brouillon" : "Enregistrer le brouillon"}</Button>
-              <Button disabled={busy} onClick={() => submit("published")}>{busy && <Loader2 className="mr-2 size-4 animate-spin" />}Valider et publier</Button>
+              <Button disabled={busy || data?.questions?.length !== 10} onClick={() => submit("published")}>{busy && <Loader2 className="mr-2 size-4 animate-spin" />}Valider et publier</Button>
             </div>
           </div>
         )}

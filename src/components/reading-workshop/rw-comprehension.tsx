@@ -8,6 +8,8 @@ import {
   Lock,
   MessageSquareText,
   TriangleAlert,
+  Volume2,
+  VolumeX,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -15,7 +17,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { computeComprehension, RW_QUESTIONS_PER_LESSON } from "@/lib/rw-comprehension";
+import { computeComprehension, RW_QUESTIONS_PER_LESSON, shouldCelebrateComprehension } from "@/lib/rw-comprehension";
+import { playRwFeedback, primeRwFeedback, RW_SOUND_PREFERENCE_KEY, rwAnswerSound, rwSoundPreferenceEnabled } from "@/lib/rw-feedback";
+import { RwCompletionReward } from "@/components/reading-workshop/rw-completion-reward";
 import type { RwLessonState } from "@/lib/rw-unlock";
 
 export type RwQuestion = {
@@ -107,6 +111,25 @@ export function RwComprehension({
   const [errors, setErrors] = useState<Record<number, string>>({});
   const timers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
   const pendingValues = useRef<Record<number, string>>({});
+  const inFlight = useRef<Record<number, boolean>>({});
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const soundEnabledRef = useRef(true);
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  useEffect(() => {
+    const enabled = rwSoundPreferenceEnabled(localStorage.getItem(RW_SOUND_PREFERENCE_KEY));
+    soundEnabledRef.current = enabled;
+    setSoundEnabled(enabled);
+    const activeTimers = timers.current;
+    return () => Object.values(activeTimers).forEach(clearTimeout);
+  }, []);
+
+  function toggleSound() {
+    const next = !soundEnabledRef.current;
+    soundEnabledRef.current = next;
+    localStorage.setItem(RW_SOUND_PREFERENCE_KEY, String(next));
+    setSoundEnabled(next);
+  }
 
   useEffect(() => {
     const m: Record<number, Answer> = {};
@@ -119,8 +142,10 @@ export function RwComprehension({
     });
   }, [saved]);
 
-  async function save(i: number, value: string) {
-    if (!learnerId || !value.trim()) return;
+  async function save(i: number, value: string, withFeedback = false) {
+    if (!learnerId || !value.trim() || inFlight.current[i]) return;
+    inFlight.current[i] = true;
+    if (withFeedback) primeRwFeedback(soundEnabledRef.current);
     pendingValues.current[i] = value;
     setState((s) => ({ ...s, [i]: "saving" }));
     setErrors((e) => ({ ...e, [i]: "" }));
@@ -130,6 +155,7 @@ export function RwComprehension({
       _answer: value,
     });
     if (error || !data) {
+      inFlight.current[i] = false;
       setState((s) => ({ ...s, [i]: "error" }));
       setErrors((e) => ({
         ...e,
@@ -139,9 +165,13 @@ export function RwComprehension({
       }));
       return;
     }
-    setByIdx((m) => ({ ...m, [i]: data as unknown as Answer }));
+    const answer = data as unknown as Answer;
+    setByIdx((m) => ({ ...m, [i]: answer }));
     delete pendingValues.current[i];
+    inFlight.current[i] = false;
     setState((s) => ({ ...s, [i]: "saved" }));
+    const sound = withFeedback ? rwAnswerSound(answer.status, answer.points) : null;
+    if (sound) playRwFeedback(sound, soundEnabledRef.current);
     qc.invalidateQueries({ queryKey: ["rw-answers", lessonId, learnerId] });
   }
   function typeText(i: number, v: string) {
@@ -151,6 +181,17 @@ export function RwComprehension({
   }
 
   const res = computeComprehension(Object.values(byIdx), questions.length);
+
+  useEffect(() => {
+    if (!learnerId || !shouldCelebrateComprehension(res)) return;
+    const key = `rw-celebrated:${learnerId}:${lessonId}`;
+    if (localStorage.getItem(key)) return;
+    localStorage.setItem(key, String(res.scoreOn20));
+    setShowConfetti(true);
+    const timeout = setTimeout(() => setShowConfetti(false), 4400);
+    return () => clearTimeout(timeout);
+  }, [learnerId, lessonId, res.complete, res.scoreOn20]);
+
   if (accessState === "locked" || accessState === "unavailable") {
     return (
       <section className="rounded-2xl border border-border bg-card p-6 text-center">
@@ -174,9 +215,24 @@ export function RwComprehension({
         <h3 className="flex items-center gap-2 text-xl font-bold">
           <BookOpenCheck className="size-5 text-primary" /> Reading Comprehension
         </h3>
-        <p className="text-xs text-muted-foreground">
-          {questions.length} questions · 2 points chacune
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-xs text-muted-foreground">
+            {questions.length} questions · 2 points chacune
+          </p>
+          {learnerId && (
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              aria-label={soundEnabled ? "Désactiver les sons des réponses" : "Activer les sons des réponses"}
+              aria-pressed={soundEnabled}
+              title={soundEnabled ? "Sons activés" : "Sons désactivés"}
+              onClick={toggleSound}
+            >
+              {soundEnabled ? <Volume2 className="size-4" /> : <VolumeX className="size-4" />}
+            </Button>
+          )}
+        </div>
       </div>
       {questions.length !== RW_QUESTIONS_PER_LESSON && (
         <p className="rounded-xl bg-muted p-3 text-xs text-muted-foreground">
@@ -217,7 +273,7 @@ export function RwComprehension({
                       key={o}
                       type="button"
                       disabled={!!a || !learnerId || state[i] === "saving"}
-                      onClick={() => save(i, o)}
+                      onClick={() => save(i, o, true)}
                       className={cn(
                         "rounded-xl border px-4 py-2.5 text-left text-sm transition",
                         !a && learnerId && "hover:border-primary",
@@ -311,6 +367,7 @@ export function RwComprehension({
             {res.pending ? ` · ${res.pending} en attente du coach` : ""}
             {res.complete ? " · Évaluation complète" : ""}
           </p>
+          {res.complete && <RwCompletionReward score={res.scoreOn20} showConfetti={showConfetti} />}
         </div>
       )}
     </section>

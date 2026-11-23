@@ -97,6 +97,12 @@ export const saveRwLesson = createServerFn({ method: "POST" })
     await assertStaff(supabase, userId);
     const { countWords } = await import("@/lib/rw-lessons.server");
     const n = (s?: string) => (s?.trim() ? s.trim() : null);
+    if (data.status === "published") {
+      const { data: lesson, error: readError } = await supabase.from("rw_lessons").select("questions").eq("id", data.id).single();
+      if (readError) throw new Error(readError.message);
+      const questionCount = Array.isArray(lesson?.questions) ? lesson.questions.length : 0;
+      if (questionCount !== 10) throw new Error(`La publication exige exactement 10 questions. Ce texte en contient ${questionCount}.`);
+    }
     const { error } = await supabase.from("rw_lessons").update({
       title: data.title.trim(), body: data.body.trim(), word_count: countWords(data.body),
       summary_fr: n(data.summary_fr), translation_fr: n(data.translation_fr), knowledge_point: n(data.knowledge_point),
