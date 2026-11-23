@@ -112,7 +112,7 @@ function LevelTestLanding() {
                     <Link to="/auth">{t("hero.cta.start")}</Link>
                   </Button>
                   <Button asChild size="lg" variant="outline" className="rounded-xl px-7">
-                    <a href="/#tarifs">{t("testlang.pricing")}</a>
+                    <a href="/services#tarifs">{t("testlang.pricing")}</a>
                   </Button>
                 </>
               ) : (

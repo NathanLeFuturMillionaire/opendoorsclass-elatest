@@ -1,94 +1,50 @@
 import { Link } from "@tanstack/react-router";
-import { useT } from "@/lib/i18n";
+import { SERVICES } from "@/lib/services";
+import odcLogo from "@/assets/odc-logo.png.asset.json";
 
 export function SiteFooter() {
-  const t = useT();
   return (
     <footer className="mt-16 border-t border-border bg-secondary/40">
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <div className="grid gap-8 md:grid-cols-4">
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        <div className="grid gap-10 md:grid-cols-4">
           <div>
-            <div className="flex items-center gap-2 font-bold">
-              <span className="grid size-8 place-items-center rounded-lg bg-brand-gradient text-primary-foreground text-sm font-black">
-                O
-              </span>
-              OpenDoorsClass
-            </div>
-            <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-              {t("footer.tagline")}
+            <img src={odcLogo.url} alt="OpenDoorsClass" className="h-8 w-auto" loading="lazy" />
+            <p className="mt-4 max-w-xs text-sm text-muted-foreground">
+              OpenDoorsClass développe des solutions numériques pour évaluer son niveau et progresser en anglais. Fondée au Gabon.
             </p>
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-foreground">{t("footer.platform")}</h4>
+            <h4 className="text-sm font-semibold">Nos services</h4>
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/auth" className="hover:text-foreground">{t("footer.signup")}</Link></li>
-              <li><a href="/#tarifs" className="hover:text-foreground">{t("nav.how")}</a></li>
-              <li><a href="/#temoignages" className="hover:text-foreground">{t("nav.testimonials")}</a></li>
+              {SERVICES.map((s) => (
+                <li key={s.id}><Link to={s.to} className="hover:text-foreground">{s.short}</Link></li>
+              ))}
+              <li><Link to="/spanish-test" className="hover:text-foreground">Test de niveau d'espagnol</Link></li>
+              <li><Link to="/formation-anglais-programme" className="hover:text-foreground">Formation anglais professionnel</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-foreground">Évaluations</h4>
+            <h4 className="text-sm font-semibold">Navigation</h4>
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-              <li>
-                <Link
-                  to="/leveltest/$lang"
-                  params={{ lang: "en" }}
-                  className="hover:text-foreground"
-                >
-                  Test de niveau d'anglais
-                </Link>
-              </li>
-              <li>
-                <Link to="/spanish-test" className="hover:text-foreground">
-                  Test de niveau d'espagnol
-                </Link>
-              </li>
-              <li>
-                <Link to="/cecr-niveaux-anglais" className="hover:text-foreground">
-                  Niveaux d'anglais CECRL
-                </Link>
-              </li>
-              <li>
-                <Link to="/formation-anglais-programme" className="hover:text-foreground">
-                  Formation anglais professionnel
-                </Link>
-              </li>
-              <li>
-                <Link to="/leaderboards" className="hover:text-foreground">
-                  Classements des candidats
-                </Link>
-              </li>
-              <li>
-                <Link to="/certifies" className="hover:text-foreground">
-                  Candidats certifiés
-                </Link>
-              </li>
-              <li>
-                <a href="/#a-propos" className="hover:text-foreground">
-                  À propos d'OpenDoorsClass
-                </a>
-              </li>
+              <li><Link to="/services" className="hover:text-foreground">Tous les services</Link></li>
+              <li><Link to="/a-propos" className="hover:text-foreground">À propos</Link></li>
+              <li><Link to="/cecr-niveaux-anglais" className="hover:text-foreground">Niveaux d'anglais CECRL</Link></li>
+              <li><Link to="/leaderboards" className="hover:text-foreground">Classements</Link></li>
+              <li><Link to="/certifies" className="hover:text-foreground">Candidats certifiés</Link></li>
+              <li><Link to="/auth" className="hover:text-foreground">Se connecter ou créer un compte</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-foreground">{t("footer.contact")}</h4>
+            <h4 className="text-sm font-semibold">Contact</h4>
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-              <li>
-                <a
-                  href="https://wa.me/24174825725"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-foreground"
-                >
-                  WhatsApp, +241 74 82 57 25
-                </a>
-              </li>
-              <li>{t("footer.location")}</li>
+              <li><a href="https://wa.me/24174825725" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">WhatsApp, +241 74 82 57 25</a></li>
+              <li>Libreville, Gabon</li>
+              <li><Link to="/contact" className="hover:text-foreground">Page contact</Link></li>
             </ul>
           </div>
         </div>
         <div className="mt-10 border-t border-border pt-6 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} OpenDoorsClass. {t("footer.rights")}
+          © {new Date().getFullYear()} OpenDoorsClass. Tous droits réservés.
         </div>
       </div>
     </footer>

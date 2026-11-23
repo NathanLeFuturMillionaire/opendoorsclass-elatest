@@ -18,3 +18,6 @@ Reading Workshop lessons are AI-drafted server-side into `rw_lessons` as drafts 
 - Reading Workshop comprehension answers are saved and graded only through `rw_save_answer`/`rw_grade_answer` into `rw_answers`, and learners read questions through `rw_lesson_questions` (the raw `questions` column is not selectable by app users), so answer keys never reach learners before they answer.
 - Reading Workshop removals are reversible deactivations through the `rw_set_active` function (reason required, logged in `rw_removal_log`, coach reassignment enforced); app users cannot hard-delete coaches or learners and a trigger blocks removing owner/admin accounts, so rules hold even outside the UI.
 - Reading Workshop chat writes go only through `rw_chat_*` security definer functions (membership, contact rules, 20 messages per minute, 50 MB files in private `rw-chat` bucket under the conversation folder); app users only SELECT chat tables, so privacy and anti-spam hold outside the UI.
+
+- Public homepage statistics come only from `getPublicStats` (server aggregates, 10 min cache, rules in `src/lib/public-stats.ts`), so no personal data or table access reaches visitors.
+- Services are listed from the `src/lib/services.ts` registry, so a new service appears on home, services page and footer from one entry.

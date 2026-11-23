@@ -39,10 +39,10 @@
 - [x] Tests unitaires, base de données et scénarios navigateur sur ordinateur et mobile
 
 ## Refonte stratégique de l'accueil OpenDoorsClass
-- [ ] Auditer les routes, interfaces, captures, permissions et sources de statistiques sans modifier les services
-- [ ] Créer la vitrine EdTech et la navigation publique vers les pages de services, à propos et contact
-- [ ] Intégrer de vraies captures des deux produits et des animations accessibles
-- [ ] Connecter uniquement des statistiques publiques agrégées et vérifiables
-- [ ] Ajouter la démonstration de compréhension indépendante, sans enregistrement de performance
-- [ ] Vérifier routes, boutons, données, mobile, utilisateurs authentifiés et non régression des deux services
-- [ ] Fournir le rapport de refonte et committer les changements
+- [x] Audit des routes, interfaces, permissions et sources de statistiques
+- [x] Vitrine EdTech, pages Services, À propos et Contact, nouveau menu et pied de page
+- [x] Captures réelles des pages publiques et animations respectant la réduction des mouvements
+- [x] Statistiques publiques agrégées depuis la base (cache 10 min), avec tests
+- [x] Exercice de compréhension gratuit, sans enregistrement
+- [x] Vérification des liens, de l'exercice, du mobile et des erreurs
+- [ ] Captures des écrans membres (passage du test, lecteur, dictionnaire, bilans). Blocker: besoin de comptes de démonstration avec données anonymes validées par l'équipe

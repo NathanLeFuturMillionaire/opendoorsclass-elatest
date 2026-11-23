@@ -19,10 +19,11 @@ export function SiteHeader() {
   const t = useT();
 
   const NAV: { to: string; label: string; icon?: ReactNode }[] = [
-    { to: "/", label: t("nav.home") },
-    { to: "/leaderboards", label: t("nav.leaderboards") },
-    { to: "/#formation", label: t("nav.training") },
-    { to: "/reading-workshop", label: "Reading Workshop", icon: <BookOpen className="size-4 shrink-0" aria-hidden /> },
+    { to: "/", label: "Accueil" },
+    { to: "/services", label: "Nos services" },
+    { to: "/a-propos", label: "À propos" },
+    { to: "/#approche", label: "Notre approche" },
+    { to: "/contact", label: "Contact" },
   ];
 
   useEffect(() => {
@@ -65,7 +66,7 @@ export function SiteHeader() {
           />
         </Link>
 
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-5 lg:gap-6 md:flex">
           {NAV.map((item) => (
             <a
               key={item.to}
@@ -97,10 +98,10 @@ export function SiteHeader() {
           ) : (
             <>
               <Button asChild variant="ghost" size="sm">
-                <Link to="/auth">{t("nav.signin")}</Link>
+                <Link to="/auth">Se connecter</Link>
               </Button>
               <Button asChild size="sm" className="bg-brand-gradient text-primary-foreground shadow-sm">
-                <Link to="/auth">{t("nav.start")}</Link>
+                <Link to="/auth">Créer un compte</Link>
               </Button>
             </>
           )}
@@ -141,6 +142,9 @@ export function SiteHeader() {
                   {item.label}
                 </a>
               ))}
+              <p className="mt-4 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Nos services</p>
+              <Link to="/leveltest/$lang" params={{ lang: "en" }} onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">English Level Assessment</Link>
+              <Link to="/reading-workshop" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-lg border border-brand-green/40 bg-brand-green/10 px-3 py-2.5 text-sm font-semibold text-brand-green hover:bg-brand-green/20"><BookOpen className="size-4 shrink-0" aria-hidden />Reading Workshop</Link>
               <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4">
                 <div className="flex justify-center pb-1">
                   <LanguageSwitcher />
@@ -172,14 +176,14 @@ export function SiteHeader() {
                 ) : (
                   <>
                     <Button asChild variant="outline" onClick={() => setOpen(false)}>
-                      <Link to="/auth">{t("nav.signin")}</Link>
+                      <Link to="/auth">Se connecter</Link>
                     </Button>
                     <Button
                       asChild
                       className="bg-brand-gradient text-primary-foreground"
                       onClick={() => setOpen(false)}
                     >
-                      <Link to="/auth">{t("nav.start")}</Link>
+                      <Link to="/auth">Créer un compte</Link>
                     </Button>
                   </>
                 )}

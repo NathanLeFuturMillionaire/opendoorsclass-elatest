@@ -1,348 +1,104 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { motion } from "framer-motion";
-import {
-  CheckCircle2,
-  Star,
-} from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
-import { FoundersSection } from "@/components/founders-section";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { listPublicReviews } from "@/lib/reviews.functions";
-import { useT } from "@/lib/i18n";
-import { HomePricingSection } from "@/components/home-pricing-section";
-import { PaymentTutorialSection } from "@/components/payment-tutorial-section";
-import { TrainingSection } from "@/components/training-section";
-import { TestLanguagesSection } from "@/components/test-languages-section";
-import { CertifiedLearnersCard } from "@/components/certified-learners-card";
-import { HeroTestPreview } from "@/components/hero-test-preview";
-import { FounderBadge } from "@/components/founder-badge";
-import { VideoTestimonial } from "@/components/video-testimonial";
-import { SeoAboutSection, seoFaqLd } from "@/components/seo-about-section";
-import { socialMeta, canonicalLink } from "@/lib/seo";
-import raichaVideo from "@/assets/testimonial-raicha.mp4.asset.json";
-import raichaPoster from "@/assets/testimonial-raicha-poster.jpg.asset.json";
-import oumarVideo from "@/assets/testimonial-oumar.mp4.asset.json";
-import oumarPoster from "@/assets/testimonial-oumar-poster.jpg.asset.json";
+import { socialMeta, canonicalLink, SITE_URL } from "@/lib/seo";
+import { ProductShowcase } from "@/components/home/product-showcase";
+import { PlatformStatsSection, WorldSection, ReadingStatsSection } from "@/components/home/stats-sections";
+import { ServicesShowcase } from "@/components/home/services-showcase";
+import { ReadingDemo } from "@/components/home/reading-demo";
+import { ApproachSection } from "@/components/home/approach-section";
+import { WhySection } from "@/components/home/why-section";
+import { Reveal } from "@/components/home/reveal";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
   head: () => ({
     meta: socialMeta({
-      title: "Test de niveau anglais et espagnol | OpenDoorsClass",
+      title: "OpenDoorsClass | Plateforme EdTech pour progresser en anglais",
       description:
-        "Évaluez votre niveau réel d'anglais ou d'espagnol sur l'échelle CECRL, de A1 à C2, en moins de trente minutes, avec attestation officielle.",
+        "OpenDoorsClass développe des solutions numériques pour évaluer son niveau d'anglais et progresser : English Level Assessment et Reading Workshop.",
       path: "/",
     }),
     links: canonicalLink("/"),
     scripts: [
-      { type: "application/ld+json", children: JSON.stringify(seoFaqLd("fr")) },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "EducationalOrganization",
+          name: "OpenDoorsClass",
+          url: SITE_URL,
+          address: { "@type": "PostalAddress", addressLocality: "Libreville", addressCountry: "GA" },
+        }),
+      },
     ],
   }),
 });
 
-const FALLBACK_TESTIMONIALS = [
-  {
-    display_name: "Marina O.",
-    level_achieved: "B2",
-    rating: 5,
-    title: "Bien pensé",
-    comment:
-      "Le test est vraiment bien pensé, la partie audio est authentique. J'ai eu mon niveau exact et un plan pour progresser.",
-    country: "Gabon",
-    avatar_url: null as string | null,
-  },
-  {
-    display_name: "Steeve M.",
-    level_achieved: "A2",
-    rating: 5,
-    title: "Simple et clair",
-    comment: "Simple, clair, en français. J'ai enfin compris où je me situais et par où commencer avec Nathan.",
-    country: "Gabon",
-    avatar_url: null as string | null,
-  },
-  {
-    display_name: "Grace N.",
-    level_achieved: "C1",
-    rating: 5,
-    title: "Attestation utile",
-    comment: "L'attestation m'a permis de rassurer mon recruteur. La plateforme est fluide, même sur mon téléphone.",
-    country: "Gabon",
-    avatar_url: null as string | null,
-  },
-];
-
 function HomePage() {
-  const t = useT();
+  const reduce = useReducedMotion();
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-background">
       <SiteHeader />
-
       <main className="flex-1">
-        {/* Hero */}
         <section className="relative overflow-hidden">
-          <div className="pointer-events-none absolute inset-0 -z-10 opacity-70">
-            <div className="absolute -top-24 left-1/2 h-96 w-[110%] -translate-x-1/2 rounded-full bg-brand-blue-soft blur-3xl" />
-            <div className="absolute right-0 top-40 h-64 w-64 rounded-full bg-brand-green-soft blur-3xl" />
-            <div className="absolute -bottom-24 left-10 h-56 w-56 rounded-full bg-brand-yellow-soft blur-3xl" />
+          <div className="pointer-events-none absolute inset-0 -z-10">
+            <div className="absolute -top-40 left-1/2 h-[32rem] w-[120%] -translate-x-1/2 rounded-full bg-brand-green-soft blur-3xl" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,var(--border)_1px,transparent_0)] [background-size:28px_28px] opacity-60 [mask-image:linear-gradient(to_bottom,black,transparent)]" />
           </div>
-          <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 sm:py-24 md:grid-cols-2 md:items-center md:gap-16 md:py-28">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-            >
-              <div className="mb-5 flex flex-wrap items-center gap-2">
-                <Badge variant="secondary" className="rounded-full px-3 py-1">
-                  {t("hero.badge")}
-                </Badge>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/70 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
-                  <span className="flex items-center gap-0.5" aria-hidden="true">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className="size-3 fill-brand-yellow-foreground text-brand-yellow-foreground"
-                      />
-                    ))}
-                  </span>
-                  {t("cert.badge")}
-                </span>
-              </div>
-              <h1 className="max-w-xl text-[2.35rem] font-extrabold leading-[1.08] tracking-tight text-balance sm:text-[2.9rem] md:text-[3.15rem]">
-                <span className="mb-2 block text-sm font-bold uppercase tracking-[0.2em] text-brand-green">
-                  OpenDoorsClass
-                </span>
-                {t("hero.title.a")} <span className="text-brand-gradient">{t("hero.title.b")}</span>{t("hero.title.c")}
+          <div className="mx-auto grid max-w-6xl gap-14 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+            <motion.div initial={reduce ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: "easeOut" }}>
+              <p className="text-sm font-bold uppercase tracking-[0.25em] text-brand-green">Open Doors Class</p>
+              <h1 className="mt-4 text-[2.4rem] font-extrabold leading-[1.05] tracking-tight text-balance sm:text-5xl lg:text-[3.4rem]">
+                Ouvrez les portes d'un <span className="text-brand-green">nouvel apprentissage</span> des langues.
               </h1>
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                {t("hero.desc")}
+              <p className="mt-6 max-w-xl text-lg text-muted-foreground">
+                OpenDoorsClass développe des solutions numériques pour aider chacun à évaluer son niveau, améliorer ses compétences linguistiques et progresser grâce à des expériences d'apprentissage interactives.
               </p>
-              <p className="mt-4 flex max-w-xl flex-wrap items-center gap-2 text-sm font-medium text-foreground/80">
-                <span aria-hidden="true">🇬🇧</span>
-                <span aria-hidden="true">🇪🇸</span>
-                {t("hero.langline")}
-              </p>
-              <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <Button
-                  asChild
-                  size="lg"
-                  className="rounded-xl bg-brand-gradient px-7 py-6 text-base font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
-                >
-                  <Link to="/auth">{t("hero.cta.start")}</Link>
+              <p className="mt-3 max-w-xl text-muted-foreground">Nous voulons rendre l'apprentissage des langues plus accessible, plus structuré et plus efficace.</p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Button asChild size="lg" className="bg-brand-green text-brand-green-foreground shadow-lg hover:bg-brand-green/90">
+                  <a href="#services">Découvrir nos services <ArrowRight className="ml-1 size-4" /></a>
                 </Button>
-                <Button
-                  asChild
-                  size="lg"
-                  variant="outline"
-                  className="rounded-xl border-border/70 px-7 py-6 text-base font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:bg-muted/60"
-                >
-                  <a href="#langues">{t("hero.cta.lang")}</a>
+                <Button asChild size="lg" variant="outline">
+                  <Link to="/auth">Créer mon compte</Link>
                 </Button>
-              </div>
-              <ul className="mt-9 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="size-4 text-brand-green" /> {t("hero.tag.instant")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="size-4 text-brand-green" /> {t("hero.tag.pdf")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="size-4 text-brand-green" /> {t("hero.tag.mobile")}
-                </li>
-              </ul>
-              <div className="mt-9 max-w-md">
-                <CertifiedLearnersCard />
               </div>
             </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.12, ease: "easeOut" }}
-              className="relative mx-auto w-full max-w-md"
-            >
-              <div className="absolute -inset-4 rounded-3xl bg-brand-gradient opacity-20 blur-2xl" />
-              <HeroTestPreview />
+            <motion.div initial={reduce ? false : { opacity: 0, y: 30, rotate: -1 }} animate={{ opacity: 1, y: 0, rotate: 0 }} transition={{ duration: 0.9, delay: 0.15, ease: "easeOut" }}>
+              <ProductShowcase />
             </motion.div>
           </div>
         </section>
 
-        <TestLanguagesSection />
+        <PlatformStatsSection />
+        <WorldSection />
+        <ServicesShowcase />
+        <ReadingStatsSection />
+        <ReadingDemo />
+        <ApproachSection />
+        <WhySection />
 
-        <HomePricingSection />
-
-        <PaymentTutorialSection />
-
-        <TestimonialsSection />
-
-        <SeoAboutSection />
-
-        <TrainingSection />
-
-        {/* Fondateurs */}
-        <FoundersSection />
-
-
-        {/* Final CTA */}
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="relative overflow-hidden rounded-3xl bg-brand-gradient p-10 text-center text-primary-foreground shadow-2xl sm:p-14">
-            <h2 className="text-3xl font-extrabold sm:text-4xl">{t("cta.title")}</h2>
-            <p className="mt-3 text-primary-foreground/90">{t("cta.desc")}</p>
-            <div className="mt-8 flex justify-center">
-              <Button asChild size="lg" variant="secondary" className="shadow-lg">
-                <Link to="/auth">{t("cta.start")}</Link>
-              </Button>
+        <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+          <Reveal>
+            <div className="relative overflow-hidden rounded-3xl bg-brand-green p-10 text-center text-brand-green-foreground shadow-2xl sm:p-16">
+              <div className="pointer-events-none absolute -left-16 -top-16 size-64 rounded-full bg-background/10 blur-2xl" />
+              <div className="pointer-events-none absolute -bottom-20 -right-10 size-72 rounded-full bg-foreground/10 blur-2xl" />
+              <h2 className="relative text-3xl font-extrabold tracking-tight text-balance sm:text-4xl">Prêt à ouvrir de nouvelles portes grâce à l'anglais ?</h2>
+              <p className="relative mx-auto mt-4 max-w-2xl opacity-90">Que vous souhaitiez connaître votre niveau ou améliorer vos compétences en anglais, OpenDoorsClass met à votre disposition des solutions conçues pour vous accompagner.</p>
+              <div className="relative mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                <Button asChild size="lg" variant="secondary"><Link to="/leveltest/$lang" params={{ lang: "en" }}>Évaluer mon niveau</Link></Button>
+                <Button asChild size="lg" variant="secondary"><Link to="/reading-workshop">Découvrir nos ateliers</Link></Button>
+                <Button asChild size="lg" variant="outline" className="border-brand-green-foreground/60 bg-transparent text-brand-green-foreground hover:bg-brand-green-foreground/10 hover:text-brand-green-foreground"><Link to="/auth">Créer mon compte</Link></Button>
+              </div>
             </div>
-          </div>
+          </Reveal>
         </section>
       </main>
-
       <SiteFooter />
     </div>
-  );
-}
-
-function TestimonialsSection() {
-  const t = useT();
-  const fetchReviews = useServerFn(listPublicReviews);
-  const { data } = useQuery({
-    queryKey: ["public-reviews"],
-    queryFn: () => fetchReviews(),
-  });
-
-  const reviews =
-    data && data.length > 0
-      ? data.map((r) => ({
-          public_role: (r as { public_role?: "founder" | "cofounder" | null }).public_role ?? null,
-          display_name: r.display_name ?? "Candidat",
-          level_achieved: r.level_achieved ?? "",
-          rating: r.rating,
-          title: r.title,
-          comment: r.comment,
-          country: r.country ?? "",
-          avatar_url: (r as { avatar_url?: string | null }).avatar_url ?? null,
-        }))
-      : FALLBACK_TESTIMONIALS;
-
-  const track = [...reviews, ...reviews];
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    let raf = 0;
-    let paused = false;
-    const onEnter = () => (paused = true);
-    const onLeave = () => (paused = false);
-    el.addEventListener("mouseenter", onEnter);
-    el.addEventListener("mouseleave", onLeave);
-    const step = () => {
-      if (!paused) {
-        el.scrollLeft += 0.6;
-        if (el.scrollLeft >= el.scrollWidth / 2) el.scrollLeft = 0;
-      }
-      raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-    return () => {
-      cancelAnimationFrame(raf);
-      el.removeEventListener("mouseenter", onEnter);
-      el.removeEventListener("mouseleave", onLeave);
-    };
-  }, [reviews.length]);
-
-  return (
-    <section id="temoignages" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-      <div className="mx-auto max-w-2xl text-center">
-        <Badge variant="outline" className="mb-3">
-          {t("tm.badge")}
-        </Badge>
-        <h2 className="text-3xl font-bold sm:text-4xl">{t("tm.title")}</h2>
-        <p className="mt-3 text-muted-foreground">{t("tm.desc")}</p>
-      </div>
-      <div
-        className="mt-8 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-3 sm:-mx-6 sm:px-6 [scrollbar-width:thin]"
-        role="region"
-        aria-label={t("tm.title")}
-      >
-        {[
-          { n: "ODC-2026-62E98E", v: raichaVideo.url, p: raichaPoster.url },
-          { n: "ODC-2026-DA455D", v: oumarVideo.url, p: oumarPoster.url },
-        ].map((item) => (
-          <div
-            key={item.n}
-            className="w-[88vw] max-w-[560px] shrink-0 snap-center sm:w-[80%] lg:w-[62%]"
-          >
-            <VideoTestimonial candidateNumber={item.n} videoUrl={item.v} posterUrl={item.p} />
-          </div>
-        ))}
-      </div>
-      <div
-        ref={scrollerRef}
-        className="mt-10 flex gap-5 overflow-x-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]"
-      >
-        {track.map((t, i) => (
-          <motion.div
-            key={`${t.display_name}-${i}`}
-            whileHover={{ y: -4 }}
-            transition={{ type: "spring", stiffness: 200, damping: 20 }}
-            className="min-w-[300px] max-w-[340px] flex-shrink-0"
-          >
-            <Card className="h-full border-border/60">
-              <CardContent className="flex h-full flex-col p-6">
-                <div className="flex items-center gap-0.5">
-                  {Array.from({ length: 5 }).map((_, n) => (
-                    <Star
-                      key={n}
-                      className={`size-4 ${
-                        n < t.rating
-                          ? "fill-brand-yellow-foreground text-brand-yellow-foreground"
-                          : "text-muted-foreground/40"
-                      }`}
-                    />
-                  ))}
-                </div>
-                {t.title ? <p className="mt-3 text-sm font-semibold">{t.title}</p> : null}
-                <p className="mt-2 text-sm text-foreground/90">« {t.comment} »</p>
-                <div className="mt-auto pt-5 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    {t.avatar_url ? (
-                      <img
-                        src={t.avatar_url}
-                        alt={t.display_name}
-                        className="size-10 rounded-full object-cover ring-2 ring-background"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="grid size-10 place-items-center rounded-full bg-brand-blue-soft text-xs font-bold text-brand-blue">
-                        {(t.display_name?.[0] ?? "?").toUpperCase()}
-                      </div>
-                    )}
-                    <div>
-                      <p className="flex flex-wrap items-center gap-1.5 text-sm font-semibold">
-                        {t.display_name}
-                        <FounderBadge
-                          role={(t as { public_role?: "founder" | "cofounder" | null }).public_role ?? null}
-                        />
-                      </p>
-                      {t.country ? <p className="text-xs text-muted-foreground">{t.country}</p> : null}
-                    </div>
-                  </div>
-                  {t.level_achieved ? (
-                    <span className="rounded-full bg-brand-blue text-brand-blue-foreground px-3 py-1 text-xs font-semibold">
-                      {t.level_achieved}
-                    </span>
-                  ) : null}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-    </section>
   );
 }

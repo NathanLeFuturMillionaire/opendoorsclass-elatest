@@ -11,12 +11,15 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AProposRouteImport } from './routes/a-propos'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CecrNiveauxAnglaisRouteImport } from './routes/cecr-niveaux-anglais'
 import { Route as CertifiesRouteImport } from './routes/certifies'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FormationAnglaisProgrammeRouteImport } from './routes/formation-anglais-programme'
 import { Route as LeaderboardsRouteImport } from './routes/leaderboards'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SpanishTestRouteImport } from './routes/spanish-test'
 import { Route as AuthenticatedAccomplissementsRouteImport } from './routes/_authenticated/accomplissements'
@@ -63,6 +66,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AProposRoute = AProposRouteImport.update({
+  id: '/a-propos',
+  path: '/a-propos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -76,6 +84,11 @@ const CecrNiveauxAnglaisRoute = CecrNiveauxAnglaisRouteImport.update({
 const CertifiesRoute = CertifiesRouteImport.update({
   id: '/certifies',
   path: '/certifies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FormationAnglaisProgrammeRoute =
@@ -92,6 +105,11 @@ const LeaderboardsRoute = LeaderboardsRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesRoute = ServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -298,12 +316,15 @@ const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
   '/auth': typeof AuthRoute
   '/cecr-niveaux-anglais': typeof CecrNiveauxAnglaisRoute
   '/certifies': typeof CertifiesRoute
+  '/contact': typeof ContactRoute
   '/formation-anglais-programme': typeof FormationAnglaisProgrammeRoute
   '/leaderboards': typeof LeaderboardsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/spanish-test': typeof SpanishTestRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -343,12 +364,15 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
   '/auth': typeof AuthRoute
   '/cecr-niveaux-anglais': typeof CecrNiveauxAnglaisRoute
   '/certifies': typeof CertifiesRoute
+  '/contact': typeof ContactRoute
   '/formation-anglais-programme': typeof FormationAnglaisProgrammeRoute
   '/leaderboards': typeof LeaderboardsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/spanish-test': typeof SpanishTestRoute
   '/accomplissements': typeof AuthenticatedAccomplissementsRoute
@@ -389,12 +413,15 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/a-propos': typeof AProposRoute
   '/auth': typeof AuthRoute
   '/cecr-niveaux-anglais': typeof CecrNiveauxAnglaisRoute
   '/certifies': typeof CertifiesRoute
+  '/contact': typeof ContactRoute
   '/formation-anglais-programme': typeof FormationAnglaisProgrammeRoute
   '/leaderboards': typeof LeaderboardsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/spanish-test': typeof SpanishTestRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -436,12 +463,15 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/a-propos'
     | '/auth'
     | '/cecr-niveaux-anglais'
     | '/certifies'
+    | '/contact'
     | '/formation-anglais-programme'
     | '/leaderboards'
     | '/reset-password'
+    | '/services'
     | '/sitemap.xml'
     | '/spanish-test'
     | '/admin'
@@ -481,12 +511,15 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/a-propos'
     | '/auth'
     | '/cecr-niveaux-anglais'
     | '/certifies'
+    | '/contact'
     | '/formation-anglais-programme'
     | '/leaderboards'
     | '/reset-password'
+    | '/services'
     | '/sitemap.xml'
     | '/spanish-test'
     | '/accomplissements'
@@ -526,12 +559,15 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/a-propos'
     | '/auth'
     | '/cecr-niveaux-anglais'
     | '/certifies'
+    | '/contact'
     | '/formation-anglais-programme'
     | '/leaderboards'
     | '/reset-password'
+    | '/services'
     | '/sitemap.xml'
     | '/spanish-test'
     | '/_authenticated/admin'
@@ -573,12 +609,15 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AProposRoute: typeof AProposRoute
   AuthRoute: typeof AuthRoute
   CecrNiveauxAnglaisRoute: typeof CecrNiveauxAnglaisRoute
   CertifiesRoute: typeof CertifiesRoute
+  ContactRoute: typeof ContactRoute
   FormationAnglaisProgrammeRoute: typeof FormationAnglaisProgrammeRoute
   LeaderboardsRoute: typeof LeaderboardsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SpanishTestRoute: typeof SpanishTestRoute
   LeveltestLangRoute: typeof LeveltestLangRoute
@@ -606,6 +645,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/a-propos': {
+      id: '/a-propos'
+      path: '/a-propos'
+      fullPath: '/a-propos'
+      preLoaderRoute: typeof AProposRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -627,6 +673,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CertifiesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/formation-anglais-programme': {
       id: '/formation-anglais-programme'
       path: '/formation-anglais-programme'
@@ -646,6 +699,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services': {
+      id: '/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -987,12 +1047,15 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AProposRoute: AProposRoute,
   AuthRoute: AuthRoute,
   CecrNiveauxAnglaisRoute: CecrNiveauxAnglaisRoute,
   CertifiesRoute: CertifiesRoute,
+  ContactRoute: ContactRoute,
   FormationAnglaisProgrammeRoute: FormationAnglaisProgrammeRoute,
   LeaderboardsRoute: LeaderboardsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SpanishTestRoute: SpanishTestRoute,
   LeveltestLangRoute: LeveltestLangRoute,
