@@ -16,8 +16,9 @@
 
 ## Reading Workshop textes manuels
 - [x] Semaine 2 (30 textes)
-- [ ] Semaine 3 : séances 1 à 3 publiées; séances 4 à 6 restent (15 textes)
-- [ ] Semaines 4 à 20
+- [x] Semaine 3 : 30 textes publiés, dont les séances 4 à 6 finalisées avec 10 questions chacun
+- [x] Semaine 4 : 30 textes originaux publiés, avec traduction, vocabulaire, grammaire et 10 questions chacun
+- [ ] Semaines 5 à 20
 
 ## Évolution Reading Workshop (prompt maître)
 - [x] Phase 0 : audit et plan d'intégration (en attente d'approbation)

@@ -176,6 +176,62 @@
       "when": 1795477633101,
       "tag": "0024_add_rw_weekly_reading_challenge",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1795516366645,
+      "tag": "0025_complete_rw_week3_existing_lessons",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1795516440715,
+      "tag": "0026_create_rw_week3_small_actions_lessons",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1795516521682,
+      "tag": "0027_create_rw_week4_having_a_dream",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1795516588605,
+      "tag": "0028_create_rw_week4_setting_personal_goals",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1795516698777,
+      "tag": "0029_create_rw_week4_overcoming_fear",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1795516808791,
+      "tag": "0030_create_rw_week4_importance_of_patience",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1795516917405,
+      "tag": "0031_create_rw_week4_turning_ideas_into_action",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1795517022162,
+      "tag": "0032_create_rw_week4_designing_your_future",
+      "breakpoints": true
     }
   ]
 }
