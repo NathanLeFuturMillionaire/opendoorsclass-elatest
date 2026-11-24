@@ -73,3 +73,10 @@
 - [x] Conserver le Top 3 hebdomadaire et permettre la consultation de la semaine précédente
 - [x] Vérifier les règles, les égalités, les permissions, le mobile, l'absence d'appels IA et les scénarios réels
 - Résultat : données réelles, photos privées signées, semaine clôturée conservée, 121 tests, affichage vérifié à 390, 768 et 1280 px, aucun appel IA ni erreur JavaScript
+
+## Abonnement apprenant Reading Workshop
+- [x] Calculer les jours restants depuis la date de début, avec la durée confirmée de 30 jours
+- [x] Afficher un anneau de progression professionnel dès l’arrivée dans l’espace apprenant
+- [x] Gérer date absente, dernier jour, abonnement expiré et date future sans modifier les accès
+- [x] Tester les calculs, les permissions et l’affichage mobile, tablette et ordinateur
+- Résultat : durée de 30 jours confirmée, date serveur à Libreville, 129 tests réussis, compte réel vérifié à 390, 768 et 1280 px, aucune erreur JavaScript ni réponse en échec

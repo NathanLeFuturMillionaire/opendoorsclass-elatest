@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { RwWeeklyChallengeData, RwWeeklyChallengeRpcData } from "@/lib/rw-weekly-challenge";
+import { computeRwSubscription, rwLibrevilleDate } from "@/lib/rw-subscription";
 
 export type RwSpace = "admin" | "coach" | "learner" | "none";
 
@@ -187,12 +188,14 @@ export const getRwMe = createServerFn({ method: "GET" })
     }
     const urls = await signPhotos([learner?.photo_path ?? null, coach?.photo_path ?? null, myCoach?.photo_path ?? null]);
     const u = (p?: string | null) => (p ? urls[p] ?? null : null);
-  return {
-    learner: learner ? { ...learner, photo_url: u(learner.photo_path) } : null,
-    coach: coach ? { ...coach, photo_url: u(coach.photo_path) } : null,
-    myCoach: myCoach ? { full_name: myCoach.full_name, photo_url: u(myCoach.photo_path) } : null,
-  };
-});
+    const subscription = learner ? computeRwSubscription(learner.start_date, rwLibrevilleDate(new Date())) : null;
+    return {
+      learner: learner ? { ...learner, photo_url: u(learner.photo_path) } : null,
+      subscription,
+      coach: coach ? { ...coach, photo_url: u(coach.photo_path) } : null,
+      myCoach: myCoach ? { full_name: myCoach.full_name, photo_url: u(myCoach.photo_path) } : null,
+    };
+  });
 
 /** Active learner: shared weekly Top 3 and own progress, with private photos signed after RPC authorization. */
 export const getRwWeeklyChallenge = createServerFn({ method: "GET" })
