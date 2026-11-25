@@ -200,7 +200,11 @@ function Lesson() {
         {canSubmit && learnerId && (
           <>
             {status && !status.open && <RwHoursBanner />}
-            <RwSubmit learnerId={learnerId} lessonId={id} />
+            {mine.length === 0 ? (
+              <RwSubmit learnerId={learnerId} lessonId={id} />
+            ) : (
+              <p className="rounded-2xl border border-border bg-muted/40 p-4 text-sm text-muted-foreground">Votre lecture pour ce texte a bien été envoyée. Un seul envoi est autorisé par texte.</p>
+            )}
             {mine.length > 0 && (
               <section className="space-y-3">
                 <h3 className="text-xl font-bold">Mes envois pour ce texte</h3>

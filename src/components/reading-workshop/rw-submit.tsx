@@ -50,7 +50,7 @@ export function RwSubmit({ learnerId, lessonId }: { learnerId: string; lessonId:
   function stopRec() { rec.current?.stop(); setRecording(false); }
 
   async function send() {
-    if (!blob) return;
+    if (!blob || pct !== null) return;
     setErr(null); setPct(0); setPaused(false);
     const ext = (blob.type.split("/")[1] || "webm").split(";")[0].replace("mpeg", "mp3").replace("quicktime", "mov");
     pathRef.current = `${learnerId}/${lessonId}/${Date.now()}.${ext}`;
@@ -63,7 +63,10 @@ export function RwSubmit({ learnerId, lessonId }: { learnerId: string; lessonId:
             learner_id: learnerId, lesson_id: lessonId, kind, storage_path: pathRef.current,
             mime_type: blob.type, size_bytes: blob.size, learner_note: note.trim() || null,
           });
-          if (error) { setErr("Envoi reçu mais non enregistré. Réessayez."); return; }
+          if (error) {
+            if (error.message.includes("déjà envoyé")) { toast.error("Vous avez déjà envoyé votre lecture pour ce texte."); setBlob(null); setPreview(null); setPct(null); qc.invalidateQueries({ queryKey: ["rw-my-submissions"] }); return; }
+            setErr("Envoi reçu mais non enregistré. Réessayez."); return;
+          }
           toast.success("Lecture envoyée à votre coach.");
           setBlob(null); setPreview(null); setPct(null); setNote("");
           qc.invalidateQueries({ queryKey: ["rw-my-submissions"] });
