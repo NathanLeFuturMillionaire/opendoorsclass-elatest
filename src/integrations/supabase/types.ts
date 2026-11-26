@@ -1370,6 +1370,44 @@ export type Database = {
         }
         Relationships: []
       }
+      rw_reviews: {
+        Row: {
+          comment: string
+          created_at: string
+          id: string
+          is_visible: boolean
+          learner_id: string
+          rating: number
+          would_recommend: boolean
+        }
+        Insert: {
+          comment: string
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          learner_id: string
+          rating: number
+          would_recommend: boolean
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          learner_id?: string
+          rating?: number
+          would_recommend?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rw_reviews_learner_id_fkey"
+            columns: ["learner_id"]
+            isOneToOne: true
+            referencedRelation: "rw_learners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rw_saved_words: {
         Row: {
           created_at: string
@@ -2522,6 +2560,19 @@ export type Database = {
           tested_at: string
         }[]
       }
+      rw_public_reviews: {
+        Args: never
+        Returns: {
+          comment: string
+          created_at: string
+          display_name: string
+          id: string
+          level: string
+          rating: number
+          would_recommend: boolean
+        }[]
+      }
+      rw_review_status: { Args: never; Returns: Json }
       rw_save_answer: {
         Args: { _answer: string; _index: number; _lesson: string }
         Returns: Json
@@ -2572,6 +2623,10 @@ export type Database = {
           title: string
           week_number: number
         }[]
+      }
+      rw_submit_review: {
+        Args: { _comment: string; _rating: number; _recommend: boolean }
+        Returns: undefined
       }
       rw_trace_next_character: {
         Args: { _from: number; _sentence: string }

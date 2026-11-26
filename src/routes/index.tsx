@@ -11,6 +11,7 @@ import { ServicesShowcase } from "@/components/home/services-showcase";
 import { ReadingDemo } from "@/components/home/reading-demo";
 import { ApproachSection } from "@/components/home/approach-section";
 import { WhySection } from "@/components/home/why-section";
+import { RwReviewsSection } from "@/components/home/rw-reviews-section";
 import { Reveal } from "@/components/home/reveal";
 
 export const Route = createFileRoute("/")({
@@ -78,6 +79,7 @@ function HomePage() {
         <WorldSection />
         <ServicesShowcase />
         <ReadingStatsSection />
+        <RwReviewsSection />
         <ReadingDemo />
         <ApproachSection />
         <WhySection />
