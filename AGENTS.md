@@ -23,4 +23,5 @@ Reading Workshop Grammar Discovery tracing uses local Hershey vector glyphs and 
 
 - Public homepage statistics come only from `getPublicStats` (server aggregates, 10 min cache, rules in `src/lib/public-stats.ts`), so no personal data or table access reaches visitors.
 - Services are listed from the `src/lib/services.ts` registry, so a new service appears on home, services page and footer from one entry.
+- Public reader reviews use a publishable RPC read and a no-input server function that signs only portraits attached to visible reviews; private learner records and the photo bucket stay restricted.
 - Level test scoring (English and Spanish) goes only through `src/lib/assessment-scoring.ts`: writing/speaking earn partial credit (score/100), answers awaiting evaluation are flagged `pending` and excluded (never counted as 0, and counted as 0 for the CEFR ladder so they cannot lift a level), and graders write single answers atomically; so displayed skills always match stored evaluations.

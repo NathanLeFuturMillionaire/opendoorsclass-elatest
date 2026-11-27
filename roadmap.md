@@ -81,3 +81,8 @@
 - [x] Gérer date absente, dernier jour, abonnement expiré et date future sans modifier les accès
 - [x] Tester les calculs, les permissions et l’affichage mobile, tablette et ordinateur
 - Résultat : durée de 30 jours confirmée, date serveur à Libreville, 129 tests réussis, compte réel vérifié à 390, 768 et 1280 px, aucune erreur JavaScript ni réponse en échec
+
+## Avis des lecteurs sur l’accueil
+- [x] Moderniser les avis et afficher les photos disponibles sans ouvrir les dossiers privés
+- [x] Afficher trois avis sur ordinateur et faire défiler les suivants, avec adaptation aux petits écrans
+- [x] Vérifier les deux avis réels et leurs photos à 1280 et 390 px; vérifier trois cartes visibles et le défilement avec cinq cartes temporaires uniquement dans le navigateur, sans modifier les avis enregistrés
