@@ -253,6 +253,13 @@
       "when": 1795724416078,
       "tag": "0035_rw_platform_reviews",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1795861394499,
+      "tag": "0036_rw_community_visibility",
+      "breakpoints": true
     }
   ]
 }

@@ -12,6 +12,7 @@ import { ReadingDemo } from "@/components/home/reading-demo";
 import { ApproachSection } from "@/components/home/approach-section";
 import { WhySection } from "@/components/home/why-section";
 import { RwReviewsSection } from "@/components/home/rw-reviews-section";
+import { CommunityGlobeSection } from "@/components/home/community-globe-section";
 import { Reveal } from "@/components/home/reveal";
 
 export const Route = createFileRoute("/")({
@@ -79,6 +80,7 @@ function HomePage() {
         <WorldSection />
         <ServicesShowcase />
         <ReadingStatsSection />
+        <CommunityGlobeSection />
         <RwReviewsSection />
         <ReadingDemo />
         <ApproachSection />

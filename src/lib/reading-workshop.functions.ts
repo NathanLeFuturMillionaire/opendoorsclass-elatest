@@ -138,7 +138,7 @@ export const saveRwPerson = createServerFn({ method: "POST" })
     const common = { full_name: data.full_name, email: data.email, photo_path: data.photo_path ?? null, is_active: data.is_active ?? true };
     const row =
       data.kind === "learner"
-        ? { ...common, level: data.level ?? "A1", coach_id: data.coach_id || null, start_date: data.start_date || null }
+        ? { ...common, level: data.level ?? "A1", coach_id: data.coach_id || null, start_date: data.start_date || null, ...(typeof data.community_visible === "boolean" ? { community_visible: data.community_visible } : {}) }
         : { ...common, bio: clean(data.bio, 600) || null };
     const table = data.kind === "learner" ? "rw_learners" : "rw_coaches";
     const q = data.id

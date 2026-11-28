@@ -1186,6 +1186,7 @@ export type Database = {
       rw_learners: {
         Row: {
           coach_id: string | null
+          community_visible: boolean
           created_at: string
           email: string | null
           full_name: string
@@ -1199,6 +1200,7 @@ export type Database = {
         }
         Insert: {
           coach_id?: string | null
+          community_visible?: boolean
           created_at?: string
           email?: string | null
           full_name: string
@@ -1212,6 +1214,7 @@ export type Database = {
         }
         Update: {
           coach_id?: string | null
+          community_visible?: boolean
           created_at?: string
           email?: string | null
           full_name?: string
@@ -2515,6 +2518,7 @@ export type Database = {
         Args: { _uid: string }
         Returns: {
           coach_id: string | null
+          community_visible: boolean
           created_at: string
           email: string | null
           full_name: string

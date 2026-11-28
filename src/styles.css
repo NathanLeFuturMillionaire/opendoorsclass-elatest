@@ -63,6 +63,11 @@
   --color-brand-blue-soft: var(--brand-blue-soft);
   --color-brand-green-soft: var(--brand-green-soft);
   --color-brand-yellow-soft: var(--brand-yellow-soft);
+  --color-community-bg: var(--community-bg);
+  --color-community-surface: var(--community-surface);
+  --color-community-green: var(--community-green);
+  --color-community-green-deep: var(--community-green-deep);
+  --color-community-ink: var(--community-ink);
 }
 
 :root {
@@ -82,6 +87,11 @@
   --brand-green: oklch(0.62 0.16 148);
   --brand-green-foreground: oklch(0.99 0.005 250);
   --brand-green-soft: oklch(0.955 0.05 148);
+  --community-bg: oklch(0.16 0.012 165);
+  --community-surface: oklch(0.22 0.015 165);
+  --community-green: oklch(0.68 0.16 162);
+  --community-green-deep: oklch(0.56 0.13 162);
+  --community-ink: oklch(0.97 0.005 165);
   /* Brand: gabonese yellow for highlights */
   --brand-yellow: oklch(0.86 0.17 92);
   --brand-yellow-foreground: oklch(0.28 0.08 90);
@@ -334,3 +344,7 @@ html {
   --rw-deep: oklch(0.62 0.13 162);
   --rw-soft: oklch(0.24 0.04 162);
 }
+
+@keyframes community-flow { to { stroke-dashoffset: -2.4; } }
+.community-flow { animation: community-flow 1.4s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .community-flow { animation: none; } }

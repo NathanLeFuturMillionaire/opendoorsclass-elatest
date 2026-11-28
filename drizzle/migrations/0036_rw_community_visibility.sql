@@ -1,0 +1,2 @@
+ALTER TABLE public.rw_learners ADD COLUMN IF NOT EXISTS community_visible boolean NOT NULL DEFAULT true;
+COMMENT ON COLUMN public.rw_learners.community_visible IS 'Staff-controlled: learner may appear (first name + initial, level, photo, reading stats) in the public homepage community globe.';
